@@ -227,18 +227,18 @@ li
             <div class="title">Paper wallet</div>
             <div style="display: table; padding-left: 10px; margin-bottom: 10px;">
                 <div style="padding-bottom: 10px; padding-right: 10px;">
-                    <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">QR code error correction level:</div>
+                    <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Address type:</div>
+                    <form>
+                        <label style="white-space: nowrap;"><input id="bulk_radio_type_segwit" type="radio" name="address_type" onchange="setPaperAddressType('segwit')">Segwit</label>
+                        <label style="white-space: nowrap;"><input id="bulk_radio_type_bech32" type="radio" name="address_type" onchange="setPaperAddressType('bech32')" checked>Bech32</label>
+                        <label style="white-space: nowrap;"><input id="bulk_radio_type_legacy" type="radio" name="address_type" onchange="setPaperAddressType('legacy')">Legacy</label>
+                    </form>
+                    <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px; margin-top: 30px;">QR code error correction level:</div>
                     <form>
                         <label style="white-space: nowrap;"><input id="paper_radio_qr_errorcorrectionlevel_h" type="radio" name="qr_error_correction_level" onchange="setPaperQRErrorCorrectionLevel('H')" checked>High</label>
                         <label style="white-space: nowrap;"><input id="paper_radio_qr_errorcorrectionlevel_q" type="radio" name="qr_error_correction_level" onchange="setPaperQRErrorCorrectionLevel('Q')">Quartile</label>
                         <label style="white-space: nowrap;"><input id="paper_radio_qr_errorcorrectionlevel_m" type="radio" name="qr_error_correction_level" onchange="setPaperQRErrorCorrectionLevel('M')">Medium</label>
                         <label style="white-space: nowrap;"><input id="paper_radio_qr_errorcorrectionlevel_l" type="radio" name="qr_error_correction_level" onchange="setPaperQRErrorCorrectionLevel('L')">Low</label>
-                    </form>
-                    <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px; margin-top: 30px;">Address type:</div>
-                    <form>
-                        <label style="white-space: nowrap;"><input id="bulk_radio_type_segwit" type="radio" name="address_type" onchange="setPaperAddressType('segwit')">Segwit</label>
-                        <label style="white-space: nowrap;"><input id="bulk_radio_type_bech32" type="radio" name="address_type" onchange="setPaperAddressType('bech32')" checked>Bech32</label>
-                        <label style="white-space: nowrap;"><input id="bulk_radio_type_legacy" type="radio" name="address_type" onchange="setPaperAddressType('legacy')">Legacy</label>
                     </form>
                 </div>
                 <div style="display: table-cell; padding-left: 10px; border-left: 2px solid #bbbbbb;">
@@ -254,7 +254,7 @@ li
                             <option value="design2">Dorian Satoshi Nakamoto</option>
                             <option value="design3">walletgenerator.net</option>
                             <option value="design4">Bitcoin currency note</option>
-                            <option value="design5">Design by Mark & Barbara Messer</option>
+                            <option value="design5">Design by Mark &amp; Barbara Messer</option>
                             <option value="custom">Your custom image</option>
                         </select>
                     </div>
