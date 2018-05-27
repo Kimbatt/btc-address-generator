@@ -1,4 +1,5 @@
 # Bitcoin address generator
+Available at https://kimbatt.github.io/btc-address-generator/
 
 ## Features:
 *  Creation of bech32, segwit (p2sh-p2wpkh), and legacy (p2pkh) addresses
