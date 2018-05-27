@@ -7005,47 +7005,52 @@ li
                     
                     for (var i = 0; i < addressData.length; ++i)
                     {
-                        var backgroundImage = new Image();
+                        let backgroundImage = new Image();
                         backgroundImage.style = "position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;";
                         backgroundImage.src = paperWalletCustomImageData;
                         
-                        var currentData = addressData[i];
-                        var currentAddress = currentData[3];
-                        var currentPrivkey = currentData[0];
-                        
-                        var currentAddressQR = currentData[4];
-                        var addressSize = currentAddressQR.getModuleCount() + 4;
-                        var finalSize = Math.floor(addressTargetSize / addressSize) + 1;
-                        var addressQRImg = new Image();
-                        addressQRImg.src = currentAddressQR.createDataURL(finalSize, 0);
-                        addressQRImg.style = "position: absolute; top: " + addressQRPosY + "px; left: " + addressQRPosX + "px; width: " + addressTargetSize + "px; height: " + addressTargetSize + "px; transform: rotate(" +addressQRRot + "deg);";
-                        
-                        var currentPrivkeyQR = currentData[1];
-                        var privkeySize = currentPrivkeyQR.getModuleCount() + 4;
-                        finalSize = Math.floor(privkeyTargetSize / privkeySize) + 1;
-                        var privkeyQRImg = new Image();
-                        privkeyQRImg.src = currentPrivkeyQR.createDataURL(finalSize, 0);
-                        privkeyQRImg.style = "position: absolute; top: " + privkeyQRPosY + "px; left: " + privkeyQRPosX + "px; width: " + privkeyTargetSize + "px; height: " + privkeyTargetSize + "px; transform: rotate(" +privkeyQRRot + "deg);";
-                        
-                        var parentDiv = document.createElement("div");
-                        parentDiv.id = "parent_div";
-                        parentDiv.style = "position: relative; border: 2px solid black; width: " + backgroundImage.width * backgroundImageScale + "px; height: " + backgroundImage.height * backgroundImageScale + "px;";
-                        
-                        var addressDiv = document.createElement("div");
-                        addressDiv.innerHTML = splitTextLength(currentAddress, addressLineLength);
-                        addressDiv.style = "position: absolute; top: " + addressPosY + "px; left: " + addressPosX + "px; font-family: Consolas; font-weight: normal; font-size: " + addressFontSize + "px; transform: rotate(" + addressFontRot + "deg); transform-origin: 0% 0%;";
-                        
-                        var privkeyDiv = document.createElement("div");
-                        privkeyDiv.innerHTML = splitTextLength(currentPrivkey, privkeyLineLength);
-                        privkeyDiv.style = "position: absolute; top: " + privkeyPosY + "px; left: " + privkeyPosX + "px; font-family: Consolas; font-weight: normal; font-size: " + privkeyFontSize + "px; transform: rotate(" + privkeyFontRot + "deg); transform-origin: 0% 0%;";
-                        
-                        parentDiv.appendChild(backgroundImage);
-                        parentDiv.appendChild(addressDiv);
-                        parentDiv.appendChild(privkeyDiv);
-                        parentDiv.appendChild(addressQRImg);
-                        parentDiv.appendChild(privkeyQRImg);
-                        
-                        container.appendChild(parentDiv);
+                        let idx = i;
+                        backgroundImage.onload = () =>
+                        {
+                            var currentData = addressData[idx];
+                            var currentAddress = currentData[3];
+                            var currentPrivkey = currentData[0];
+                            
+                            var currentAddressQR = currentData[4];
+                            var addressSize = currentAddressQR.getModuleCount() + 4;
+                            var finalSize = Math.floor(addressTargetSize / addressSize) + 1;
+                            var addressQRImg = new Image();
+                            addressQRImg.src = currentAddressQR.createDataURL(finalSize, 0);
+                            addressQRImg.style = "position: absolute; top: " + addressQRPosY + "px; left: " + addressQRPosX + "px; width: " + addressTargetSize + "px; height: " + addressTargetSize + "px; transform: rotate(" +addressQRRot + "deg);";
+                            
+                            var currentPrivkeyQR = currentData[1];
+                            var privkeySize = currentPrivkeyQR.getModuleCount() + 4;
+                            finalSize = Math.floor(privkeyTargetSize / privkeySize) + 1;
+                            var privkeyQRImg = new Image();
+                            privkeyQRImg.src = currentPrivkeyQR.createDataURL(finalSize, 0);
+                            privkeyQRImg.style = "position: absolute; top: " + privkeyQRPosY + "px; left: " + privkeyQRPosX + "px; width: " + privkeyTargetSize + "px; height: " + privkeyTargetSize + "px; transform: rotate(" +privkeyQRRot + "deg);";
+                            
+                            var parentDiv = document.createElement("div");
+                            parentDiv.id = "parent_div";
+                            
+                            parentDiv.style = "position: relative; border: 2px solid black; width: " + backgroundImage.width * backgroundImageScale + "px; height: " + backgroundImage.height * backgroundImageScale + "px;";
+                            
+                            var addressDiv = document.createElement("div");
+                            addressDiv.innerHTML = splitTextLength(currentAddress, addressLineLength);
+                            addressDiv.style = "position: absolute; top: " + addressPosY + "px; left: " + addressPosX + "px; font-family: Consolas; font-weight: normal; font-size: " + addressFontSize + "px; transform: rotate(" + addressFontRot + "deg); transform-origin: 0% 0%;";
+                            
+                            var privkeyDiv = document.createElement("div");
+                            privkeyDiv.innerHTML = splitTextLength(currentPrivkey, privkeyLineLength);
+                            privkeyDiv.style = "position: absolute; top: " + privkeyPosY + "px; left: " + privkeyPosX + "px; font-family: Consolas; font-weight: normal; font-size: " + privkeyFontSize + "px; transform: rotate(" + privkeyFontRot + "deg); transform-origin: 0% 0%;";
+                            
+                            parentDiv.appendChild(backgroundImage);
+                            parentDiv.appendChild(addressDiv);
+                            parentDiv.appendChild(privkeyDiv);
+                            parentDiv.appendChild(addressQRImg);
+                            parentDiv.appendChild(privkeyQRImg);
+                            
+                            container.appendChild(parentDiv);
+                        }
                     }
                     
                     break;
