@@ -79,7 +79,7 @@ li
         visibility: hidden;
     }
     
-    #paperwallet_canvas_print_container
+    .print_container
     {
         visibility: visible;
         display: block;
@@ -6513,6 +6513,33 @@ li
                 warningText.id = "warning_text";
                 document.getElementById("button_container").appendChild(warningText);
             }
+            
+            layoutPrintAreas = 
+            {
+                "generate":
+                {
+                    "address_div": "print_visible",
+                },
+                "details":
+                {
+                    "view_address_div": "print_visible",
+                },
+                "bulk":
+                {
+                    "bulk_addresses": "print_visible",
+                },
+                "paper":
+                {
+                    "paperwallet_canvas_print_container": "print_container",
+                    "paperwallet_print_area": "print_visible",
+                },
+                "info":
+                {
+                    "main_info": "print_visible",
+                },
+            };
+            currentLayout = "generate";
+            updatePrintAreas(currentLayout);
         })();
         
         // returns addresses generated from the private key
@@ -7370,6 +7397,8 @@ li
             document.getElementById("main_bulk").style = "display: none";
             document.getElementById("main_paper").style = "display: none;";
             document.getElementById("main_info").style = "display: none;";
+            
+            updatePrintAreas(currentLayout);
         }
         
         // set layout: address details
@@ -7388,6 +7417,8 @@ li
             document.getElementById("main_bulk").style = "display: none";
             document.getElementById("main_paper").style = "display: none;";
             document.getElementById("main_info").style = "display: none;";
+            
+            updatePrintAreas(currentLayout);
         }
         
         // set layout: bulk generate
@@ -7406,6 +7437,8 @@ li
             document.getElementById("main_bulk").style = "display: table; width: 80%; padding-left: 10px;";
             document.getElementById("main_paper").style = "display: none;";
             document.getElementById("main_info").style = "display: none;";
+            
+            updatePrintAreas(currentLayout);
         }
         
         // set layout: paper wallet
@@ -7424,6 +7457,8 @@ li
             document.getElementById("main_bulk").style = "display: none;";
             document.getElementById("main_paper").style = "display: table; width: 80%; padding-left: 10px;";
             document.getElementById("main_info").style = "display: none;";
+            
+            updatePrintAreas(currentLayout);
         }
         
         // set layout: information
@@ -7442,6 +7477,28 @@ li
             document.getElementById("main_bulk").style = "display: none;";
             document.getElementById("main_paper").style = "display: none;";
             document.getElementById("main_info").style = "display: table; width: 80%; padding-left: 10px;";
+            
+            updatePrintAreas(currentLayout);
+        }
+        
+        var layoutPrintAreas;
+        
+        function updatePrintAreas(layout)
+        {
+            for (var key in layoutPrintAreas)
+            {
+                var values = layoutPrintAreas[key];
+                if (key == layout)
+                {
+                    for (var c in values)
+                        document.getElementById(c).className = values[c];
+                }
+                else
+                {
+                    for (var c in values)
+                        document.getElementById(c).className = "";
+                }
+            }
         }
     </script>
 </body>
