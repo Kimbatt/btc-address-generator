@@ -75,6 +75,23 @@ li
     width: 80px;
 }
 
+#bip38_info
+{
+    position: absolute;
+    display: none;
+    width: 50%;
+    top: 50px;
+    left: 50px;
+    right: 0px;
+    bottom: 0px;
+    background-color: rgba(0,0,0,0.95);
+    z-index: 2;
+    color: #ffffff;
+    font-size: 24px;
+    padding: 20px;
+    line-height: 40px;
+}
+
 @media print
 {
     body *
@@ -211,11 +228,15 @@ li
         <div id="main_details" style="display: none;">
             <div style="display: table-row;">
                 <div class="title">Address details</div>
-                <div style="margin-bottom: 10px;">Enter a private key to view its details</div>
-                <form style="margin-bottom: 10px;">
-                    <input id="view_address_privkey_textbox" type="text" style="font-size: 25px; width: 100%; padding: 8px;">
-                </form>
+                <div style="margin-bottom: 10px;">Enter a private key to view its details, or enter a bip38 encrypted private key to decrypt it</div>
+                <input id="view_address_privkey_textbox" type="text" style="font-size: 25px; width: 100%; padding: 8px; margin-bottom: 10px;"></input>
                 <button onclick="view_address_details()">View details</button>
+                <div id="bip38_decrypt_div" style="display: none; width: 100%;">
+                    <div style="margin-top: 40px; margin-bottom: 10px; font-size: 20px;">Enter the password for this wallet:</div>
+                    <input id="view_address_bip38_password_textbox" type="text" style="font-size: 25px; width: 400px; padding: 8px; margin-bottom: 10px;"></input>
+                    <br />
+                    <button onclick="bip38decrypt_button()" style="width: 420px;">Decrypt</button>
+                </div>
             </div>
             <div id="view_address_div" style="display: table;">
                 <div id="view_address_information" style="font-size: 25px; margin-top: 25px; margin-bottom: 20px;"></div>
@@ -244,6 +265,15 @@ li
                     <label style="white-space: nowrap;"><input id="bulk_radio_type_bech32" type="radio" name="address_type" onchange="setBulkAddressType('bech32')" checked>Segwit (bech32)</label>
                     <label style="white-space: nowrap;"><input id="bulk_radio_type_legacy" type="radio" name="address_type" onchange="setBulkAddressType('legacy')">Legacy</label>
                 </form>
+                <br />
+                <div style="display: table;">
+                    <label style="display: table-cell; font-size: 22px;"><input type="checkbox" onchange="bip38changed(event, 'bulk')" style="margin-bottom: 20px;" id="bip32enabled_bulk">Bip38 encrypt</input></label>
+                    <a href="javascript:void(0)" onclick="showBip38Info()" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</a>
+                </div>
+                <div id="bip38_password_box_div_bulk" style="display: none; padding-bottom: 15px; border-bottom: 2px solid #bbbbbb;">
+                    <div style="display: table-cell; padding-right: 10px; font-size: 25px;">Password:</div>
+                    <input id="bip38_password_box_bulk" type="text" style="display: table-cell; font-size: 20px; padding: 5px;"></input>
+                </div>
                 <br />
                 <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Number of addresses to generate (max 1000):</div>
                 <div style="display: table;">
@@ -367,13 +397,14 @@ li
             <ul>
                 <li>P2SH-P2WPKH addresses are referenced as "Segwit" addresses, Bech32-encoded P2WPKH addresses are referenced as "Segwit (bech32)" addresses, and regular P2PKH addresses are referenced as "Legacy" addresses.</li>
                 <li>QR codes of bech32 addresses contain the text capitalized, so the size of the QR codes can be reduced. For more information, see the <a href="https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#Specification">BIP 173 specification (Uppercase/lowercase part).</a></li>
-                <li>JavaScript libraries used on this site: <a href="https://github.com/indutny/bn.js">BigNumber</a>, <a href="http://code.google.com/p/crypto-js/">Crypto-JS</a>, <a href="https://github.com/kazuhikoarase/qrcode-generator">QR code generator</a></li>
+                <li>JavaScript libraries used on this site: <a href="https://github.com/indutny/bn.js">BigNumber</a>, <a href="http://code.google.com/p/crypto-js/">Crypto-JS</a>, <a href="https://github.com/kazuhikoarase/qrcode-generator">QR code generator</a>, <a href="https://github.com/dchest/scrypt-async-js">Scrypt</a></li>
                 <li>Source code is available at <a href="https://github.com/Kimbatt/btc-address-generator">Github</a> or by viewing this page's source (it is a single html file)</li>
                 <li>This site was made by /u/Kimbatt</li>
                 <li>If you liked this site, you can donate to: 3Ee3fDqTmERBpxAvV8GgdQUiTparohPaHX</li>
             </ul>
         </div>
     </div>
+    <div id="bip38_info">Bip38 encryption allows you to protect your paper wallet with a password, giving it more security.<br />If your paper wallet is stolen or the private key is exposed, your funds will still be safe.<br /><br /><div style="color: #ff0000;">However, if you forget the password, there is no way to recover the wallet, this means that your funds will be PERMANENTLY LOST.<br />Always make sure that you can decrypt the wallet before sending any bitcoins to it!</div><br /><div style="margin-bottom: 70px;">Note that other applications may only support decryption of legacy addresses. To decrypt segwit addresses, you most likely need to use this site. Alternatively, you could decrypt the private key elsewhere, then generate the segwit address corresponding to that private key.</div><button style="position: absolute; width: 300px; right: 0px; bottom: 0px; margin: 30px;" onclick="document.getElementById('bip38_info').style.display='none'">Got it</button></div>
 
     <script type="text/javascript" src="BN.js"></script>
     
@@ -382,6 +413,10 @@ li
     <script type="text/javascript" src="QR.js"></script>
     
     <script type="text/javascript" src="paperwalletdesigns.js"></script>
+    
+    <script type="text/javascript" src="scrypt.js"></script>
+    
+    <script type="text/javascript" src="aes256.js"></script>
     
     <script type="text/javascript">
         
@@ -562,6 +597,343 @@ li
             }
             
             return ret;
+        }
+        
+        function byteArrayToBigint(bytes)
+        {
+            var bigint = new BN(0);
+            for (var i = 0; i < bytes.length; ++i)
+            {
+                bigint = bigint.shln(8);
+                bigint = bigint.or(new BN(bytes[i]));
+            }
+            
+            return bigint;
+        }
+        
+        function byteArrayXOR(b1, b2)
+        {
+            var ret = [];
+            for (var i = 0; i < b1.length; ++i)
+                ret.push(b1[i] ^ b2[i]);
+            
+            return ret;
+        }
+        
+        function showBip38Info()
+        {
+            document.getElementById("bip38_info").style.display = "table";
+        }
+        
+        function bip38changed(event, layout)
+        {
+            var element;
+            switch (layout)
+            {
+                case "bulk":
+                    element = "bip38_password_box_div_bulk";
+                    break;
+                default:
+                    return;
+            }
+            
+            document.getElementById(element).style.display = event.target.checked ? "table" : "none";
+            
+        }
+        
+        var bip38generate_type = "bech32";
+        var bip38generate_maxcount = 0;
+        var bip38generate_currentcount = 0;
+        var bip38generate_data = undefined;
+        var bip38generate_intervalID = 0;
+        var bip38generate_callback = undefined;
+        var bip38generate_progress = undefined;
+        var bip38generate_keypair = undefined;
+        var bip38generate_passpoint = undefined;
+        var bip38generate_ownersalt = undefined;
+        function bip38generate(password, count, type, progress, callback)
+        {
+            if (!password || password == "")
+            {
+                callback("Password must not be empty");
+                return;
+            }
+            var ecc_Gx = new BN("079BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798", 16);
+            var ecc_Gy = new BN("0483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8", 16);
+
+            var ownersalt = window.crypto.getRandomValues(new Uint8Array(8));
+            var passfactor = scrypt(password, ownersalt, 14, 8, 8, 32, "binary");
+
+            var bigint = byteArrayToBigint(passfactor);
+
+            var keypair = EccMultiply(ecc_Gx, ecc_Gy, bigint);
+            var bytes_public_x = bigintToByteArray(keypair[0]);
+            while (bytes_public_x.length < 32)
+                bytes_public_x.push(0);
+            
+            var passpoint = [];
+            passpoint.push.apply(passpoint, bytes_public_x);
+            
+            if (keypair[1].isOdd())
+                passpoint.push(0x03);
+            else
+                passpoint.push(0x02);
+                
+            passpoint.reverse();
+            
+            /*
+            var magic_bytes = [0x2C, 0xE9, 0xB3, 0xE1, 0xFF, 0x39, 0xE2, 0x53];
+            var intermediate = [];
+            intermediate.push.apply(intermediate, magic_bytes);
+            intermediate.push.apply(intermediate, ownersalt);
+            intermediate.push.apply(intermediate, passpoint);
+            var checksum = SHA256(SHA256(intermediate, { asBytes: true }), { asBytes: true }).slice(0, 4);
+            intermediate.push.apply(intermediate, checksum);
+            */
+            
+            bip38generate_data = new Array(count);
+            bip38generate_type = type;
+            bip38generate_currentcount = 0;
+            bip38generate_maxcount = count;
+            bip38generate_callback = callback;
+            bip38generate_progress = progress;
+            bip38generate_keypair = keypair;
+            bip38generate_passpoint = passpoint;
+            bip38generate_ownersalt = ownersalt;
+            bip38generate_intervalID = window.setInterval(bip38generate_timeout, 0);
+        }
+        
+        function bip38generate_timeout()
+        {
+            if (bip38generate_currentcount < bip38generate_maxcount)
+            {
+                var seedb = window.crypto.getRandomValues(new Uint8Array(24));
+                var factorb = SHA256(SHA256(seedb, { asBytes: true }), { asBytes: true });
+                
+                var ecpoint = EccMultiply(bip38generate_keypair[0], bip38generate_keypair[1], byteArrayToBigint(factorb));
+                var generatedaddress = makeAddress(ecpoint);
+                var address_with_type;
+                switch (bip38generate_type)
+                {
+                    case "segwit":
+                        address_with_type = makeSegwitAddress(ecpoint);
+                        break;
+                    case "bech32":
+                        address_with_type = makeBech32Address(ecpoint);
+                        break;
+                    case "legacy":
+                        address_with_type = generatedaddress;
+                        break;
+                }
+                var addresshash = SHA256(SHA256(generatedaddress, { asBytes: true }), { asBytes: true }).slice(0, 4);
+                
+                var salt = [];
+                salt.push.apply(salt, addresshash);
+                salt.push.apply(salt, bip38generate_ownersalt);
+                
+                var encrypted = scrypt(bip38generate_passpoint, salt, 10, 1, 1, 64, "binary");
+                var derivedhalf1 = encrypted.slice(0, 32);
+                var derivedhalf2 = encrypted.slice(32, 64);
+                
+                var AES_opts = { mode: new Crypto.mode.ECB(Crypto.pad.NoPadding), asBytes: true };
+                var encryptedpart1 = Crypto.AES.encrypt(byteArrayXOR(seedb.slice(0, 16), derivedhalf1.slice(0, 16)), derivedhalf2, AES_opts);
+                
+                var block2 = [];
+                block2.push.apply(block2, encryptedpart1.slice(8, 16));
+                block2.push.apply(block2, seedb.slice(16, 24));
+                var encryptedpart2 = Crypto.AES.encrypt(byteArrayXOR(block2, derivedhalf1.slice(16, 32)), derivedhalf2, AES_opts);
+                
+                var finalprivkey = [0x01, 0x43, 0x20];
+                finalprivkey.push.apply(finalprivkey, addresshash);
+                finalprivkey.push.apply(finalprivkey, bip38generate_ownersalt);
+                finalprivkey.push.apply(finalprivkey, encryptedpart1.slice(0, 8));
+                finalprivkey.push.apply(finalprivkey, encryptedpart2);
+                finalprivkey.push.apply(finalprivkey, SHA256(SHA256(finalprivkey, { asBytes: true }), { asBytes: true }).slice(0, 4));
+                
+                bip38generate_data[bip38generate_currentcount] = "" + (bip38generate_currentcount + 1) + ", \"" + address_with_type + "\", \"" + base58encode(finalprivkey) + "\"";
+                ++bip38generate_currentcount;
+                
+                bip38generate_progress(bip38generate_currentcount, bip38generate_maxcount);
+            }
+            else
+            {
+                bip38generate_currentcount = 0;
+                bip38generate_maxcount = 0;
+                window.clearInterval(bip38generate_intervalID);
+                bip38generate_intervalID = 0;
+                bip38generate_keypair = undefined;
+                bip38generate_passpoint = undefined;
+                bip38generate_ownersalt = undefined;
+                bip38generate_callback(bip38generate_data);
+                bip38generate_callback = undefined;
+                bip38generate_progress = undefined;
+                bip38generate_data = undefined;
+            }
+        }
+        
+        function bip38decrypt_button()
+        {
+            document.getElementById("view_address_information").innerHTML = "Decrypting...";
+            window.setTimeout(() =>
+            {
+                var privkey = document.getElementById("view_address_privkey_textbox").value;
+                var password = document.getElementById("view_address_bip38_password_textbox").value;
+                var result = bip38decrypt(privkey, password);
+                
+                if (typeof result == "string")
+                {
+                    document.getElementById("view_address_information").innerHTML = "Cannot decrypt wallet (" + result + ")";
+                    document.getElementById("view_address_segwitaddress").innerHTML = "";
+                    document.getElementById("view_address_bech32address").innerHTML = "";
+                    document.getElementById("view_address_legacyaddress").innerHTML = "";
+                    document.getElementById("view_address_segwitaddress_qr").innerHTML = "";
+                    document.getElementById("view_address_bech32address_qr").innerHTML = "";
+                    document.getElementById("view_address_legacyaddress_qr").innerHTML = "";
+                    document.getElementById("view_address_container").style = "display: none;";
+                    return;
+                }
+                
+                var result2 = view_address_details_result(result[1]);
+                if (typeof result2 == "string")
+                {
+                    document.getElementById("view_address_information").innerHTML = "Error decoding private key (" + result + ")";
+                    document.getElementById("view_address_segwitaddress").innerHTML = "";
+                    document.getElementById("view_address_bech32address").innerHTML = "";
+                    document.getElementById("view_address_legacyaddress").innerHTML = "";
+                    document.getElementById("view_address_segwitaddress_qr").innerHTML = "";
+                    document.getElementById("view_address_bech32address_qr").innerHTML = "";
+                    document.getElementById("view_address_legacyaddress_qr").innerHTML = "";
+                    document.getElementById("view_address_container").style = "display: none;";
+                    return;
+                }
+                
+                document.getElementById("view_address_information").innerHTML = "Details for encrypted private key: <strong>" + privkey + "</strong><br /><br />Decrypted private key: <strong>" + result[1] + "</strong>";
+                
+                
+                document.getElementById("view_address_segwitaddress").innerHTML = "Segwit address: " + result2[0];
+                document.getElementById("view_address_bech32address").innerHTML = "Segwit (bech32) address: " + result2[1];
+                document.getElementById("view_address_legacyaddress").innerHTML = "Legacy address: " + result2[2];
+                
+                var qr = qrcode(0, qrErrorCorrectionLevel);
+                qr.addData(result2[0]);
+                qr.make();
+                document.getElementById("view_address_segwitaddress_qr").innerHTML = qr.createImgTag(4, 8);
+                
+                qr = qrcode(0, qrErrorCorrectionLevel);
+                qr.addData(result2[1].toUpperCase(), "Alphanumeric");
+                qr.make();
+                document.getElementById("view_address_bech32address_qr").innerHTML = qr.createImgTag(4, 8);
+                
+                qr = qrcode(0, qrErrorCorrectionLevel);
+                qr.addData(result2[2]);
+                qr.make();
+                document.getElementById("view_address_legacyaddress_qr").innerHTML = qr.createImgTag(4, 8);
+                
+                document.getElementById("view_address_container").style = "display: table; border: 2px solid #bbbbbb; border-radius: 3px;";
+            }, 0);
+        }
+        
+        function bip38decrypt(privkey, password)
+        {
+            if (!password || password == "")
+                return "password must not be empty";
+            
+            var newstring = privkey.split('').reverse().join('');
+            for (var i = 0; i < privkey.length; ++i)
+            {
+                if (privkey[i] == base58Characters[0])
+                    newstring = newstring.substr(0, newstring.length - 1);
+                else
+                    break;
+            }
+
+            var bigint = new BN(0);
+            for (var i = newstring.length - 1; i >= 0; --i)
+                bigint = bigint.mul(bn_58).add(new BN(base58CharsIndices[newstring[i]]));
+            
+            var bytes = bigintToByteArray(bigint);
+            
+            if (bytes.length != 43)
+                return "invalid length";
+            
+            bytes.reverse();
+            
+            var checksum = bytes.slice(bytes.length - 4, bytes.length);
+            bytes.splice(bytes.length - 4, 4);
+            var sha_result = SHA256(SHA256(bytes, { asBytes: true }), { asBytes: true });
+            
+            for (var i = 0; i < 4; ++i)
+            {
+                if (sha_result[i] != checksum[i])
+                    return "invalid checksum";
+            }
+            
+            bytes.shift();
+            
+            var AES_opts = { mode: new Crypto.mode.ECB(Crypto.pad.NoPadding), asBytes: true };
+            
+            if (bytes[0] == 0x43)
+            {
+                if ((bytes[1] & 0x20) == 0)
+                    return "only compressed private keys are supported";
+                
+                if (typeof password == "number")
+                    return 1; // dummy return value, only for checking if the private key is in the correct format
+                
+                var ownersalt = bytes.slice(6, 14);
+                var scrypt_result = scrypt(password, ownersalt, 14, 8, 8, 32, "binary");
+                var bigint = byteArrayToBigint(scrypt_result);
+                var keypair = getECCKeypair(bigint);
+                
+                var bytes_public_x = bigintToByteArray(keypair[0]);
+                while (bytes_public_x.length < 32)
+                    bytes_public_x.push(0);
+                
+                var passpoint = [];
+                passpoint.push.apply(passpoint, bytes_public_x);
+                
+                if (keypair[1].isOdd())
+                    passpoint.push(0x03);
+                else
+                    passpoint.push(0x02);
+                    
+                passpoint.reverse();
+                var encryptedpart2 = bytes.slice(22, 38);
+                var addresshash = bytes.slice(2, 14);
+                var scrypt_result_2 = scrypt(passpoint, addresshash, 10, 1, 1, 64, "binary");
+                
+                var derivedhalf1 = scrypt_result_2.slice(0, 32);
+                var derivedhalf2 = scrypt_result_2.slice(32, 64);
+                
+                var decrypted2 = Crypto.AES.decrypt(encryptedpart2, derivedhalf2, AES_opts);
+                
+                var encryptedpart1 = bytes.slice(14, 22);
+                encryptedpart1.push.apply(encryptedpart1, byteArrayXOR(decrypted2.slice(0, 8), scrypt_result_2.slice(16, 24)));
+                var decrypted1 = Crypto.AES.decrypt(encryptedpart1, derivedhalf2, AES_opts);
+                var seedb = byteArrayXOR(decrypted1.slice(0, 16), derivedhalf1.slice(0, 16));
+                seedb.push.apply(seedb, byteArrayXOR(decrypted2.slice(8, 16), derivedhalf1.slice(24, 32)));
+                var factorb = SHA256(SHA256(seedb, { asBytes: true }), { asBytes: true });
+                
+                var finalprivkeybigint = byteArrayToBigint(scrypt_result).mul(byteArrayToBigint(factorb)).mod(ecc_n);
+                
+                var finalkeypair = getECCKeypair(finalprivkeybigint);
+                var finaladdress = makeAddress(finalkeypair);
+                var finaladdresshash = SHA256(SHA256(finaladdress, { asBytes: true }), { asBytes: true });
+                
+                for (var i = 0; i < 4; ++i)
+                {
+                    if (addresshash[i] != finaladdresshash[i])
+                        return "invalid password";
+                }
+                
+                var finalprivkey = makePrivateKey(finalprivkeybigint);
+                
+                return [finaladdress, finalprivkey];
+            }
+            else if (bytes[0] == 0x42)
+                return "only EC multiplied key decryption is supported";
+            else
+                return "invalid byte at EC multiply flag";
         }
         
         var base58Characters = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
@@ -962,6 +1334,23 @@ li
         // returns addresses generated from the private key
         function view_address_details_result(privkey)
         {
+            if (privkey.length == 58 && privkey[0] == "6" && privkey[1] == "P")
+            {
+                // maybe a bip38 encrypted key
+                var bip38_result = bip38decrypt(privkey, 1);
+                if (bip38_result === 1)
+                {
+                    document.getElementById("bip38_decrypt_div").style.display = "block";
+                    return 1;
+                }
+                else if (typeof bip38_result == "string")
+                    return bip38_result;
+                else
+                    document.getElementById("bip38_decrypt_div").style.display = "none";
+            }
+            else
+                document.getElementById("bip38_decrypt_div").style.display = "none";
+            
             var newstring = privkey.split('').reverse().join('');
             for (var i = 0; i < privkey.length; ++i)
             {
@@ -1036,6 +1425,19 @@ li
                 document.getElementById("view_address_container").style = "display: none;";
                 return;
             }
+            else if (typeof result == "number" && result == 1)
+            {
+                //bip38 encrypted
+                document.getElementById("view_address_information").innerHTML = "";
+                document.getElementById("view_address_segwitaddress").innerHTML = "";
+                document.getElementById("view_address_bech32address").innerHTML = "";
+                document.getElementById("view_address_legacyaddress").innerHTML = "";
+                document.getElementById("view_address_segwitaddress_qr").innerHTML = "";
+                document.getElementById("view_address_bech32address_qr").innerHTML = "";
+                document.getElementById("view_address_legacyaddress_qr").innerHTML = "";
+                document.getElementById("view_address_container").style = "display: none;";
+                return;
+            }
             
             document.getElementById("view_address_information").innerHTML = "Details for private key: <strong>" + privkey + "</strong>";
             document.getElementById("view_address_segwitaddress").innerHTML = "Segwit address: " + result[0];
@@ -1099,6 +1501,28 @@ li
             document.getElementById("bulk_radio_type_bech32").disabled = true;
             document.getElementById("bulk_radio_type_legacy").disabled = true;
             
+            if (document.getElementById("bip32enabled_bulk").checked)
+            {
+                bulkTextarea.innerHTML = "Generating initial values";
+                window.setTimeout(() =>
+                    bip38generate(document.getElementById("bip38_password_box_bulk").value, num, bulkAddressType,
+                    function(counter, maxcount)
+                    {
+                        bulkTextarea.innerHTML = "Generating: " + counter + "/" + maxcount;
+                    },
+                    function(data)
+                    {
+                        if (typeof data == "string")
+                            bulkTextarea.innerHTML = data;
+                        else
+                            bulkTextarea.innerHTML = data.join("<br />");
+                            
+                        document.getElementById("bulk_radio_type_segwit").disabled = false;
+                        document.getElementById("bulk_radio_type_bech32").disabled = false;
+                        document.getElementById("bulk_radio_type_legacy").disabled = false;
+                    }), 0);
+                return;
+            }
             bulkCount = num;
             bulkCurrentCount = 0;
             bulkArray = new Array(bulkCount);
