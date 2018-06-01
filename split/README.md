@@ -1,2 +1,2 @@
 # Split version
-This folder contains the index.html file spit into parts, so it is easier to read
+This folder contains the index.html file split into parts, so it is easier to read
