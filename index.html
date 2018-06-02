@@ -79,13 +79,26 @@ li
 {
     position: absolute;
     display: none;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background-color: rgba(0,0,0,0);
+    z-index: 2;
+}
+
+#bip38_info_content
+{
+    position: absolute;
+    display: table;
     width: 50%;
     top: 50px;
     left: 50px;
     right: 0px;
     bottom: 0px;
     background-color: rgba(0,0,0,0.95);
-    z-index: 2;
     color: #ffffff;
     font-size: 24px;
     padding: 20px;
@@ -267,7 +280,7 @@ li
                 </form>
                 <br />
                 <div style="display: table;">
-                    <label style="display: table-cell; font-size: 22px;"><input type="checkbox" onchange="bip38changed(event, 'bulk')" style="margin-bottom: 20px;" id="bip32enabled_bulk">Bip38 encrypt</input></label>
+                    <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="bip38changed(event, 'bulk')" style="margin-bottom: 20px;" id="bip38enabled_bulk">Bip38 encrypt</input></label>
                     <a href="javascript:void(0)" onclick="showBip38Info()" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</a>
                 </div>
                 <div id="bip38_password_box_div_bulk" style="display: none; padding-bottom: 15px; border-bottom: 2px solid #bbbbbb;">
@@ -300,6 +313,15 @@ li
                         <label style="white-space: nowrap;"><input id="paper_radio_qr_errorcorrectionlevel_m" type="radio" name="qr_error_correction_level" onchange="setPaperQRErrorCorrectionLevel('M')">Medium</label>
                         <label style="white-space: nowrap;"><input id="paper_radio_qr_errorcorrectionlevel_l" type="radio" name="qr_error_correction_level" onchange="setPaperQRErrorCorrectionLevel('L')">Low</label>
                     </form>
+                    <br />
+                    <div style="display: table; padding-top: 10px;">
+                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="bip38changed(event, 'paper')" style="margin-bottom: 20px;" id="bip38enabled_paper">Bip38 encrypt</input></label>
+                        <a href="javascript:void(0)" onclick="showBip38Info()" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</a>
+                    </div>
+                    <div id="bip38_password_box_div_paper" style="display: none; padding-bottom: 15px;">
+                    <div style="display: table-cell; padding-right: 10px; font-size: 25px;">Password:</div>
+                    <input id="bip38_password_box_paper" type="text" style="display: table-cell; font-size: 20px; padding: 5px;"></input>
+                </div>
                     <button style="margin-top: 20px;" onclick="paperWallet();">Generate paper wallets</button>
                     <br />
                     <button onclick="paperWalletWithRandomness();">Generate paper wallets with randomness</button>
@@ -404,7 +426,9 @@ li
             </ul>
         </div>
     </div>
-    <div id="bip38_info">Bip38 encryption allows you to protect your paper wallet with a password, giving it more security.<br />If your paper wallet is stolen or the private key is exposed, your funds will still be safe.<br /><br /><div style="color: #ff0000;">However, if you forget the password, there is no way to recover the wallet, this means that your funds will be PERMANENTLY LOST.<br />Always make sure that you can decrypt the wallet before sending any bitcoins to it!</div><br /><div style="margin-bottom: 70px;">Note that other applications may only support decryption of legacy addresses. To decrypt segwit addresses, you most likely need to use this site. Alternatively, you could decrypt the private key elsewhere, then generate the segwit address corresponding to that private key.</div><button style="position: absolute; width: 300px; right: 0px; bottom: 0px; margin: 30px;" onclick="document.getElementById('bip38_info').style.display='none'">Got it</button></div>
+    <div id="bip38_info">
+        <div id="bip38_info_content">Bip38 encryption allows you to protect your paper wallet with a password, giving it more security.<br />If your paper wallet is stolen or the private key is exposed, your funds will still be safe, because it cannot be unlocked without the password.<br /><br /><div style="color: #ff0000;">However, if you forget the password, there is absolutely no way to recover the wallet, this means that your funds will be PERMANENTLY LOST.<br />Always make sure that you can decrypt the wallet before sending any bitcoins to it!</div><br /><div style="margin-bottom: 70px;">Note that other applications may only support decryption of legacy addresses. To decrypt segwit addresses, you most likely need to use this site. Alternatively, you could decrypt the private key elsewhere, then generate the segwit address corresponding to that private key.</div><button style="position: absolute; width: 300px; right: 0px; bottom: 0px; margin: 30px;" onclick="document.getElementById('bip38_info').style.display='none'">Got it</button></div>
+    </div>
 
     <script type="text/javascript">
         // BigNumber
@@ -6959,6 +6983,15 @@ li
                 }
             });
             
+            document.getElementById("view_address_bip38_password_textbox").addEventListener("keydown", function(event)
+            {
+                if (event.keyCode === 13)
+                {
+                    event.preventDefault();
+                    bip38decrypt_button();
+                }
+            });
+            
             document.getElementById("bulk_count").addEventListener("keydown", function(event)
             {
                 if (event.keyCode === 13)
@@ -7155,6 +7188,19 @@ li
                 case "bulk":
                     element = "bip38_password_box_div_bulk";
                     break;
+                case "paper":
+                    element = "bip38_password_box_div_paper";
+                    var customPaperWalletDummyPrivkey = document.getElementById("paperwallet_custom_preview_privkey");
+                    if (customPaperWalletDummyPrivkey)
+                    {
+                        var lineLength = Number(document.getElementById("paperwallet_custom_privkey_length").value);
+                        if (isNaN(lineLength) || lineLength < 0)
+                            lineLength = 0;
+                        
+                        customPaperWalletDummyPrivkey.innerHTML = splitTextLength((event.target.checked) ? "6Pnabcdefghijkmnopqrstuvwxyz1234567ABCDEFGHJKLMNPQRSTUVXYZ" : "K1abcdefghijkmnopqrstuvwxyzabcdefghijkmnopqrstuvwxyz", lineLength);
+                    }
+                    
+                    break;
                 default:
                     return;
             }
@@ -7173,7 +7219,8 @@ li
         var bip38generate_keypair = undefined;
         var bip38generate_passpoint = undefined;
         var bip38generate_ownersalt = undefined;
-        function bip38generate(password, count, type, progress, callback)
+        var bip38generate_randomness = undefined;
+        function bip38generate(password, count, type, progress, callback, randomness)
         {
             if (!password || password == "")
             {
@@ -7183,7 +7230,18 @@ li
             var ecc_Gx = new BN("079BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798", 16);
             var ecc_Gy = new BN("0483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8", 16);
 
-            var ownersalt = window.crypto.getRandomValues(new Uint8Array(8));
+            var ownersalt;
+            if (randomness)
+            {
+                var temp = [];
+                temp.push.apply(temp, randomness);
+                temp.push.apply(temp, window.crypto.getRandomValues(new Uint8Array(32)));
+                ownersalt = SHA256(temp, { asBytes: true }).slice(0, 8);
+                bip38generate_randomness = randomness;
+            }
+            else
+                ownersalt = window.crypto.getRandomValues(new Uint8Array(8));
+            
             var passfactor = scrypt(password, ownersalt, 14, 8, 8, 32, "binary");
 
             var bigint = byteArrayToBigint(passfactor);
@@ -7229,7 +7287,20 @@ li
         {
             if (bip38generate_currentcount < bip38generate_maxcount)
             {
-                var seedb = window.crypto.getRandomValues(new Uint8Array(24));
+                var seedb;
+                if (bip38generate_randomness)
+                {
+                    var temp = [];
+                    temp.push.apply(temp, bip38generate_randomness);
+                    temp.push.apply(temp, window.crypto.getRandomValues(new Uint8Array(32)));
+                    seedb = SHA256(temp, { asBytes: true }).slice(0, 24);
+                    
+                    bip38generate_randomness = SHA256(temp, { asBytes: true });
+                    bip38generate_randomness.push.apply(bip38generate_randomness, temp.slice(0, 32));
+                }
+                else
+                    seedb = window.crypto.getRandomValues(new Uint8Array(24));
+                
                 var factorb = SHA256(SHA256(seedb, { asBytes: true }), { asBytes: true });
                 
                 var ecpoint = EccMultiply(bip38generate_keypair[0], bip38generate_keypair[1], byteArrayToBigint(factorb));
@@ -7272,7 +7343,8 @@ li
                 finalprivkey.push.apply(finalprivkey, encryptedpart2);
                 finalprivkey.push.apply(finalprivkey, SHA256(SHA256(finalprivkey, { asBytes: true }), { asBytes: true }).slice(0, 4));
                 
-                bip38generate_data[bip38generate_currentcount] = "" + (bip38generate_currentcount + 1) + ", \"" + address_with_type + "\", \"" + base58encode(finalprivkey) + "\"";
+                bip38generate_data[bip38generate_currentcount] = [address_with_type, base58encode(finalprivkey)];
+                /*"" + (bip38generate_currentcount + 1) + ", \"" + address_with_type + "\", \"" + base58encode(finalprivkey) + "\"";*/
                 ++bip38generate_currentcount;
                 
                 bip38generate_progress(bip38generate_currentcount, bip38generate_maxcount);
@@ -7290,6 +7362,7 @@ li
                 bip38generate_callback = undefined;
                 bip38generate_progress = undefined;
                 bip38generate_data = undefined;
+                bip38generate_randomness = undefined;
             }
         }
         
@@ -8023,9 +8096,10 @@ li
             document.getElementById("bulk_radio_type_bech32").disabled = true;
             document.getElementById("bulk_radio_type_legacy").disabled = true;
             
-            if (document.getElementById("bip32enabled_bulk").checked)
+            if (document.getElementById("bip38enabled_bulk").checked)
             {
                 bulkTextarea.innerHTML = "Generating initial values";
+                bulkArray = [];
                 window.setTimeout(() =>
                     bip38generate(document.getElementById("bip38_password_box_bulk").value, num, bulkAddressType,
                     function(counter, maxcount)
@@ -8037,15 +8111,21 @@ li
                         if (typeof data == "string")
                             bulkTextarea.innerHTML = data;
                         else
-                            bulkTextarea.innerHTML = data.join("<br />");
+                        {
+                            var temp = new Array(data.length);
+                            for (var i = 0; i < data.length; ++i)
+                                temp[i] = "" + (i + 1) + ", \"" + data[i][0] + "\", \"" + data[i][1] + "\"";
+                            
+                            bulkTextarea.innerHTML = temp.join("<br />");
+                        }
                             
                         document.getElementById("bulk_radio_type_segwit").disabled = false;
                         document.getElementById("bulk_radio_type_bech32").disabled = false;
                         document.getElementById("bulk_radio_type_legacy").disabled = false;
+                        bulkArray = undefined;
                     }), 0);
                 return;
             }
-            
             bulkCount = num;
             bulkCurrentCount = 0;
             bulkArray = new Array(bulkCount);
@@ -8128,6 +8208,54 @@ li
             paperQRErrorCorrectionLevel = level;
         }
         
+        function paperWalletBip38Start()
+        {
+            bip38generate(document.getElementById("bip38_password_box_paper").value, paperWalletCount, paperWalletAddressType,
+            function(counter, maxcount)
+            {
+                paperWalletTextArea.innerHTML = "Generating: " + counter + "/" + maxcount;
+            },
+            function(data)
+            {
+                if (typeof data == "string")
+                    paperWalletTextArea.innerHTML = data;
+                else
+                {
+                    paperWalletTextArea.innerHTML = "";
+
+                    var newData = new Array(data.length);
+                    
+                    for (var i = 0; i < data.length; ++i)
+                    {
+                        var currentAddress = data[i][0];
+                        var currentPrivkey = data[i][1];
+                        
+                        var addressQR = qrcode(0, paperWalletQRErrorCorrectionLevel);
+                        if (paperWalletAddressType == "bech32")
+                            addressQR.addData(currentAddress.toUpperCase(), "Alphanumeric");
+                        else
+                            addressQR.addData(currentAddress);
+                            
+                        addressQR.make();
+                        
+                        var privkeyQR = qrcode(0, paperWalletQRErrorCorrectionLevel);
+                        privkeyQR.addData(currentPrivkey);
+                        privkeyQR.make();
+                        
+                        newData[i] = [currentPrivkey, privkeyQR, undefined, currentAddress, addressQR];
+                    }
+                    
+                    paperWalletCreate(newData, true);
+                }
+                
+                paperWalletCount = 0;
+                paperwalletCurrentCount = 0;
+                randomnessArrayPaper = undefined;
+                paperWalletArray = undefined;
+                
+            }, randomnessArrayPaper);
+        }
+        
         var paperWalletStyle = "design0";
         var paperWalletArray = undefined;
         var paperWalletCount = 0;
@@ -8161,10 +8289,19 @@ li
             
             paperWalletCount = num;
             paperwalletCurrentCount = 0;
-            paperWalletArray = new Array(paperWalletCount);
             
             paperWalletAddressType = paperAddressType;
             paperWalletQRErrorCorrectionLevel = paperQRErrorCorrectionLevel;
+            
+            if (document.getElementById("bip38enabled_paper").checked)
+            {
+                paperWalletTextArea.innerHTML = "Generating initial values";
+                paperWalletArray = [];
+                window.setTimeout(paperWalletBip38Start, 0);
+                return;
+            }
+            
+            paperWalletArray = new Array(paperWalletCount);
             paperWalletIntervalID = window.setInterval(paperwallet_generate_timeout, 0);
         }
         
@@ -8212,20 +8349,29 @@ li
                 
                     var bytes = [];
                     bytes.push.apply(bytes, crypto.getRandomValues(new Uint8Array(32)));
-                    bytes.push.apply(bytes, randomnessArray);
+                    bytes.push.apply(bytes, randomnessArrayPaper);
                     div.onmousemove = null;
                     randomnessIndexPaper = 0;
-                    randomnessArrayPaper = undefined;
                     
                     paperWalletCount = num2;
                     paperwalletCurrentCount = 0;
-                    paperWalletArray = new Array(paperWalletCount);
                     
                     paperWalletAddressType = paperAddressType;
                     paperWalletQRErrorCorrectionLevel = paperQRErrorCorrectionLevel;
+                    document.getElementById("randomness_container_paper").style = "display: none;";
+                    
+                    if (document.getElementById("bip38enabled_paper").checked)
+                    {
+                        paperWalletTextArea.innerHTML = "Generating initial values";
+                        paperWalletArray = [];
+                        window.setTimeout(paperWalletBip38Start, 0);
+                        return;
+                    }
+                    
+                    randomnessArrayPaper = bytes;
+                    paperWalletArray = new Array(paperWalletCount);
                     paperWalletIntervalID = window.setInterval(paperwallet_generate_timeout, 0);
                     
-                    document.getElementById("randomness_container_paper").style = "display: none;";
                     return;
                 }
                 
@@ -8255,7 +8401,7 @@ li
                 if (randomnessArrayPaper)
                 {
                     var temp = [];
-                    temp.push.apply(temp, randomnessArrayPaper);
+                    temp.push.apply(temp, SHA256(randomnessArrayPaper, { asBytes: true }));
                     temp.push.apply(temp, SHA256(crypto.getRandomValues(new Uint8Array(32)), { asBytes: true }));
                     data = generate_address_result(SHA256(temp, { asBytes: true }), paperWalletAddressType, true, paperWalletQRErrorCorrectionLevel);
                     randomnessArrayPaper = temp;
@@ -8275,7 +8421,7 @@ li
                 window.clearInterval(paperWalletIntervalID);
                 paperWalletCount = 0;
                 paperwalletCurrentCount = 0;
-                paperWalletCreate(paperWalletArray);
+                paperWalletCreate(paperWalletArray, false);
                 paperWalletArray = undefined;
                 randomnessArrayPaper = undefined;
             }
@@ -8320,8 +8466,9 @@ li
         
         // create paper wallets with the given addresses and private keys
         // the position of address, private key, and qr codes are set for each layout
-        function paperWalletCreate(addressData)
+        function paperWalletCreate(addressData, bip38)
         {
+            console.log(addressData);
             var container = document.getElementById("paperwallet_print_area");
             container.innerHTML = "";
             
@@ -8371,8 +8518,8 @@ li
                         addressText.style = "position: absolute; top: 15px; left: 120px; font-family: Verdana; font-weight: bold; font-size: 25px;";
                         
                         var privkeyText = document.createElement("div");
-                        privkeyText.innerHTML = "Private key:";
-                        privkeyText.style = "position: absolute; bottom: 40px; right: 514px; font-family: Verdana; font-weight: bold; font-size: 25px;";
+                        privkeyText.innerHTML = bip38 ? "Encrypted private key:" : "Private key:";
+                        privkeyText.style = "position: absolute; bottom: 40px; right: " + (bip38 ? "430" : "514") + "px; font-family: Verdana; font-weight: bold; font-size: 25px;";
                         
                         parentDiv.appendChild(addressDiv);
                         parentDiv.appendChild(addressText);
@@ -8498,7 +8645,7 @@ li
                         
                         var privkeyDiv = document.createElement("div");
                         privkeyDiv.innerHTML = currentPrivkey;
-                        privkeyDiv.style = "position: absolute; top: 225px; left: 600px; font-family: roboto-mono; font-weight: bold; font-size: 11px;";
+                        privkeyDiv.style = "position: absolute; top: 225px; left: " + (bip38 ? "582" : "600") + "px; font-family: roboto-mono; font-weight: bold; font-size: 11px;";
                         
                         var addressDiv2 = document.createElement("div");
                         addressDiv2.innerHTML = currentAddress;
@@ -8506,7 +8653,7 @@ li
                         
                         var privkeyDiv2 = document.createElement("div");
                         privkeyDiv2.innerHTML = currentPrivkey;
-                        privkeyDiv2.style = "position: absolute; top: 65px; left: 600px; font-family: roboto-mono; font-weight: bold; font-size: 11px; transform: rotate(180deg);";
+                        privkeyDiv2.style = "position: absolute; top: 65px; left: " + (bip38 ? "582" : "600") + "px; font-family: roboto-mono; font-weight: bold; font-size: 11px; transform: rotate(180deg);";
                         
                         var backgroundGraphic = new Image();
                         backgroundGraphic.src = paperWalletDesign1;
@@ -8558,7 +8705,7 @@ li
                         
                         var privkeyDiv = document.createElement("div");
                         privkeyDiv.innerHTML = splitText(currentPrivkey, 2);
-                        privkeyDiv.style = "position: absolute; top: 25px; left: 575px; font-family: roboto-mono; font-weight: bold; font-size: 14.5px;";
+                        privkeyDiv.style = "position: absolute; top: 25px; left: 575px; font-family: roboto-mono; font-weight: bold; font-size: " + (bip38 ? "13" : "14.5") + "px;";
                         
                         var backgroundGraphic = new Image();
                         backgroundGraphic.src = paperWalletDesign2;
@@ -8607,8 +8754,8 @@ li
                         addressDiv.style = "position: absolute; top: 391px; left: 905px; font-family: roboto-mono; font-weight: normal; font-size: 13px; transform: rotate(270deg); transform-origin: 0% 0%;";
                         
                         var privkeyDiv = document.createElement("div");
-                        privkeyDiv.innerHTML = splitTextLength(currentPrivkey, 18);
-                        privkeyDiv.style = "position: absolute; top: 30px; left: 434px; font-family: roboto-mono; font-weight: normal; font-size: 13px; transform: rotate(90deg); transform-origin: 0% 0%;";
+                        privkeyDiv.innerHTML = splitTextLength(currentPrivkey, bip38 ? 20 : 18);
+                        privkeyDiv.style = "position: absolute; top: 30px; left: 434px; font-family: roboto-mono; font-weight: normal; font-size: " + (bip38 ? "12" : "13") + "px; transform: rotate(90deg); transform-origin: 0% 0%;";
                         
                         var backgroundGraphic = new Image();
                         backgroundGraphic.src = paperWalletDesign3;
@@ -8658,7 +8805,7 @@ li
                         
                         var privkeyDiv = document.createElement("div");
                         privkeyDiv.innerHTML = splitText(currentPrivkey, 2);
-                        privkeyDiv.style = "position: absolute; top: 25px; left: 575px; font-family: roboto-mono; font-weight: bold; font-size: 14.5px;";
+                        privkeyDiv.style = "position: absolute; top: " + (bip38 ? "26" : "25") + "px; left: 575px; font-family: roboto-mono; font-weight: bold; font-size: " + (bip38 ? "13" : "14.5") + "px;";
                         
                         var backgroundGraphic = new Image();
                         backgroundGraphic.src = paperWalletDesign4;
@@ -8768,7 +8915,7 @@ li
                         
                         var privkeyDiv = document.createElement("div");
                         privkeyDiv.innerHTML = currentPrivkey;
-                        privkeyDiv.style = "position: absolute; top: 483px; left: 702px; font-family: roboto-mono; font-weight: bold; font-size: 15px; transform: rotate(270deg); transform-origin: 0% 0%;";
+                        privkeyDiv.style = "position: absolute; top: 483px; left: 702px; font-family: roboto-mono; font-weight: bold; font-size: " + (bip38 ? "13" : "15") + "px; transform: rotate(270deg); transform-origin: 0% 0%;";
                         
                         var backgroundGraphic = new Image();
                         backgroundGraphic.src = paperWalletDesign6;
@@ -8825,8 +8972,8 @@ li
                         addressDiv2.style = "position: absolute; top: 152px; left: 794px; font-family: roboto-mono; font-weight: bold; font-size: 18px; transform: rotate(270deg); transform-origin: 0% 0%;";
                         
                         var privkeyDiv = document.createElement("div");
-                        privkeyDiv.innerHTML = splitTextLength(currentPrivkey, 11);
-                        privkeyDiv.style = "position: absolute; top: 30px; left: 850px; font-family: roboto-mono; font-weight: bold; font-size: 18px;";
+                        privkeyDiv.innerHTML = splitTextLength(currentPrivkey, bip38 ? 12 : 11);
+                        privkeyDiv.style = "position: absolute; top: 30px; left: " + (bip38 ? "848" : "850") + "px; font-family: roboto-mono; font-weight: bold; font-size: " + (bip38 ? "17" : "18") + "px;";
                         
                         parentDiv.innerHTML = paperWalletDesign7;
                         
@@ -9013,7 +9160,8 @@ li
                     document.getElementById("paperwallet_custom_preview_privkey").style.fontSize = val + "px";
                     break;
                 case "paperwallet_custom_privkey_length":
-                    document.getElementById("paperwallet_custom_preview_privkey").innerHTML = splitTextLength("K1abcdefghijkmnopqrstuvwxyzabcdefghijkmnopqrstuvwxyz", val);
+                    var dummyPrivkey = document.getElementById("bip38enabled_paper").checked ? "6Pnabcdefghijkmnopqrstuvwxyz1234567ABCDEFGHJKLMNPQRSTUVXYZ" : "K1abcdefghijkmnopqrstuvwxyzabcdefghijkmnopqrstuvwxyz";
+                    document.getElementById("paperwallet_custom_preview_privkey").innerHTML = splitTextLength(dummyPrivkey, val);
                     break;
                 case "paperwallet_custom_privkey_rotation":
                     document.getElementById("paperwallet_custom_preview_privkey").style.transform = "rotate(" + val + "deg)";
@@ -9072,7 +9220,7 @@ li
             backgroundImage.src = paperWalletCustomImageData;
         
             var currentAddress = "bc1qacdefghjklmnopqrstuvwxyz023456789acdef";
-            var currentPrivkey = "K1abcdefghijkmnopqrstuvwxyzabcdefghijkmnopqrstuvwxyz";
+            var currentPrivkey = document.getElementById("bip38enabled_paper").checked ? "6Pnabcdefghijkmnopqrstuvwxyz1234567ABCDEFGHJKLMNPQRSTUVXYZ" : "K1abcdefghijkmnopqrstuvwxyzabcdefghijkmnopqrstuvwxyz";
             
             var currentAddressQR = qrcode(0, "H");
             currentAddressQR.addData(currentAddress);
