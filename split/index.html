@@ -61,6 +61,13 @@ li
     font-weight: bold;
 }
 
+.title-small
+{
+    font-weight: bold;
+    font-size: 20px;
+    padding-bottom: 10px;
+}
+
 .address-view
 {
     font-size: 20px;
@@ -173,15 +180,19 @@ li
     
     <div style="display: table; width: 100%;">
         <div id="button_container" style="display: table-cell; padding-right: 10px; border-right: 2px solid #bbbbbb; width: 250px;">
-            <button id="button_layout_generate" style="width: 250px;" onclick="layout_generate()" disabled >Single address</button>
+            <button id="button_layout_generate" style="width: 250px;" onclick="set_layout('generate')" disabled >Single address</button>
             <br />
-            <button id="button_layout_details" style="width: 250px;" onclick="layout_details()">Address details</button>
+            <button id="button_layout_details" style="width: 250px;" onclick="set_layout('details')">Address details</button>
             <br />
-            <button id="button_layout_bulk" style="width: 250px;" onclick="layout_bulk()">Bulk Generate</button>
+            <button id="button_layout_bulk" style="width: 250px;" onclick="set_layout('bulk')">Bulk Generate</button>
             <br />
-            <button id="button_layout_paper" style="width: 250px;" onclick="layout_paper()">Paper wallet</button>
+            <button id="button_layout_paper" style="width: 250px;" onclick="set_layout('paper')">Paper wallet</button>
             <br />
-            <button id="button_layout_info" style="width: 250px;" onclick="layout_info()">Information</button>
+            <button id="button_layout_info" style="width: 250px;" onclick="set_layout('info')">Information</button>
+            <br />
+            <button id="button_layout_beginner" style="width: 250px; margin-top: 50px;" onclick="set_layout('beginner')">Beginner's guide</button>
+            <br />
+            <button id="button_layout_security" style="width: 250px;" onclick="set_layout('security')">Security tips</button>
         </div>
         <div id="main_generate" style="display: table; padding-left: 10px;">
             <div style="display: table-cell; padding-right: 20px;">
@@ -217,7 +228,7 @@ li
                     <div id="randomness_div" style="width: 100%; height: 380px; border: 2px solid black; font-size: 22px; text-align: center; position: absolute; cursor: default; padding-top: 20px;">Move your mouse around here for randomness<br />0%</div>
                 </div>
             </div>
-            <div id="address_div" style="display: none;">
+            <div id="address_div" class="print_visible" style="display: none;">
                 <div style="border-radius: 3px; border: 3px solid var(--address-color); margin-bottom: 5px;">
                     <div>
                         <div style="border-bottom: 3px solid var(--address-color); background: var(--address-color);">
@@ -418,11 +429,40 @@ li
             <div class="title">Information</div>
             <ul>
                 <li>P2SH-P2WPKH addresses are referenced as "Segwit" addresses, Bech32-encoded P2WPKH addresses are referenced as "Segwit (bech32)" addresses, and regular P2PKH addresses are referenced as "Legacy" addresses.</li>
-                <li>QR codes of bech32 addresses contain the text capitalized, so the size of the QR codes can be reduced. For more information, see the <a href="https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#Specification">BIP 173 specification (Uppercase/lowercase part).</a></li>
+                <li>QR codes of bech32 addresses contain the text capitalized, so the size of the QR codes can be reduced. For more information, see the <a href="https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#Specification">BIP 173 specification (Uppercase/lowercase part)</a>.</li>
                 <li>JavaScript libraries used on this site: <a href="https://github.com/indutny/bn.js">BigNumber</a>, <a href="http://code.google.com/p/crypto-js/">Crypto-JS</a>, <a href="https://github.com/kazuhikoarase/qrcode-generator">QR code generator</a>, <a href="https://github.com/dchest/scrypt-async-js">Scrypt</a></li>
                 <li>Source code is available at <a href="https://github.com/Kimbatt/btc-address-generator">Github</a> or by viewing this page's source (it is a single html file)</li>
                 <li>This site was made by /u/Kimbatt</li>
                 <li>If you liked this site, you can donate to: 3Ee3fDqTmERBpxAvV8GgdQUiTparohPaHX</li>
+            </ul>
+        </div>
+        <div id="main_beginner" style="display: none;">
+            <div class="title">Beginner's guide</div>
+            <br />
+            <div class="title-small">What is Bitcoin?</div>
+            <div>Bitcoin is a peer-to-peer electronic cash system. Bitcoin allows its users to send money over the internet, without any restrictions. It is decentralized, open source, and gives users full control over their money. For more information, visit <a href="https://bitcoin.org">https://bitcoin.org</a>.</div>
+            <br />
+            <div class="title-small">What is a bitcoin address, and what is a private key?</div>
+            <div>To receive bitcoin, you need a bitcoin address. Anyone who knows your bitcoin address can send bitcoins to you. To spend money from a bitcoin address, you need its private key. As its name suggests, you must keep your private key safe, because anyone who knows your private key, can spend your bitcoins. Your address however can be shared to anyone, as they can only send you money, but they cannot spend from it.<br />The address and the private key are related in a mathematical way, so the address can be calculated from the private key, but it is impossible to calculate the private key the your address.</div>
+            <br />
+            <div class="title-small">What is a paper wallet?</div>
+            <div>A paper wallet is a bitcoin address and the private key printed to paper. Paper wallets are a safe way to store bitcoin, as they are offline, so they cannot be stolen by hackers. However, you should be careful when making paper wallets, so no one can actually steal them. You can read more at the "Security tips" section on this site.</div>
+            <br />
+            <div class="title-small">What is a legacy address, and what is a segwit address (and bech32 segwit address)?</div>
+            <div>Legacy address is the default bitcoin address format, they start with the character 1. Segwit addresses use the "<a href="https://en.bitcoin.it/wiki/Segregated_Witness">segregated witness</a>" feature, allowing users to send transactions for a lower fee. It is recommended to use segwit addresses over legacy addresses. Segwit addresses start with the character 3. Bech32 is a new address format for native segwit addresses, but they are not widely supported yet.</div>
+            <br />
+            <div class="title-small">What is Bip38 encryption?</div>
+            <div><a href="https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki">Bip38</a> encryption allows you to protect your paper wallet with a password, so if your paper wallet is stolen, or its private key is exposed, your paper wallet will still be safe. However, if you use bip38 encryption, you must remember the password very well, because if you forget the password, the paper wallet will be as worthless as if you lost the private key. Bip38 was designed to resist brute-force attacks, that's why it's practically impossible to recover the wallet if the password is forgotten. You can unlock a bip38 encrypted wallet on the "Address details" section of this site.</div>
+        </div>
+        <div id="main_security" style="display: none;">
+            <div class="title">Security tips</div>
+            <ul>
+                <li>Always use an offline computer to generate paper wallets, so it is harder for malware to steal your private keys. You should save this site to your computer (by pressing CTRL-S, or right click and save the webpage), then run it offline. You should also open the browser in incognito / private browsing mode, so no information is saved about the generated wallets.</li>
+                <li>If possible, use a bootable usb drive / "live cd" instead of your regular OS, so there is no chance that malware on your system steals your funds.</li>
+                <li>Use a "dumb" / old printer, as newer "smart" printers may save your private keys in their cache or on their internal storage, or their firmware could be hacked (this is unlikely though).</li>
+                <li>Use laser printer, because it is more resistant to water. You should always keep your paper wallets in a waterproof place. If you only have an inkjet printer, you can put the paper wallets in a plastic bag, so it's less likely that they get wet.</li>
+                <li>Before sending big amounts of bitcoin to paper wallets, make sure that you know how to withdraw funds from it first. You should make some test wallets, then send 1-2 cents worth of money to them, then withdraw it. For bip38 encrypted wallets, always test if you can unlock them before sending bitcoins to it.</li>
+                <li>After you withdrew the money from a paper wallet, it should be never used again.</li>
             </ul>
         </div>
     </div>
@@ -517,8 +557,8 @@ li
                     "main_info": "print_visible",
                 },
             };
+            
             currentLayout = "generate";
-            updatePrintAreas(currentLayout);
         };
     
         // secp256k1 parameters
@@ -1481,7 +1521,7 @@ li
         // shows addresses generated from the given private key
         function view_address_details()
         {
-            var privkey = document.getElementById("view_address_privkey_textbox").value;
+            var privkey = document.getElementById("view_address_privkey_textbox").value.trim();
             if (privkey == "")
                 return;
             
@@ -1946,7 +1986,6 @@ li
         // the position of address, private key, and qr codes are set for each layout
         function paperWalletCreate(addressData, bip38)
         {
-            console.log(addressData);
             var container = document.getElementById("paperwallet_print_area");
             container.innerHTML = "";
             
@@ -2751,125 +2790,30 @@ li
         }
         
         var currentLayout;
-        // set layout: single address
-        function layout_generate()
-        {
-            currentLayout = "generate";
-            
-            document.getElementById("button_layout_generate").disabled = true;
-            document.getElementById("button_layout_details").disabled = false;
-            document.getElementById("button_layout_bulk").disabled = false;
-            document.getElementById("button_layout_paper").disabled = false;
-            document.getElementById("button_layout_info").disabled = false;
-            
-            document.getElementById("main_generate").style = "display: table; padding-left: 10px;";
-            document.getElementById("main_details").style = "display: none;";
-            document.getElementById("main_bulk").style = "display: none";
-            document.getElementById("main_paper").style = "display: none;";
-            document.getElementById("main_info").style = "display: none;";
-            
-            updatePrintAreas(currentLayout);
-        }
-        
-        // set layout: address details
-        function layout_details()
-        {
-            currentLayout = "details";
-            
-            document.getElementById("button_layout_generate").disabled = false;
-            document.getElementById("button_layout_details").disabled = true;
-            document.getElementById("button_layout_bulk").disabled = false;
-            document.getElementById("button_layout_paper").disabled = false;
-            document.getElementById("button_layout_info").disabled = false;
-            
-            document.getElementById("main_generate").style = "display: none";
-            document.getElementById("main_details").style = "display: table; width: 80%; padding-left: 10px;";
-            document.getElementById("main_bulk").style = "display: none";
-            document.getElementById("main_paper").style = "display: none;";
-            document.getElementById("main_info").style = "display: none;";
-            
-            updatePrintAreas(currentLayout);
-        }
-        
-        // set layout: bulk generate
-        function layout_bulk()
-        {
-            currentLayout = "bulk";
-            
-            document.getElementById("button_layout_generate").disabled = false;
-            document.getElementById("button_layout_details").disabled = false;
-            document.getElementById("button_layout_bulk").disabled = true;
-            document.getElementById("button_layout_paper").disabled = false;
-            document.getElementById("button_layout_info").disabled = false;
-            
-            document.getElementById("main_generate").style = "display: none";
-            document.getElementById("main_details").style = "display: none;";
-            document.getElementById("main_bulk").style = "display: table; width: 80%; padding-left: 10px;";
-            document.getElementById("main_paper").style = "display: none;";
-            document.getElementById("main_info").style = "display: none;";
-            
-            updatePrintAreas(currentLayout);
-        }
-        
-        // set layout: paper wallet
-        function layout_paper()
-        {
-            currentLayout = "paper";
-            
-            document.getElementById("button_layout_generate").disabled = false;
-            document.getElementById("button_layout_details").disabled = false;
-            document.getElementById("button_layout_bulk").disabled = false;
-            document.getElementById("button_layout_paper").disabled = true;
-            document.getElementById("button_layout_info").disabled = false;
-            
-            document.getElementById("main_generate").style = "display: none";
-            document.getElementById("main_details").style = "display: none;";
-            document.getElementById("main_bulk").style = "display: none;";
-            document.getElementById("main_paper").style = "display: table; width: 80%; padding-left: 10px;";
-            document.getElementById("main_info").style = "display: none;";
-            
-            updatePrintAreas(currentLayout);
-        }
-        
-        // set layout: information
-        function layout_info()
-        {
-            currentLayout = "info";
-            
-            document.getElementById("button_layout_generate").disabled = false;
-            document.getElementById("button_layout_details").disabled = false;
-            document.getElementById("button_layout_bulk").disabled = false;
-            document.getElementById("button_layout_paper").disabled = false;
-            document.getElementById("button_layout_info").disabled = true;
-            
-            document.getElementById("main_generate").style = "display: none";
-            document.getElementById("main_details").style = "display: none;";
-            document.getElementById("main_bulk").style = "display: none;";
-            document.getElementById("main_paper").style = "display: none;";
-            document.getElementById("main_info").style = "display: table; width: 80%; padding-left: 10px;";
-            
-            updatePrintAreas(currentLayout);
-        }
-        
         var layoutPrintAreas;
-        
-        function updatePrintAreas(layout)
+        function set_layout(newLayout)
         {
-            for (var key in layoutPrintAreas)
-            {
-                var values = layoutPrintAreas[key];
-                if (key == layout)
-                {
-                    for (var c in values)
-                        document.getElementById(c).className = values[c];
-                }
-                else
-                {
-                    for (var c in values)
-                        document.getElementById(c).className = "";
-                }
-            }
+            if (currentLayout == newLayout)
+                return;
+            
+            var prevLayout = currentLayout;
+            
+            document.getElementById("button_layout_" + prevLayout).disabled = false;
+            document.getElementById("button_layout_" + newLayout).disabled = true;
+            
+            document.getElementById("main_" + prevLayout).style = "display: none";
+            document.getElementById("main_" + newLayout).style = "display: table; width: 80%; padding-left: 10px;";
+            
+            for (var c in layoutPrintAreas[prevLayout])
+                document.getElementById(c).className = "";
+                
+            var values = layoutPrintAreas[newLayout];
+            for (var c in values)
+                document.getElementById(c).className = values[c];
+            
+            currentLayout = newLayout;
         }
+        
     </script>
 </body>
 </html>
