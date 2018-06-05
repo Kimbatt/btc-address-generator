@@ -305,7 +305,7 @@ li
                     <button style="display: table-cell; width: 300px; margin-left: 20px;" onclick="bulk_generate()">Generate</button>
                 </div>
             </div>
-            <div style="display: block; font-size: 20px; padding: 8px; margin-top: 15px; border: 2px solid #bbbbbb;" id="bulk_addresses">Press generate to start generating</div>
+            <textarea style="display: block; width: 100%; height: 400px; font-family: roboto-mono; font-size: 19px; padding: 8px; margin-top: 15px; border: 2px solid #bbbbbb; resize: none;" id="bulk_addresses" readonly>Press generate to start generating</textarea>
         </div>
         <div id="main_paper" style="display: none;">
             <div class="title">Paper wallet</div>
@@ -351,6 +351,13 @@ li
                     <div style="font-weight: bold; font-size: 20px;">Vertical gap between wallets (in pixels):</div>
                     <input id="paperwallet_vertical_gap" type="number" value="0" style="font-size: 25px; padding: 5px; width: 100%;" oninput="paperwallet_vertical_gap_changed(event)"></input>
                     <br />
+                    <br />
+                    <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="document.getElementById('paper_custom_addresses_container').style.display = event.target.checked ? 'block' : 'none'" id="use_custom_addresses_paper">Use your own addresses</input></label>
+                    <div id="paper_custom_addresses_container" style="display: none;">
+                        <div style="width: 480px; padding: 5px;">If you have already generated addresses / private keys, you can paste them here to use them in paper wallets.<br /><strong>Make sure that the addresses and private keys are correct!</strong><br /><br />Use the following format: separate the address and the private key with a space character, and separate each pair with commas: (address1) (privkey1), (address2) (privkey2), etc...<br /><br />Click on "Generate paper wallets" to make the paper wallets.</div>
+                        <div id="paper_custom_address_error" style="padding: 5px; font-weight: bold;"></div>
+                        <textarea id="paper_custom_addresses" style="width: 100%; height: 150px; resize: none; margin-top: 10px;"></textarea>
+                    </div>
                     <br />
                     <div style="display: table; padding-top: 10px; width: 500px;">
                         <div style="display: table-cell; font-weight: bold; font-size: 20px; width: 100px;">Style:</div>
@@ -8156,7 +8163,7 @@ li
                             for (var i = 0; i < data.length; ++i)
                                 temp[i] = "" + (i + 1) + ", \"" + data[i][0] + "\", \"" + data[i][1] + "\"";
                             
-                            bulkTextarea.innerHTML = temp.join("<br />");
+                            bulkTextarea.innerHTML = temp.join("&#13;&#10;");
                         }
                             
                         document.getElementById("bulk_radio_type_segwit").disabled = false;
@@ -8189,7 +8196,7 @@ li
                 window.clearInterval(bulkIntervalID);
                 bulkCount = 0;
                 bulkCurrentCount = 0;
-                bulkTextarea.innerHTML = bulkArray.join("<br />");
+                bulkTextarea.innerHTML = bulkArray.join("&#13;&#10;");
                 bulkArray = undefined;
                 
                 document.getElementById("bulk_radio_type_segwit").disabled = false;
@@ -8307,6 +8314,12 @@ li
         {
             if (paperWalletArray || randomnessArrayPaper)
                 return;
+            
+            if (document.getElementById("use_custom_addresses_paper").checked)
+            {
+                paperWalletFromUserAddresses();
+                return;
+            }
             
             var result = [];
             
@@ -9093,6 +9106,63 @@ li
                 }
             }
             
+        }
+        
+        function paperWalletFromUserAddresses()
+        {
+            var errorMessageDiv = document.getElementById("paper_custom_address_error");
+            var raw = document.getElementById("paper_custom_addresses").value.replace(/\"/g, "").replace(/\n/g, " ").replace(/\s+/g, " ");
+            
+            var trim = raw.trim();
+            if (trim == "")
+            {
+                errorMessageDiv.innerHTML = "No data entered";
+                return;
+            }
+            
+            var data = trim.split(',');
+            var addressData = [];
+            var isBip38 = false;
+            for (var i = 0; i < data.length; ++i)
+            {
+                var split = data[i].trim().split(' ');
+                if (split.length == 0 || split == "")
+                    continue;
+                else if (split.length != 2)
+                {
+                    errorMessageDiv.innerHTML = "Invalid format: " + data[i];
+                    return;
+                }
+                
+                var address = split[0];
+                var privkey = split[1];
+                
+                if (privkey.length == 58)
+                    isBip38 = true;
+                else if (privkey.length != 52)
+                {
+                    errorMessageDiv.innerHTML = "Invalid private key: " + privkey;
+                    return;
+                }
+                
+                var currentAddressQR = qrcode(0, paperQRErrorCorrectionLevel);
+                if (address.indexOf("bc1") == 0)
+                    currentAddressQR.addData(address.toUpperCase(), "Alphanumeric");
+                else
+                    currentAddressQR.addData(address);
+                    
+                currentAddressQR.make();
+                
+                var currentPrivkeyQR = qrcode(0, paperQRErrorCorrectionLevel);
+                currentPrivkeyQR.addData(privkey);
+                currentPrivkeyQR.make();
+                
+                addressData.push([privkey, currentPrivkeyQR, undefined, address, currentAddressQR]);
+            }
+            
+            errorMessageDiv.innerHTML = "";
+            
+            paperWalletCreate(addressData, isBip38)
         }
         
         // sources of the paper wallet designs
