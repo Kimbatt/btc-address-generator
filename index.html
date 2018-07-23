@@ -7416,7 +7416,7 @@ li
         function bip38decrypt_button()
         {
             document.getElementById("view_address_information").innerHTML = "Decrypting...";
-            window.setTimeout(() =>
+            window.setTimeout(function()
             {
                 var privkey = document.getElementById("view_address_privkey_textbox").value;
                 var password = document.getElementById("view_address_bip38_password_textbox").value;
@@ -8147,7 +8147,8 @@ li
             {
                 bulkTextarea.innerHTML = "Generating initial values";
                 bulkArray = [];
-                window.setTimeout(() =>
+                window.setTimeout(function()
+                {
                     bip38generate(document.getElementById("bip38_password_box_bulk").value, num, bulkAddressType,
                     function(counter, maxcount)
                     {
@@ -8170,7 +8171,8 @@ li
                         document.getElementById("bulk_radio_type_bech32").disabled = false;
                         document.getElementById("bulk_radio_type_legacy").disabled = false;
                         bulkArray = undefined;
-                    }), 0);
+                    });
+                }, 0);
                 return;
             }
             bulkCount = num;
@@ -8487,18 +8489,18 @@ li
         function paperWalletCustomImageSelected(event)
         {
             var reader = new FileReader();
-            reader.onload = (e) =>
+            reader.onload = function(e)
             {
                 paperWalletCustomImageData = e.target.result;
                 var tempIMG = new Image();
                 tempIMG.src = paperWalletCustomImageData;
-                tempIMG.onload = () =>
+                tempIMG.onload = function()
                 {
                     paperWalletCustomImageWidth = tempIMG.width;
                     paperWalletCustomImageHeight = tempIMG.height;
                 };
                 paperwallet_update_preview();
-            }
+            };
             
             var files = event.files;
             if (!files || !files[0])
@@ -8613,14 +8615,14 @@ li
                     
                     for (var i = 0; i < addressData.length; ++i)
                     {
-                        let backgroundImage = new Image();
+                        var backgroundImage = new Image();
                         backgroundImage.style = "position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;";
                         backgroundImage.src = paperWalletCustomImageData;
                         
-                        let idx = i;
-                        backgroundImage.onload = () =>
+                        backgroundImage.paperWalletIdx = i;
+                        backgroundImage.onload = function()
                         {
-                            var currentData = addressData[idx];
+                            var currentData = addressData[this.paperWalletIdx];
                             var currentAddress = currentData[3];
                             var currentPrivkey = currentData[0];
                             
@@ -8641,7 +8643,7 @@ li
                             var parentDiv = document.createElement("div");
                             parentDiv.className = "parent_div";
                             
-                            parentDiv.style = "position: relative; border: 2px solid black; width: " + backgroundImage.width * backgroundImageScale + "px; height: " + backgroundImage.height * backgroundImageScale + "px; margin-bottom: " + verticalGap + "px;";
+                            parentDiv.style = "position: relative; border: 2px solid black; width: " + this.width * backgroundImageScale + "px; height: " + this.height * backgroundImageScale + "px; margin-bottom: " + verticalGap + "px;";
                             
                             var addressDiv = document.createElement("div");
                             addressDiv.innerHTML = splitTextLength(currentAddress, addressLineLength);
@@ -8651,7 +8653,7 @@ li
                             privkeyDiv.innerHTML = splitTextLength(currentPrivkey, privkeyLineLength);
                             privkeyDiv.style = "position: absolute; top: " + privkeyPosY + "px; left: " + privkeyPosX + "px; font-family: roboto-mono; font-weight: normal; font-size: " + privkeyFontSize + "px; transform: rotate(" + privkeyFontRot + "deg); transform-origin: 0% 0%;";
                             
-                            parentDiv.appendChild(backgroundImage);
+                            parentDiv.appendChild(this);
                             parentDiv.appendChild(addressDiv);
                             parentDiv.appendChild(privkeyDiv);
                             parentDiv.appendChild(addressQRImg);
@@ -9354,7 +9356,7 @@ li
             var parentDiv = document.createElement("div");
             parentDiv.id = "paperwallet_preview_parentdiv";
             
-            backgroundImage.onload = () =>
+            backgroundImage.onload = function()
             {
                 parentDiv.style = "position: relative; width: " + backgroundImage.width * backgroundImageScale + "px; height: " + backgroundImage.height * backgroundImageScale + "px;";
                 container.style.width = backgroundImage.width * backgroundImageScale + "px";
