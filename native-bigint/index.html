@@ -4169,7 +4169,7 @@ li
         // get ECC public key from bigint
         function getECCKeypair(val)
         {
-            if (val == 0n || val > ecc_n)
+            if (val == 0n || val >= ecc_n)
             {
                 console.log("invalid value");
                 return;

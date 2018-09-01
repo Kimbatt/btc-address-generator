@@ -7632,7 +7632,7 @@ li
         // get ECC public key from bigint
         function getECCKeypair(val)
         {
-            if (val.isZero() || val.gt(ecc_n))
+            if (val.isZero() || val.gte(ecc_n))
             {
                 console.log("invalid value");
                 return;

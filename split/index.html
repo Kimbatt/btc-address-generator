@@ -483,11 +483,11 @@ li
     
     <script type="text/javascript" src="QR.js"></script>
     
-    <script type="text/javascript" src="paperwalletdesigns.js"></script>
-    
     <script type="text/javascript" src="scrypt.js"></script>
     
     <script type="text/javascript" src="aes256.js"></script>
+    
+    <script type="text/javascript" src="design_by_timbo925.js"></script>
     
     <script type="text/javascript">
         
@@ -1110,7 +1110,7 @@ li
         // get ECC public key from bigint
         function getECCKeypair(val)
         {
-            if (val.isZero() || val.gt(ecc_n))
+            if (val.isZero() || val.gte(ecc_n))
             {
                 console.log("invalid value");
                 return;
@@ -2188,7 +2188,7 @@ li
                         privkeyDiv2.style = "position: absolute; top: 65px; left: " + (bip38 ? "582" : "600") + "px; font-family: roboto-mono; font-weight: bold; font-size: 11px; transform: rotate(180deg);";
                         
                         var backgroundGraphic = new Image();
-                        backgroundGraphic.src = paperWalletDesign1;
+                        backgroundGraphic.src = "bitcoinpaperwalletcom.jpg";
                         backgroundGraphic.style = "position:absolute; top: 0px; left: 0px; width: 100%; height: 100%;";
                         
                         parentDiv.appendChild(backgroundGraphic);
@@ -2240,7 +2240,7 @@ li
                         privkeyDiv.style = "position: absolute; top: 25px; left: 575px; font-family: roboto-mono; font-weight: bold; font-size: " + (bip38 ? "13" : "14.5") + "px;";
                         
                         var backgroundGraphic = new Image();
-                        backgroundGraphic.src = paperWalletDesign2;
+                        backgroundGraphic.src = "dorian.jpg";
                         backgroundGraphic.style = "position:absolute; top: 0px; left: 0px; width: 100%; height: 100%;";
                         
                         parentDiv.appendChild(backgroundGraphic);
@@ -2290,7 +2290,7 @@ li
                         privkeyDiv.style = "position: absolute; top: 30px; left: 434px; font-family: roboto-mono; font-weight: normal; font-size: " + (bip38 ? "12" : "13") + "px; transform: rotate(90deg); transform-origin: 0% 0%;";
                         
                         var backgroundGraphic = new Image();
-                        backgroundGraphic.src = paperWalletDesign3;
+                        backgroundGraphic.src = "walletgeneratornet.jpg";
                         backgroundGraphic.style = "position:absolute; top: 0px; left: 0px; width: 100%; height: 100%;";
                         
                         parentDiv.appendChild(backgroundGraphic);
@@ -2340,7 +2340,7 @@ li
                         privkeyDiv.style = "position: absolute; top: " + (bip38 ? "26" : "25") + "px; left: 575px; font-family: roboto-mono; font-weight: bold; font-size: " + (bip38 ? "13" : "14.5") + "px;";
                         
                         var backgroundGraphic = new Image();
-                        backgroundGraphic.src = paperWalletDesign4;
+                        backgroundGraphic.src = "currencynote.jpg";
                         backgroundGraphic.style = "position:absolute; top: 0px; left: 0px; width: 100%; height: 100%;";
                         
                         parentDiv.appendChild(backgroundGraphic);
@@ -2398,7 +2398,7 @@ li
                         addressDiv2.style = "position: absolute; top: 82px; left: 761px; font-family: roboto-mono; font-weight: normal; font-size: 14px; transform: rotate(270deg);";
                         
                         var backgroundGraphic = new Image();
-                        backgroundGraphic.src = paperWalletDesign5;
+                        backgroundGraphic.src = "design_by_mark_and_barbara_messer.jpg";
                         backgroundGraphic.style = "position:absolute; top: 0px; left: 0px; width: 100%; height: 100%;";
                         
                         parentDiv.appendChild(backgroundGraphic);
@@ -2450,7 +2450,7 @@ li
                         privkeyDiv.style = "position: absolute; top: 483px; left: 702px; font-family: roboto-mono; font-weight: bold; font-size: " + (bip38 ? "13" : "15") + "px; transform: rotate(270deg); transform-origin: 0% 0%;";
                         
                         var backgroundGraphic = new Image();
-                        backgroundGraphic.src = paperWalletDesign6;
+                        backgroundGraphic.src = "bitaddressorg.jpg";
                         backgroundGraphic.style = "position:absolute; top: 0px; left: 0px; width: 100%; height: 100%;";
                         
                         parentDiv.appendChild(backgroundGraphic);
@@ -2507,7 +2507,7 @@ li
                         privkeyDiv.innerHTML = splitTextLength(currentPrivkey, bip38 ? 12 : 11);
                         privkeyDiv.style = "position: absolute; top: 30px; left: " + (bip38 ? "848" : "850") + "px; font-family: roboto-mono; font-weight: bold; font-size: " + (bip38 ? "17" : "18") + "px;";
                         
-                        parentDiv.innerHTML = paperWalletDesign7;
+                        parentDiv.innerHTML = paperWalletDesignByTimbo925;
                         
                         var svg = parentDiv.childNodes[0];
                         svg.style.width = "100%";
@@ -2569,7 +2569,7 @@ li
                         addressDiv2.style = "position: absolute; top: 84px; left: 757px; font-family: roboto-mono; font-weight: normal; font-size: 15px; transform: rotate(270deg);";
                         
                         var backgroundGraphic = new Image();
-                        backgroundGraphic.src = paperWalletDesign8;
+                        backgroundGraphic.src = "design_by_75rtuga.jpg";
                         backgroundGraphic.style = "position:absolute; top: 0px; left: 0px; width: 100%; height: 100%;";
                         
                         parentDiv.appendChild(backgroundGraphic);
