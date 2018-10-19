@@ -112,6 +112,20 @@ li
     line-height: 40px;
 }
 
+#randomness_overlay
+{
+    position: absolute;
+    display: table;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    background-color: rgba(0,0,0,0.85);
+    z-index: 2;
+}
+
 @media print
 {
     body *
@@ -198,34 +212,23 @@ li
             <div style="display: table-cell; padding-right: 20px;">
                 <div class="title">Single address</div>
                 
-                <div style="display: table;">
-                    <div style="display: table-cell; padding-right: 10px; border-right: 2px solid #bbbbbb;">
-                        <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Address type:</div>
-                        <form>
-                            <label style="white-space: nowrap;"><input type="radio" name="address_type" onchange="setAddressType('segwit')">Segwit</label>
-                            <label style="white-space: nowrap;"><input type="radio" name="address_type" onchange="setAddressType('bech32')" checked>Segwit (bech32)</label>
-                            <label style="white-space: nowrap;"><input type="radio" name="address_type" onchange="setAddressType('legacy')">Legacy</label>
-                        </form>
-                    </div>
-                    <div style="display: table-cell; padding-left: 10px;">
-                        <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">QR code error correction level:</div>
-                        <form>
-                            <label style="white-space: nowrap;"><input id="singleaddress_radio_qr_errorcorrectionlevel_h" type="radio" name="qr_error_correction_level" onchange="setQRErrorCorrectionLevel('H')" checked>High</label>
-                            <label style="white-space: nowrap;"><input id="singleaddress_radio_qr_errorcorrectionlevel_q" type="radio" name="qr_error_correction_level" onchange="setQRErrorCorrectionLevel('Q')">Quartile</label>
-                            <label style="white-space: nowrap;"><input id="singleaddress_radio_qr_errorcorrectionlevel_m" type="radio" name="qr_error_correction_level" onchange="setQRErrorCorrectionLevel('M')">Medium</label>
-                            <label style="white-space: nowrap;"><input id="singleaddress_radio_qr_errorcorrectionlevel_l" type="radio" name="qr_error_correction_level" onchange="setQRErrorCorrectionLevel('L')">Low</label>
-                        </form>
-                    </div>
-                </div>
-                <br />
-                <button type="button" onclick="generate_address(null)">Generate new address</button>
-                <br />
-                <button type="button" onclick="generate_address_with_randomness()">Generate new address with randomness</button>
-                <br />
-                <br />
-                <div id="randomness_container" style="display: none;">
-                    <canvas id="randomness_canvas" style="border: 2px solid black; position: absolute;" width="100%" height="400px"></canvas>
-                    <div id="randomness_div" style="width: 100%; height: 380px; border: 2px solid black; font-size: 22px; text-align: center; position: absolute; cursor: default; padding-top: 20px;">Move your mouse around here for randomness<br />0%</div>
+                <div style="padding-left: 10px;">
+                    <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Address type:</div>
+                    <form>
+                        <label style="white-space: nowrap;"><input type="radio" name="address_type" onchange="setAddressType('segwit')">Segwit</label>
+                        <label style="white-space: nowrap;"><input type="radio" name="address_type" onchange="setAddressType('bech32')" checked>Segwit (bech32)</label>
+                        <label style="white-space: nowrap;"><input type="radio" name="address_type" onchange="setAddressType('legacy')">Legacy</label>
+                    </form>
+                    
+                    <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px; margin-top: 20px;">QR code error correction level:</div>
+                    <form>
+                        <label style="white-space: nowrap;"><input id="singleaddress_radio_qr_errorcorrectionlevel_h" type="radio" name="qr_error_correction_level" onchange="setQRErrorCorrectionLevel('H')" checked>High</label>
+                        <label style="white-space: nowrap;"><input id="singleaddress_radio_qr_errorcorrectionlevel_q" type="radio" name="qr_error_correction_level" onchange="setQRErrorCorrectionLevel('Q')">Quartile</label>
+                        <label style="white-space: nowrap;"><input id="singleaddress_radio_qr_errorcorrectionlevel_m" type="radio" name="qr_error_correction_level" onchange="setQRErrorCorrectionLevel('M')">Medium</label>
+                        <label style="white-space: nowrap;"><input id="singleaddress_radio_qr_errorcorrectionlevel_l" type="radio" name="qr_error_correction_level" onchange="setQRErrorCorrectionLevel('L')">Low</label>
+                    </form>
+                    
+                    <button type="button" onclick="generate_address()" style="width: 290px; margin-top: 50px; margin-right: 50px;">Generate new address</button>
                 </div>
             </div>
             <div id="address_div" class="print_visible" style="display: none;">
@@ -283,16 +286,19 @@ li
         <div id="main_bulk" style="display: none;">
             <div style="display: table-row; padding-right: 20px;">
                 <div class="title">Bulk Generate</div>
-                <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Address type:</div>
-                <form>
-                    <label style="white-space: nowrap;"><input id="bulk_radio_type_segwit" type="radio" name="address_type" onchange="setBulkAddressType('segwit')">Segwit</label>
-                    <label style="white-space: nowrap;"><input id="bulk_radio_type_bech32" type="radio" name="address_type" onchange="setBulkAddressType('bech32')" checked>Segwit (bech32)</label>
-                    <label style="white-space: nowrap;"><input id="bulk_radio_type_legacy" type="radio" name="address_type" onchange="setBulkAddressType('legacy')">Legacy</label>
-                </form>
-                <br />
-                <div style="display: table;">
-                    <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="bip38changed(event, 'bulk')" style="margin-bottom: 20px;" id="bip38enabled_bulk">Bip38 encrypt</input></label>
-                    <a href="javascript:void(0)" onclick="showBip38Info()" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</a>
+                
+                <div style="padding-left: 10px;">
+                    <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Address type:</div>
+                    <form>
+                        <label style="white-space: nowrap;"><input id="bulk_radio_type_segwit" type="radio" name="address_type" onchange="setBulkAddressType('segwit')">Segwit</label>
+                        <label style="white-space: nowrap;"><input id="bulk_radio_type_bech32" type="radio" name="address_type" onchange="setBulkAddressType('bech32')" checked>Segwit (bech32)</label>
+                        <label style="white-space: nowrap;"><input id="bulk_radio_type_legacy" type="radio" name="address_type" onchange="setBulkAddressType('legacy')">Legacy</label>
+                    </form>
+                    <br />
+                    <div style="display: table;">
+                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="bip38changed(event, 'bulk')" style="margin-bottom: 20px;" id="bip38enabled_bulk">Bip38 encrypt</input></label>
+                        <a href="javascript:void(0)" onclick="showBip38Info()" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</a>
+                    </div>
                 </div>
                 <div id="bip38_password_box_div_bulk" style="display: none; padding-bottom: 15px; border-bottom: 2px solid #bbbbbb;">
                     <div style="display: table-cell; padding-right: 10px; font-size: 25px;">Password:</div>
@@ -334,12 +340,6 @@ li
                     <input id="bip38_password_box_paper" type="text" style="display: table-cell; font-size: 20px; padding: 5px;"></input>
                 </div>
                     <button style="margin-top: 20px;" onclick="paperWallet();">Generate paper wallets</button>
-                    <br />
-                    <button onclick="paperWalletWithRandomness();">Generate paper wallets with randomness</button>
-                    <div id="randomness_container_paper" style="display: none;">
-                        <canvas id="randomness_canvas_paper" style="border: 2px solid black; position: absolute;" width="100%" height="400px"></canvas>
-                        <div id="randomness_div_paper" style="width: 100%; height: 380px; border: 2px solid black; font-size: 22px; text-align: center; position: absolute; cursor: default; padding-top: 20px;">Move your mouse around here for randomness<br />0%</div>
-                    </div>
                     <br />
                     <button onclick="window.print()">Print</button>
                 </div>
@@ -476,6 +476,19 @@ li
     <div id="bip38_info">
         <div id="bip38_info_content">Bip38 encryption allows you to protect your paper wallet with a password, giving it more security.<br />If your paper wallet is stolen or the private key is exposed, your funds will still be safe, because it cannot be unlocked without the password.<br /><br /><div style="color: #ff0000;">However, if you forget the password, there is absolutely no way to recover the wallet, this means that your funds will be PERMANENTLY LOST.<br />Always make sure that you can decrypt the wallet before sending any bitcoins to it!</div><br /><div style="margin-bottom: 70px;">Note that other applications may only support decryption of legacy addresses. To decrypt segwit addresses, you most likely need to use this site. Alternatively, you could decrypt the private key elsewhere, then generate the segwit address corresponding to that private key.</div><button style="position: absolute; width: 300px; right: 0px; bottom: 0px; margin: 30px;" onclick="document.getElementById('bip38_info').style.display='none'">Got it</button></div>
     </div>
+    <div id="randomness_overlay">
+        <div id="randomness_overlay2" style="display: none; position: absolute; width: 100%; height: 100%;">
+            <canvas id="randomness_canvas" style="border: 4px solid black; position: absolute;" width="600px" height="400px">
+            </canvas>
+            
+            <div id="randomness_div" style="width: 60%; height: 100px; font-size: 25px; text-align: center; cursor: default; padding-top: 20px; position: absolute; pointer-events: none;">Move your mouse around here for randomness<br />0%</div>
+            
+            <div id="randomness_container" style="position: absolute; display: flex;">
+                <div style="float: left; color: white; font-size: 25px; padding: 15px; flex-grow: 1;">You can skip this step if you do not plan to generate valuable wallets.<br />If you skip, you can refresh the page to be able to enter randomness again.</div>
+                <button id="randomness_skip_button" style="display: inline; float: right; width: 150px; height: 48px;" onclick="skipRandomness()">Skip</button>
+            </div>
+        </div>
+    </div>
 
     <script type="text/javascript" src="BN.js"></script>
     
@@ -490,6 +503,9 @@ li
     <script type="text/javascript" src="design_by_timbo925.js"></script>
     
     <script type="text/javascript">
+        
+        var randomnessCanvasResizerFunction;
+        var randomnessBytes = undefined;
         
         window.onload = function()
         {
@@ -529,7 +545,85 @@ li
             bulkTextarea = document.getElementById("bulk_addresses");
             paperWalletTextArea = document.getElementById("paperwallet_generate_progress_text");
             
-            generate_address();
+            
+            document.getElementById("randomness_overlay2").style.display = "table";
+            var randomnessCanvas = document.getElementById("randomness_canvas");
+            var ctx = randomnessCanvas.getContext("2d");
+            var randomnessText = document.getElementById("randomness_div");
+            
+            randomnessCanvasResizerFunction = function()
+            {
+                var width = document.documentElement.clientWidth;
+                var height = document.documentElement.clientHeight;
+                var canvasWidth = width * 0.7;
+                var canvasHeight = height * 0.6;
+                
+                var imageData = undefined;
+                if (randomnessCanvas.width > 0 && randomnessCanvas.height > 0)
+                    imageData = ctx.getImageData(0, 0, randomnessCanvas.width, randomnessCanvas.height);
+                
+                var prevFillStyle = ctx.fillStyle;
+                
+                randomnessCanvas.width = canvasWidth;
+                randomnessCanvas.height = canvasHeight;
+                randomnessCanvas.style.left = (width / 2 - canvasWidth / 2) + "px";
+                randomnessCanvas.style.top = (height / 2 - canvasHeight / 1.5) + "px";
+                
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, randomnessCanvas.width, randomnessCanvas.height);
+                ctx.fillStyle = prevFillStyle;
+                
+                if (imageData !== undefined)
+                    ctx.putImageData(imageData, 0, 0);
+                
+                randomnessText.style.left = (width / 2 - randomnessText.clientWidth / 2) + "px";
+                randomnessText.style.top = (height / 2 - canvasHeight / 1.5) + "px";
+                
+                var randomnessContainer = document.getElementById("randomness_container");
+                randomnessContainer.style.width = canvasWidth + "px";
+                randomnessContainer.style.left = (width / 2 - canvasWidth / 2) + "px";
+                randomnessContainer.style.top = (height / 2 + canvasHeight / 3 + 10) + "px";
+            }
+            
+            window.addEventListener("resize", randomnessCanvasResizerFunction);
+            randomnessCanvasResizerFunction();
+            
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, randomnessCanvas.width, randomnessCanvas.height);
+            var tempRandomnessBytes = [];
+            var randomnessIndex = 0;
+            var randomnessMax = 1000;
+            randomnessCanvas.onmousemove = function(e)
+            {
+                if (randomnessIndex > randomnessMax)
+                {
+                    window.removeEventListener("resize", randomnessCanvasResizerFunction);
+                    
+                    randomnessBytes = [];
+                    randomnessBytes.push.apply(randomnessBytes, crypto.getRandomValues(new Uint32Array(32)));
+                    randomnessBytes.push.apply(randomnessBytes, tempRandomnessBytes);
+                    randomnessCanvas.onmousemove = null;
+                    randomnessIndex = 0;
+                    tempRandomnessBytes = undefined;
+                    generate_address();
+                    document.getElementById("randomness_overlay").style.display = "none";
+                    return;
+                }
+                
+                var rect = e.target.getBoundingClientRect();
+                var x = e.clientX - rect.left;
+                var y = e.clientY - rect.top;
+                //randomnessCanvas.fillRect(x - 3, y - 3, 6, 6);
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, 6.3);
+                ctx.fill();
+                randomnessText.innerHTML = "Move your mouse around here for randomness<br />" + Math.floor(randomnessIndex / randomnessMax * 100) + "%";
+                
+                tempRandomnessBytes[randomnessIndex++] = e.clientX + e.clientY * document.documentElement.clientWidth;
+            };
+            
+            ctx.fillStyle = "#5b96f7";
+            
             
             if (window.location.protocol != "file:")
             {
@@ -700,6 +794,30 @@ li
             return ret;
         }
         
+        function skipRandomness()
+        {
+            document.getElementById("randomness_overlay").style.display = "none";
+            window.removeEventListener("resize", randomnessCanvasResizerFunction);
+            generate_address();
+        }
+        
+        function get32SecureRandomBytes()
+        {
+            if (randomnessBytes !== undefined)
+            {
+                var tempArray = [];
+                tempArray.push.apply(tempArray, window.crypto.getRandomValues(new Uint8Array(8)));
+                tempArray.push.apply(tempArray, randomnessBytes);
+                
+                var tempArray2 = SHA256(tempArray, { asBytes: true });
+                tempArray2.push.apply(tempArray2, window.crypto.getRandomValues(new Uint8Array(8)));
+                
+                return SHA256(tempArray2, { asBytes: true });
+            }
+            
+            return window.crypto.getRandomValues(new Uint8Array(32));
+        }
+        
         function showBip38Info()
         {
             document.getElementById("bip38_info").style.display = "table";
@@ -744,8 +862,7 @@ li
         var bip38generate_keypair = undefined;
         var bip38generate_passpoint = undefined;
         var bip38generate_ownersalt = undefined;
-        var bip38generate_randomness = undefined;
-        function bip38generate(password, count, type, progress, callback, randomness)
+        function bip38generate(password, count, type, progress, callback)
         {
             if (!password || password == "")
             {
@@ -755,17 +872,7 @@ li
             var ecc_Gx = new BN("079BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798", 16);
             var ecc_Gy = new BN("0483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8", 16);
 
-            var ownersalt;
-            if (randomness)
-            {
-                var temp = [];
-                temp.push.apply(temp, randomness);
-                temp.push.apply(temp, window.crypto.getRandomValues(new Uint8Array(32)));
-                ownersalt = SHA256(temp, { asBytes: true }).slice(0, 8);
-                bip38generate_randomness = randomness;
-            }
-            else
-                ownersalt = window.crypto.getRandomValues(new Uint8Array(8));
+            var ownersalt = get32SecureRandomBytes().slice(0, 8);
             
             var passfactor = scrypt(password, ownersalt, 14, 8, 8, 32, "binary");
 
@@ -812,19 +919,7 @@ li
         {
             if (bip38generate_currentcount < bip38generate_maxcount)
             {
-                var seedb;
-                if (bip38generate_randomness)
-                {
-                    var temp = [];
-                    temp.push.apply(temp, bip38generate_randomness);
-                    temp.push.apply(temp, window.crypto.getRandomValues(new Uint8Array(32)));
-                    seedb = SHA256(temp, { asBytes: true }).slice(0, 24);
-                    
-                    bip38generate_randomness = SHA256(temp, { asBytes: true });
-                    bip38generate_randomness.push.apply(bip38generate_randomness, temp.slice(0, 32));
-                }
-                else
-                    seedb = window.crypto.getRandomValues(new Uint8Array(24));
+                var seedb = get32SecureRandomBytes().slice(0, 24);
                 
                 var factorb = SHA256(SHA256(seedb, { asBytes: true }), { asBytes: true });
                 
@@ -887,7 +982,6 @@ li
                 bip38generate_callback = undefined;
                 bip38generate_progress = undefined;
                 bip38generate_data = undefined;
-                bip38generate_randomness = undefined;
             }
         }
         
@@ -1330,10 +1424,9 @@ li
         }
         
         // generate one address (single address)
-        function generate_address(bytes)
+        function generate_address()
         {
-            if (!bytes)
-                bytes = SHA256(crypto.getRandomValues(new Uint8Array(32)), { asBytes: true });
+            var bytes = get32SecureRandomBytes();
             
             var result = generate_address_result(bytes, addressType, true, qrErrorCorrectionLevel);
             document.getElementById("privkey_privkey").innerHTML = result[0];
@@ -1400,52 +1493,6 @@ li
                 return [privkey, return_privkey_qr, return_address_type, address, return_address_qr];
             }
             return [privkey, return_address_type, address];
-        }
-        
-        var randomnessCanvas = document.getElementById("randomness_canvas").getContext("2d");
-        var randomnessArray = undefined;
-        var randomnessIndex = 0;
-        var randomnessMax = 1000;
-        // generates address with user input randomness
-        function generate_address_with_randomness()
-        {
-            if (randomnessArray)
-                return;
-            
-            document.getElementById("randomness_container").style = "display: block; position: relative; height: 400px; margin-bottom: 20px;";
-            
-            var div = document.getElementById("randomness_div");
-            div.innerHTML = "Move your mouse around here for randomness<br />0%";
-            div.onmousemove = function(e)
-            {
-                if (randomnessIndex > randomnessMax)
-                {
-                    var bytes = [];
-                    bytes.push.apply(bytes, crypto.getRandomValues(new Uint8Array(32)));
-                    bytes.push.apply(bytes, randomnessArray);
-                    div.onmousemove = null;
-                    randomnessIndex = 0;
-                    randomnessArray = undefined;
-                    generate_address(SHA256(bytes, { asBytes: true }));
-                    document.getElementById("randomness_container").style = "display: none;";
-                    return;
-                }
-                
-                var rect = e.target.getBoundingClientRect();
-                var x = e.clientX - rect.left;
-                var y = e.clientY - rect.top;
-                //randomnessCanvas.fillRect(x - 3, y - 3, 6, 6);
-                randomnessCanvas.beginPath();
-                randomnessCanvas.arc(x, y, 4, 0, 6.3);
-                randomnessCanvas.fill();
-                div.innerHTML = "Move your mouse around here for randomness<br />" + Math.floor(randomnessIndex / randomnessMax * 100) + "%";
-                
-                randomnessArray[randomnessIndex++] = (e.clientX + e.clientY * 400);
-            };
-            
-            document.getElementById("randomness_canvas").width = div.offsetWidth - 4;
-            randomnessCanvas.fillStyle = "#5b96f7";
-            randomnessArray = new Array(randomnessMax);
         }
         
         var bulkTextarea;
@@ -1666,7 +1713,8 @@ li
         {
             if (bulkCurrentCount < bulkCount)
             {
-                var data = generate_address_result(SHA256(crypto.getRandomValues(new Uint8Array(32)), { asBytes: true }), bulkAddressType, false);
+                var bytes = get32SecureRandomBytes();
+                var data = generate_address_result(bytes, bulkAddressType, false);
                 bulkArray[bulkCurrentCount] = "" + (bulkCurrentCount + 1) + ", \"" + data[2] + "\", \"" + data[0] + "\"";
                 ++bulkCurrentCount;
                 bulkTextarea.innerHTML = "Generating: " + bulkCurrentCount + "/" + bulkCount;
@@ -1777,10 +1825,9 @@ li
                 
                 paperWalletCount = 0;
                 paperwalletCurrentCount = 0;
-                randomnessArrayPaper = undefined;
                 paperWalletArray = undefined;
                 
-            }, randomnessArrayPaper);
+            });
         }
         
         var paperWalletStyle = "design0";
@@ -1792,7 +1839,7 @@ li
         // start generating paper wallets
         function paperWallet()
         {
-            if (paperWalletArray || randomnessArrayPaper)
+            if (paperWalletArray)
                 return;
             
             if (document.getElementById("use_custom_addresses_paper").checked)
@@ -1838,111 +1885,14 @@ li
             paperWalletIntervalID = window.setInterval(paperwallet_generate_timeout, 0);
         }
         
-        var randomnessCanvasPaper = document.getElementById("randomness_canvas_paper").getContext("2d");
-        var randomnessArrayPaper = undefined;
-        var randomnessIndexPaper = 0;
-        // generate paper wallets with user input randomness
-        function paperWalletWithRandomness()
-        {
-            if (randomnessArrayPaper || paperWalletArray)
-                return;
-            
-            var num = Number.parseInt(document.getElementById("paperwallet_generate_count").value);
-            if (isNaN(num))
-            {
-                paperWalletTextArea.innerHTML = "Enter a number for count";
-                return;
-            }
-            else if (num < 1)
-            {
-                paperWalletTextArea.innerHTML = "Count must be greater than zero";
-                return;
-            }
-            else if (num > 20)
-            {
-                paperWalletTextArea.innerHTML = "Count must be 20 at most";
-                return;
-            }
-            
-            document.getElementById("randomness_container_paper").style = "display: block; position: relative; height: 400px; margin-bottom: 20px;";
-            
-            var div = document.getElementById("randomness_div_paper");
-            div.innerHTML = "Move your mouse around here for randomness<br />0%";
-            div.onmousemove = function(e)
-            {
-                if (randomnessIndexPaper > randomnessMax)
-                {
-                    var num2 = Number.parseInt(document.getElementById("paperwallet_generate_count").value);
-                    if (isNaN(num2))
-                        num2 = 4;
-                    else if (num2 < 1)
-                        num2 = 1;
-                    else if (num2 > 20)
-                        num2 = 20;
-                
-                    var bytes = [];
-                    bytes.push.apply(bytes, crypto.getRandomValues(new Uint8Array(32)));
-                    bytes.push.apply(bytes, randomnessArrayPaper);
-                    div.onmousemove = null;
-                    randomnessIndexPaper = 0;
-                    
-                    paperWalletCount = num2;
-                    paperwalletCurrentCount = 0;
-                    
-                    paperWalletAddressType = paperAddressType;
-                    paperWalletQRErrorCorrectionLevel = paperQRErrorCorrectionLevel;
-                    document.getElementById("randomness_container_paper").style = "display: none;";
-                    
-                    if (document.getElementById("bip38enabled_paper").checked)
-                    {
-                        paperWalletTextArea.innerHTML = "Generating initial values";
-                        paperWalletArray = [];
-                        window.setTimeout(paperWalletBip38Start, 0);
-                        return;
-                    }
-                    
-                    randomnessArrayPaper = bytes;
-                    paperWalletArray = new Array(paperWalletCount);
-                    paperWalletIntervalID = window.setInterval(paperwallet_generate_timeout, 0);
-                    
-                    return;
-                }
-                
-                var rect = e.target.getBoundingClientRect();
-                var x = e.clientX - rect.left;
-                var y = e.clientY - rect.top;
-                randomnessCanvasPaper.beginPath();
-                randomnessCanvasPaper.arc(x, y, 4, 0, 6.3);
-                randomnessCanvasPaper.fill();
-                div.innerHTML = "Move your mouse around here for randomness<br />" + Math.floor(randomnessIndexPaper / randomnessMax * 100) + "%";
-                
-                randomnessArrayPaper[randomnessIndexPaper++] = (e.clientX + e.clientY * 400);
-            };
-            
-            document.getElementById("randomness_canvas_paper").width = div.offsetWidth - 4;
-            randomnessCanvasPaper.fillStyle = "#5b96f7";
-            randomnessArrayPaper = new Array(randomnessMax);
-        }
-        
         var paperwalletCurrentCount = 0;
         // periodically generate 1 paper wallet, so the page won't freeze while generating
         function paperwallet_generate_timeout()
         {
             if (paperwalletCurrentCount < paperWalletCount)
             {
-                var data;
-                if (randomnessArrayPaper)
-                {
-                    var temp = [];
-                    temp.push.apply(temp, SHA256(randomnessArrayPaper, { asBytes: true }));
-                    temp.push.apply(temp, SHA256(crypto.getRandomValues(new Uint8Array(32)), { asBytes: true }));
-                    data = generate_address_result(SHA256(temp, { asBytes: true }), paperWalletAddressType, true, paperWalletQRErrorCorrectionLevel);
-                    randomnessArrayPaper = temp;
-                }
-                else
-                {
-                    data = generate_address_result(SHA256(crypto.getRandomValues(new Uint8Array(32)), { asBytes: true }), paperWalletAddressType, true, paperWalletQRErrorCorrectionLevel);
-                }
+                var bytes = get32SecureRandomBytes();
+                var data = generate_address_result(bytes, paperWalletAddressType, true, paperWalletQRErrorCorrectionLevel);
                     
                 paperWalletArray[paperwalletCurrentCount] = data;
                 ++paperwalletCurrentCount;
@@ -1956,7 +1906,6 @@ li
                 paperwalletCurrentCount = 0;
                 paperWalletCreate(paperWalletArray, false);
                 paperWalletArray = undefined;
-                randomnessArrayPaper = undefined;
             }
         }
         
