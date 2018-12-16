@@ -1,0 +1,37 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>The HTML5 Herald</title>
+  <meta name="description" content="The HTML5 Herald">
+  <meta name="author" content="SitePoint">
+
+  <!link rel="stylesheet" href="css/styles.css?v=1.0">
+
+</head>
+<body>
+  <!script src="js/scripts.js"></script>
+      <script>
+        console.log('window.crypto', window.crypto);
+// The line of code below checks if your browser can generate random values
+        // if (true || !window.crypto || !window.crypto.getRandomValues )
+        if (true)
+        {
+          
+          console.log('fuck you');
+            window.onload = function()
+            {
+                document.write("Your browser is unable to generate cryptographically strong random values. Please use a newer one.<br />Recommended browsers:<br /><a href=\"https://www.google.com/chrome/\">Google Chrome</a><br /><a href=\"https://www.mozilla.org/firefox/\">Mozilla Firefox</a><br /><a href=\"https://www.opera.com/\">Opera browser</a>");
+            };
+        }
+        
+          window.onload = function()
+            {
+                document.write("I overwrite you?")
+            };
+    </script>
+  <p>Here I Am</p>
+</body>
+</html>
