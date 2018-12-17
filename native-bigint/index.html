@@ -185,17 +185,17 @@ li
     <script>
         if (!window.crypto || !window.crypto.getRandomValues)
         {
-            window.onload = function()
+            window.addEventListener("load", function()
             {
                 document.write("Your browser is unable to generate cryptographically strong random values. Please use a newer one.<br />Recommended browsers:<br /><a href=\"https://www.google.com/chrome/\">Google Chrome</a><br /><a href=\"https://www.mozilla.org/firefox/\">Mozilla Firefox</a><br /><a href=\"https://www.opera.com/\">Opera browser</a>");
-            };
+            });
         }
         else if (typeof BigInt === "undefined")
         {
-            window.onload = function()
+            window.addEventListener("load", function()
             {
                 document.write("This browser doesn't support native BigInts. You can use the page <a href=\"..\">without native BigInts</a>");
-            }
+            });
         }
     </script>
     
@@ -3579,7 +3579,7 @@ li
         var randomnessCanvasResizerFunction;
         var randomnessBytes = undefined;
         
-        window.onload = function()
+        window.addEventListener("load", function()
         {
             var newLink = document.createElement("link");
             newLink.rel = "shortcut icon";
@@ -3732,7 +3732,7 @@ li
             };
             
             currentLayout = "generate";
-        };
+        });
     
         // secp256k1 parameters
         var ecc_p =  0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2Fn;
