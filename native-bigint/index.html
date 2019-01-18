@@ -257,7 +257,7 @@ li.light
 </head>
 
 
-<body>
+<body class="dark">
     <script>
         if (!window.crypto || !window.crypto.getRandomValues)
         {
@@ -3754,7 +3754,7 @@ li.light
                 randomnessCanvas.style.left = (width / 2 - canvasWidth / 2) + "px";
                 randomnessCanvas.style.top = (height / 2 - canvasHeight / 1.5) + "px";
                 
-                ctx.fillStyle = "#ffffff";
+                ctx.fillStyle = darkMode ? "#323639" : "#ffffff";
                 ctx.fillRect(0, 0, randomnessCanvas.width, randomnessCanvas.height);
                 ctx.fillStyle = prevFillStyle;
                 
@@ -3773,7 +3773,7 @@ li.light
             window.addEventListener("resize", randomnessCanvasResizerFunction);
             randomnessCanvasResizerFunction();
             
-            ctx.fillStyle = "#ffffff";
+            ctx.fillStyle = darkMode ? "#323639" : "#ffffff";
             ctx.fillRect(0, 0, randomnessCanvas.width, randomnessCanvas.height);
             var tempRandomnessBytes = [];
             var randomnessIndex = 0;
