@@ -19,38 +19,108 @@ body
     font-family: "Trebuchet MS", Helvetica, sans-serif;
 }
 
+body.dark
+{
+    background: #121212;
+    color: #e0e0e0;
+}
+
+body.light
+{
+    background: white;
+    color: black;
+}
+
+a.dark
+{
+    color: #32b2ff;
+}
+
+a.light
+{
+    color: #0028ee;
+}
+
 button
 {
     background-color: var(--main-color);
     border: none;
     border-radius: 5px;
     color: #ffffff;
-    padding: 12px 25px 12px 25px; /*top right bottom left*/
+    padding: 12px 25px 12px 25px;
     margin: 5px 0px 5px 0px;
     font-family: "Verdana";
     font-size: 20px;
     cursor: pointer;
     width: 100%;
+    transition: 0.15s;
 }
 
 button:disabled
 {
     background-color: #77abff;
-    border: none;
-    border-radius: 5px;
-    color: #ffffff;
-    padding: 12px 25px 12px 25px; /*top right bottom left*/
-    margin: 5px 0px 5px 0px;
-    font-family: "Verdana";
-    font-size: 20px;
     cursor: not-allowed;
-    width: 100%;
+}
+
+button:enabled:hover
+{
+    background-color: #54adff;
+}
+
+input.dark
+{
+    background: #323639;
+    color: white;
+    border: 1px solid #a0a3a1;
+}
+
+input.light
+{
+    background: white;
+    color: black;
+    border: 1px solid #a0a3a1;
+}
+
+textarea.dark
+{
+    background: #323639;
+    color: white;
+    border: 1px solid #a0a3a1;
+}
+
+textarea.light
+{
+    background: white;
+    color: black;
+    border: 1px solid #a0a3a1;
+}
+
+select.dark
+{
+    background: #323639;
+    color: white;
+}
+
+select.light
+{
+    background: white;
+    color: black;
 }
 
 li
 {
     font-size: 18px;
     padding: 5px;
+}
+
+li.dark
+{
+    color: white;
+}
+
+li.light
+{
+    color: black;
 }
 
 .title
@@ -159,9 +229,15 @@ li
         visibility: visible;
         page-break-inside: avoid;
     }
+    
+    *
+    {
+        background: white !important;
+        color: black !important;
+    }
 }
 
-// https://fonts.google.com/specimen/Roboto+Mono
+/* https://fonts.google.com/specimen/Roboto+Mono */
 @font-face
 {
     font-family: 'roboto-mono';
@@ -259,7 +335,7 @@ li
                 <input id="view_address_privkey_textbox" type="text" style="font-size: 25px; width: 100%; padding: 8px; margin-bottom: 10px;"></input>
                 <button onclick="view_address_details()">View details</button>
                 <div id="bip38_decrypt_div" style="display: none; width: 100%;">
-                    <div style="margin-top: 40px; margin-bottom: 10px; font-size: 20px;">Enter the password for this wallet:</div>
+                    <div style="margin-top: 40px; margin-bottom: 10px; font-size: 20px;">Enter the password for this address:</div>
                     <input id="view_address_bip38_password_textbox" type="text" style="font-size: 25px; width: 400px; padding: 8px; margin-bottom: 10px;"></input>
                     <br />
                     <button onclick="bip38decrypt_button()" style="width: 420px;">Decrypt</button>
@@ -464,6 +540,7 @@ li
         <div id="main_security" style="display: none;">
             <div class="title">Security tips</div>
             <ul>
+                <li>Paper wallets should be only used if you know exactly how they work. It is easy for inexperienced people to make mistakes, resulting in permanent loss of funds. See the <a href="https://en.bitcoin.it/wiki/Paper_wallet">bitcoin wiki</a> for more details.</li>
                 <li>Always use an offline computer to generate paper wallets, so it is harder for malware to steal your private keys. You should save this site to your computer (by pressing CTRL-S, or right click and save the webpage), then run it offline. You should also open the browser in incognito / private browsing mode, so no information is saved about the generated wallets.</li>
                 <li>If possible, use a bootable usb drive / "live cd" instead of your regular OS, so there is no chance that malware on your system steals your funds.</li>
                 <li>Use a "dumb" / old printer, as newer "smart" printers may save your private keys in their cache or on their internal storage, or their firmware could be hacked (this is unlikely though).</li>
@@ -489,6 +566,28 @@ li
             </div>
         </div>
     </div>
+    <div style="position: absolute; top: 10px; right: 10px;">
+        <a id="lightModeButton" href="javascript:setDarkMode(false)" style="text-decoration: none">
+            <svg width="32" height="32">
+                <circle cx="16" cy="16" r="16" style="fill:white" />
+                <circle cx="16" cy="16" r="6" style="fill:black" />
+                <line x1="4" y1="16" x2="6" y2="16" style="stroke:black;stroke-width:4;stroke-linecap:round;transform-origin:16px 16px;transform:rotate(0deg);"/>
+                <line x1="4" y1="16" x2="6" y2="16" style="stroke:black;stroke-width:4;stroke-linecap:round;transform-origin:16px 16px;transform:rotate(45deg);"/>
+                <line x1="4" y1="16" x2="6" y2="16" style="stroke:black;stroke-width:4;stroke-linecap:round;transform-origin:16px 16px;transform:rotate(90deg);"/>
+                <line x1="4" y1="16" x2="6" y2="16" style="stroke:black;stroke-width:4;stroke-linecap:round;transform-origin:16px 16px;transform:rotate(135deg);"/>
+                <line x1="4" y1="16" x2="6" y2="16" style="stroke:black;stroke-width:4;stroke-linecap:round;transform-origin:16px 16px;transform:rotate(180deg);"/>
+                <line x1="4" y1="16" x2="6" y2="16" style="stroke:black;stroke-width:4;stroke-linecap:round;transform-origin:16px 16px;transform:rotate(225deg);"/>
+                <line x1="4" y1="16" x2="6" y2="16" style="stroke:black;stroke-width:4;stroke-linecap:round;transform-origin:16px 16px;transform:rotate(270deg);"/>
+                <line x1="4" y1="16" x2="6" y2="16" style="stroke:black;stroke-width:4;stroke-linecap:round;transform-origin:16px 16px;transform:rotate(315deg);"/>
+            </svg>
+        </a>
+        <a id="darkModeButton" href="javascript:setDarkMode(true)" style="text-decoration: none">
+            <svg height="32" width="32">
+                <circle cx="16" cy="16" r="16" stroke-width="4" style="fill:black" />
+                <path d="M 12 6 Q 20 16 12 26 Q 24 26 24 16 Q 24 6 12 6" style="stroke-width:0;fill:white;stroke:white;" />
+            </svg>
+        </a>
+    </div>
 
     <script type="text/javascript" src="BN.js"></script>
     
@@ -506,6 +605,27 @@ li
         
         var randomnessCanvasResizerFunction;
         var randomnessBytes = undefined;
+        
+        var hour = new Date().getHours();
+        var darkMode = hour < 7 || hour > 18;
+        
+        function setDarkMode(isDark)
+        {
+            darkMode = isDark;
+            document.getElementById(isDark ? "darkModeButton" : "lightModeButton").style.display = "none";
+            document.getElementById(isDark ? "lightModeButton" : "darkModeButton").style.display = "";
+            
+            var addName = isDark ? "dark" : "light";
+            var remName = isDark ? "light" : "dark";
+            var allNodes = document.querySelectorAll("body, li, a, input, textarea, select, .title, .title-small, .address-view, .paperwallet-custom-params");
+            
+            for (var i = 0; i < allNodes.length; ++i)
+            {
+                var currentNodeClasses = allNodes[i].classList;
+                currentNodeClasses.remove(remName);
+                currentNodeClasses.add(addName);
+            }
+        }
         
         window.addEventListener("load", function()
         {
@@ -569,7 +689,7 @@ li
                 randomnessCanvas.style.left = (width / 2 - canvasWidth / 2) + "px";
                 randomnessCanvas.style.top = (height / 2 - canvasHeight / 1.5) + "px";
                 
-                ctx.fillStyle = "#ffffff";
+                ctx.fillStyle = darkMode ? "#323639" : "#ffffff";
                 ctx.fillRect(0, 0, randomnessCanvas.width, randomnessCanvas.height);
                 ctx.fillStyle = prevFillStyle;
                 
@@ -588,7 +708,7 @@ li
             window.addEventListener("resize", randomnessCanvasResizerFunction);
             randomnessCanvasResizerFunction();
             
-            ctx.fillStyle = "#ffffff";
+            ctx.fillStyle = darkMode ? "#323639" : "#ffffff";
             ctx.fillRect(0, 0, randomnessCanvas.width, randomnessCanvas.height);
             var tempRandomnessBytes = [];
             var randomnessIndex = 0;
@@ -660,6 +780,8 @@ li
             };
             
             currentLayout = "generate";
+            
+            setDarkMode(darkMode);
         });
     
         // secp256k1 parameters
@@ -996,7 +1118,7 @@ li
                 
                 if (typeof result == "string")
                 {
-                    document.getElementById("view_address_information").innerHTML = "Cannot decrypt wallet (" + result + ")";
+                    document.getElementById("view_address_information").innerHTML = "Cannot decrypt address (" + result + ")";
                     document.getElementById("view_address_segwitaddress").innerHTML = "";
                     document.getElementById("view_address_bech32address").innerHTML = "";
                     document.getElementById("view_address_legacyaddress").innerHTML = "";
@@ -1984,7 +2106,7 @@ li
                         
                         var parentDiv = document.createElement("div");
                         parentDiv.className = "parent_div";
-                        parentDiv.style = "position: relative; border: 2px solid black; width: 1000px; height: 200px; margin-bottom: " + verticalGap + "px;";
+                        parentDiv.style = "background: white; color: black; position: relative; border: 2px solid black; width: 1000px; height: 200px; margin-bottom: " + verticalGap + "px;";
                         
                         var addressDiv = document.createElement("div");
                         addressDiv.innerHTML = currentAddress;
@@ -2118,7 +2240,7 @@ li
                         
                         var parentDiv = document.createElement("div");
                         parentDiv.className = "parent_div";
-                        parentDiv.style = "position: relative; border: 2px solid black; width: 1000px; height: 300px; margin-bottom: " + verticalGap + "px;";
+                        parentDiv.style = "background: white; color: black; position: relative; border: 2px solid black; width: 1000px; height: 300px; margin-bottom: " + verticalGap + "px;";
                         
                         var addressDiv = document.createElement("div");
                         addressDiv.innerHTML = currentAddress;
@@ -2178,7 +2300,7 @@ li
                         
                         var parentDiv = document.createElement("div");
                         parentDiv.className = "parent_div";
-                        parentDiv.style = "position: relative; border: 2px solid black; width: 1002px; height: 426px; margin-bottom: " + verticalGap + "px;";
+                        parentDiv.style = "background: white; color: black; position: relative; border: 2px solid black; width: 1002px; height: 426px; margin-bottom: " + verticalGap + "px;";
                         
                         var addressDiv = document.createElement("div");
                         addressDiv.innerHTML = currentAddress;
@@ -2228,7 +2350,7 @@ li
                         
                         var parentDiv = document.createElement("div");
                         parentDiv.className = "parent_div";
-                        parentDiv.style = "position: relative; border: 2px solid black; width: 1001px; height: 425px; margin-bottom: " + verticalGap + "px;";
+                        parentDiv.style = "background: white; color: black; position: relative; border: 2px solid black; width: 1001px; height: 425px; margin-bottom: " + verticalGap + "px;";
                         
                         var addressDiv = document.createElement("div");
                         addressDiv.innerHTML = splitTextLength(currentAddress, 17);
@@ -2278,7 +2400,7 @@ li
                         
                         var parentDiv = document.createElement("div");
                         parentDiv.className = "parent_div";
-                        parentDiv.style = "position: relative; border: 2px solid black; width: 1002px; height: 426px; margin-bottom: " + verticalGap + "px;";
+                        parentDiv.style = "background: white; color: black; position: relative; border: 2px solid black; width: 1002px; height: 426px; margin-bottom: " + verticalGap + "px;";
                         
                         var addressDiv = document.createElement("div");
                         addressDiv.innerHTML = currentAddress;
@@ -2336,7 +2458,7 @@ li
                         
                         var parentDiv = document.createElement("div");
                         parentDiv.className = "parent_div";
-                        parentDiv.style = "position: relative; border: 2px solid black; width: 1020px; height: 340px; margin-bottom: " + verticalGap + "px;";
+                        parentDiv.style = "background: white; color: black; position: relative; border: 2px solid black; width: 1020px; height: 340px; margin-bottom: " + verticalGap + "px;";
                         
                         var addressDiv = document.createElement("div");
                         addressDiv.innerHTML = currentAddress;
@@ -2388,7 +2510,7 @@ li
                         
                         var parentDiv = document.createElement("div");
                         parentDiv.className = "parent_div";
-                        parentDiv.style = "position: relative; border: 2px solid black; width: 1004px; height: 538px; margin-bottom: " + verticalGap + "px;";
+                        parentDiv.style = "background: white; color: black; position: relative; border: 2px solid black; width: 1004px; height: 538px; margin-bottom: " + verticalGap + "px;";
                         
                         var addressDiv = document.createElement("div");
                         addressDiv.innerHTML = currentAddress;
@@ -2442,7 +2564,7 @@ li
                         
                         var parentDiv = document.createElement("div");
                         parentDiv.className = "parent_div";
-                        parentDiv.style = "position: relative; border: 2px solid black; width: 1002px; height: 334px; margin-bottom: " + verticalGap + "px;";
+                        parentDiv.style = "background: white; color: black; position: relative; border: 2px solid black; width: 1002px; height: 334px; margin-bottom: " + verticalGap + "px;";
                         
                         var addressDiv = document.createElement("div");
                         addressDiv.innerHTML = currentAddress;
@@ -2507,7 +2629,7 @@ li
                         
                         var parentDiv = document.createElement("div");
                         parentDiv.className = "parent_div";
-                        parentDiv.style = "position: relative; border: 2px solid black; width: 1020px; height: 340px; margin-bottom: " + verticalGap + "px;";
+                        parentDiv.style = "background: white; color: black; position: relative; border: 2px solid black; width: 1020px; height: 340px; margin-bottom: " + verticalGap + "px;";
                         
                         var addressDiv = document.createElement("div");
                         addressDiv.innerHTML = currentAddress;
@@ -2534,7 +2656,6 @@ li
                     break;
                 }
             }
-            
         }
         
         function paperWalletFromUserAddresses()
@@ -2613,7 +2734,10 @@ li
         function paperWalletStyleChange(event)
         {
             paperWalletStyle = event.target.value;
-            document.getElementById("paperwallet_source_link").innerHTML = paperWalletStyleSources[paperWalletStyle];
+            var linkElement = document.getElementById("paperwallet_source_link");
+            linkElement.innerHTML = paperWalletStyleSources[paperWalletStyle];
+            if (linkElement.childNodes.length > 1)
+                linkElement.childNodes[1].classList.add(darkMode ? "dark" : "light");
             
             if (paperWalletStyle == "custom")
                 document.getElementById("paperwallet_custom_parameters").style = "display: table; border-bottom: 2px solid #bbbbbb; padding-bottom: 20px; margin-bottom: 20px;";
@@ -2825,12 +2949,13 @@ li
             document.getElementById("main_" + prevLayout).style = "display: none";
             document.getElementById("main_" + newLayout).style = "display: table; width: 80%; padding-left: 10px;";
             
-            for (var c in layoutPrintAreas[prevLayout])
-                document.getElementById(c).className = "";
+            var prevPrintAreas = layoutPrintAreas[prevLayout];
+            for (var c in prevPrintAreas)
+                document.getElementById(c).classList.remove(prevPrintAreas[c]);
                 
             var values = layoutPrintAreas[newLayout];
             for (var c in values)
-                document.getElementById(c).className = values[c];
+                document.getElementById(c).classList.add(values[c]);
             
             currentLayout = newLayout;
         }
