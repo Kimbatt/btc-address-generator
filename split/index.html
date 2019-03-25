@@ -270,6 +270,7 @@ li.light
     
     <div style="display: table; width: 100%;">
         <div id="button_container" style="display: table-cell; padding-right: 10px; border-right: 2px solid #bbbbbb; width: 250px;">
+            <div id="testnet_text" style="display: none; font-size: 40px; font-weight: bold; text-align: center; color: #ff0000;">TESTNET</div>
             <button id="button_layout_generate" style="width: 250px;" onclick="set_layout('generate')" disabled >Single address</button>
             <br />
             <button id="button_layout_details" style="width: 250px;" onclick="set_layout('details')">Address details</button>
@@ -513,6 +514,7 @@ li.light
             <ul>
                 <li>P2SH-P2WPKH addresses are referenced as "Segwit" addresses, Bech32-encoded P2WPKH addresses are referenced as "Segwit (bech32)" addresses, and regular P2PKH addresses are referenced as "Legacy" addresses.</li>
                 <li>QR codes of bech32 addresses contain the text capitalized, so the size of the QR codes can be reduced. For more information, see the <a href="https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#Specification">BIP 173 specification (Uppercase/lowercase part)</a>.</li>
+                <li>Testnet version available <a href="?testnet">here.</a></li>
                 <li>JavaScript libraries used on this site: <a href="https://github.com/indutny/bn.js">BigNumber</a>, <a href="http://code.google.com/p/crypto-js/">Crypto-JS</a>, <a href="https://github.com/kazuhikoarase/qrcode-generator">QR code generator</a>, <a href="https://github.com/dchest/scrypt-async-js">Scrypt</a></li>
                 <li>Source code is available at <a href="https://github.com/Kimbatt/btc-address-generator">Github</a> or by viewing this page's source (it is a single html file)</li>
                 <li>This site was made by /u/Kimbatt</li>
@@ -562,7 +564,7 @@ li.light
             
             <div id="randomness_container" style="position: absolute; display: flex;">
                 <div style="float: left; color: white; font-size: 25px; padding: 15px; flex-grow: 1;">You can skip this step if you do not plan to generate valuable wallets.<br />If you skip, you can refresh the page to be able to enter randomness again.</div>
-                <button id="randomness_skip_button" style="display: inline; float: right; width: 150px; height: 48px;" onclick="skipRandomness()">Skip</button>
+                <button id="randomness_skip_button" style="float: right; width: 150px; height: 48px;" onclick="skipRandomness()">Skip</button>
             </div>
         </div>
     </div>
@@ -608,6 +610,10 @@ li.light
         
         var hour = new Date().getHours();
         var darkMode = hour < 7 || hour > 18;
+
+        var isTestnet = window.location.search == "?testnet";
+        if (isTestnet)
+            document.getElementById("testnet_text").style.display = "";
         
         function setDarkMode(isDark)
         {
@@ -1354,7 +1360,7 @@ li.light
             key_bytes.reverse();
             var sha_result_1 = SHA256(key_bytes, { asBytes: true });
             var ripemd_result_2 = RIPEMD160(sha_result_1, { asBytes: true });
-            var ripemd_extended = [0];
+            var ripemd_extended = [isTestnet ? 0x6F : 0x00];
             ripemd_extended.push.apply(ripemd_extended, ripemd_result_2);
             var sha_result_3 = SHA256(ripemd_extended, { asBytes: true });
             var sha_result_4 = SHA256(sha_result_3, { asBytes: true });
@@ -1386,7 +1392,7 @@ li.light
             var redeemscript = [0x00, 0x14];
             redeemscript.push.apply(redeemscript, keyhash);
             
-            var redeemscripthash = [0x05];
+            var redeemscripthash = [isTestnet ? 0xC4 : 0x05];
             redeemscripthash.push.apply(redeemscripthash, RIPEMD160(SHA256(redeemscript, { asBytes: true }), { asBytes: true }));
             
             redeemscripthash.push.apply(redeemscripthash, SHA256(SHA256(redeemscripthash, { asBytes: true }), { asBytes: true }).slice(0, 4));
@@ -1484,11 +1490,11 @@ li.light
                 }
             }
             
-            var address = "bc1";
+            var address = isTestnet ? "tb1" : "bc1";
             for (var i = 0; i < result.length; ++i)
                 address += bech32Chars[result[i]];
 
-            var checksum = bech32CreateChecksum("bc", result);
+            var checksum = bech32CreateChecksum(isTestnet ? "tb" : "bc", result);
             for (var i = 0; i < checksum.length; ++i)
                 address += bech32Chars[checksum[i]];
 
@@ -1506,7 +1512,7 @@ li.light
                 temp.push(0);
             
             privkey.push.apply(privkey, temp);
-            privkey.push(0x80);
+            privkey.push(isTestnet ? 0xEF : 0x80);
             privkey.reverse();
             privkey.push.apply(privkey, SHA256(SHA256(privkey, { asBytes: true }), { asBytes: true }).slice(0, 4));
             return base58encode(privkey);
@@ -1640,7 +1646,7 @@ li.light
             else
                 document.getElementById("bip38_decrypt_div").style.display = "none";
             
-            var newstring = privkey.split('').reverse().join('');
+            var newstring = privkey.split("").reverse().join("");
             for (var i = 0; i < privkey.length; ++i)
             {
                 if (privkey[i] == base58Characters[0])
