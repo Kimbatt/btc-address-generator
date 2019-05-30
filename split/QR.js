@@ -683,10 +683,10 @@ var qrcode = function() {
   //---------------------------------------------------------------------
 
   var QRMode = {
-    MODE_NUMBER :    1 << 0,
-    MODE_ALPHA_NUM : 1 << 1,
-    MODE_8BIT_BYTE : 1 << 2,
-    MODE_KANJI :     1 << 3
+    "MODE_NUMBER" :    1 << 0,
+    "MODE_ALPHA_NUM" : 1 << 1,
+    "MODE_8BIT_BYTE" : 1 << 2,
+    "MODE_KANJI" :     1 << 3
   };
 
   //---------------------------------------------------------------------
@@ -694,10 +694,10 @@ var qrcode = function() {
   //---------------------------------------------------------------------
 
   var QRErrorCorrectionLevel = {
-    L : 1,
-    M : 0,
-    Q : 3,
-    H : 2
+    "L" : 1,
+    "M" : 0,
+    "Q" : 3,
+    "H" : 2
   };
 
   //---------------------------------------------------------------------
@@ -705,14 +705,14 @@ var qrcode = function() {
   //---------------------------------------------------------------------
 
   var QRMaskPattern = {
-    PATTERN000 : 0,
-    PATTERN001 : 1,
-    PATTERN010 : 2,
-    PATTERN011 : 3,
-    PATTERN100 : 4,
-    PATTERN101 : 5,
-    PATTERN110 : 6,
-    PATTERN111 : 7
+    "PATTERN000" : 0,
+    "PATTERN001" : 1,
+    "PATTERN010" : 2,
+    "PATTERN011" : 3,
+    "PATTERN100" : 4,
+    "PATTERN101" : 5,
+    "PATTERN110" : 6,
+    "PATTERN111" : 7
   };
 
   //---------------------------------------------------------------------
@@ -1371,13 +1371,13 @@ var qrcode = function() {
     var getRsBlockTable = function(typeNumber, errorCorrectionLevel) {
 
       switch(errorCorrectionLevel) {
-      case QRErrorCorrectionLevel.L :
+      case QRErrorCorrectionLevel["L"] :
         return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
-      case QRErrorCorrectionLevel.M :
+      case QRErrorCorrectionLevel["M"] :
         return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
-      case QRErrorCorrectionLevel.Q :
+      case QRErrorCorrectionLevel["Q"] :
         return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
-      case QRErrorCorrectionLevel.H :
+      case QRErrorCorrectionLevel["H"] :
         return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
       default :
         return undefined;

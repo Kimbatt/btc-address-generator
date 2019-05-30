@@ -13,6 +13,7 @@ Available at https://kimbatt.github.io/btc-address-generator/
 *  SHA256, RIPEMD160, AES256: http://code.google.com/p/crypto-js/
 *  QR code generator: https://github.com/kazuhikoarase/qrcode-generator
 *  Scrypt: https://github.com/dchest/scrypt-async-js
+*  setImmediate.js: https://github.com/YuzuJS/setImmediate
 
 ## License:  
 [WTFPL](http://www.wtfpl.net/)

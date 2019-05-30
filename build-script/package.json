@@ -1,0 +1,14 @@
+{
+  "name": "build-script",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node build.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "google-closure-compiler": "^20190513.0.0"
+  }
+}

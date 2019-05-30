@@ -3,6 +3,10 @@
 
 (function (module, exports) {
   'use strict';
+  
+  // don't use this if the native BigInt is available
+  if (typeof BigInt === "function")
+    return;
 
   // Utils
   function assert (val, msg) {
@@ -42,20 +46,12 @@
       this._init(number || 0, base || 10, endian || 'be');
     }
   }
-  if (typeof module === 'object') {
-    module.exports = BN;
-  } else {
-    exports.BN = BN;
-  }
+  exports["BN"] = BN;
 
   BN.BN = BN;
   BN.wordSize = 26;
 
   var Buffer;
-  try {
-    Buffer = require('buffer').Buffer;
-  } catch (e) {
-  }
 
   BN.isBN = function isBN (num) {
     if (num instanceof BN) {
