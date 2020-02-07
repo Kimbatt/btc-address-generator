@@ -1,10 +1,14 @@
 // AES256
 // https://code.google.com/p/crypto-js/
 
+var AES;
+var AES_pad;
+var AES_mode;
+
 (function () {
 
 	// Shortcuts
-	var C = Crypto,
+	var C = cryptoJS,
 		util = C.util,
 		charenc = C.charenc,
 		UTF8 = charenc.UTF8;
@@ -83,7 +87,7 @@
 		nrounds,
 		keyschedule;
 
-	var AES = C.AES = {
+	AES = {
 
 		/**
 		* Public API
@@ -403,10 +407,10 @@
 
 })();
 
-(function (C) {
+(function() {
 
 	// Create pad namespace
-	var C_pad = C.pad = {};
+	var C_pad = AES_pad = {};
 
 	// Calculate the number of padding bytes required.
 	function _requiredPadding(cipher, message) {
@@ -445,7 +449,7 @@
 	};
 
 	// Create mode namespace
-	var C_mode = C.mode = {};
+	var C_mode = AES_mode = {};
 
 	/**
 	* Mode base "class".
@@ -508,4 +512,4 @@
 		options.iv = [];
 	};
 
-})(Crypto);
+})();

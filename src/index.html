@@ -33,12 +33,12 @@ body.light
 
 .dark a, .dark .linkStyle
 {
-    color: #32b2ff;
+    color: #59c9ff;
 }
 
 .light a, .light .linkStyle
 {
-    color: #0028ee;
+    color: #005aff;
 }
 
 button
@@ -150,6 +150,11 @@ li
 .paperwallet-custom-params
 {
     width: 80px;
+}
+
+.parent_div, #paperwallet_preview_div
+{
+    color: black;
 }
 
 #bip38_info
@@ -294,8 +299,9 @@ li
     
     <div id="content" style="display: table; width: 100%;">
         <div id="button_container" style="display: table-cell; padding-right: 10px; border-right: 2px solid #bbbbbb; width: 250px;">
-            <div id="testnet_text" style="display: none; font-size: 40px; font-weight: bold; text-align: center; color: #ff0000;">TESTNET</div>
-            <button id="button_layout_generate" style="width: 250px;" onclick="set_layout('generate')" disabled >Single address</button>
+            <div id="testnet_text" style="display: none; font-size: 40px; font-weight: bold; text-align: center; color: #ff0000;"
+                title="The site is in testnet mode. Testnet addresses are used for testing, so testnet coins have no value.">TESTNET</div>
+            <button id="button_layout_singleaddress" style="width: 250px;" onclick="set_layout('singleaddress')" disabled >Single address</button>
             <br />
             <button id="button_layout_details" style="width: 250px;" onclick="set_layout('details')">Address details</button>
             <br />
@@ -308,8 +314,15 @@ li
             <button id="button_layout_beginner" style="width: 250px; margin-top: 50px;" onclick="set_layout('beginner')">Beginner's guide</button>
             <br />
             <button id="button_layout_security" style="width: 250px;" onclick="set_layout('security')">Security tips</button>
+            <div id="warning_text" style="display: none; font-size: 21px; color: #ff0000; margin-top: 30px;">
+                Warning: it seems you're running this generator from a live website.
+                For valuable wallets, it is highly recommended to run the site from an offline computer.
+                You can save this website by pressing CTRL-S or right click -> Save website (or something)
+                <br /><br />
+                <div class="linkStyle" onclick="document.getElementById('warning_text').style.display='none'">Hide warning</div>
+            </div>
         </div>
-        <div id="main_generate" style="display: table; padding-left: 10px;">
+        <div id="main_singleaddress" style="display: table; width: 80%; padding-left: 10px;">
             <div style="display: table-cell; padding-right: 20px;">
                 <div class="title">Single address</div>
                 
@@ -338,22 +351,22 @@ li
                         <div style="border-bottom: 3px solid #2a9612; background: #2a9612;">
                             <div id="address_text" style="font-weight: bold; font-size: 24px; padding-left: 10px; padding-top: 5px; padding-bottom: 5px; color: #ffffff;">Address:</div>
                         </div>
-                        <div id="address_address" style="font-weight: bold; font-size: 20px; font-family: 'roboto-mono', Monaco, monospace; padding-left: 13px; padding-right: 13px; padding-top: 8px; padding-bottom: 8px; border-bottom: 3px solid #2a9612;"></div>
+                        <div id="single_address_address" style="font-weight: bold; font-size: 20px; font-family: 'roboto-mono', Monaco, monospace; padding-left: 13px; padding-right: 13px; padding-top: 8px; padding-bottom: 8px; border-bottom: 3px solid #2a9612;"></div>
                     </div>
-                    <img id="address_qr" style="display:block; margin-left: auto; margin-right: auto;">
+                    <img id="single_address_qr" style="display:block; margin-left: auto; margin-right: auto;">
                 </div>
                 <div style="border-radius: 3px; border: 3px solid #ff7f00; margin-top: 5px; margin-bottom: 20px;">
                     <div>
                         <div style="border-bottom: 3px solid #ff7f00; background: #ff7f00;">
                             <div id="privkey_text" style="font-weight: bold; font-size: 24px; padding-left: 10px; padding-top: 5px; padding-bottom: 5px; color: #ffffff;">Private key:</div>
                         </div>
-                        <div id="privkey_privkey" style="font-weight: bold; font-size: 20px; font-family: 'roboto-mono', Monaco, monospace; padding-left: 13px; padding-right: 13px; padding-top: 8px; padding-bottom: 8px; border-bottom: 3px solid #ff7f00;"></div>
+                        <div id="single_address_privkey" style="font-weight: bold; font-size: 20px; font-family: 'roboto-mono', Monaco, monospace; padding-left: 13px; padding-right: 13px; padding-top: 8px; padding-bottom: 8px; border-bottom: 3px solid #ff7f00;"></div>
                     </div>
-                    <img id="privkey_qr" style="display:block; margin-left: auto; margin-right: auto;">
+                    <img id="single_address_privkey_qr" style="display:block; margin-left: auto; margin-right: auto;">
                 </div>
             </div>
         </div>
-        <div id="main_details" style="display: none;">
+        <div id="main_details" style="display: none; width: 80%; padding-left: 10px;">
             <div style="display: table-row;">
                 <div class="title">Address details</div>
                 <div style="margin-bottom: 10px;">Enter a private key to view its details, or enter a bip38 encrypted private key to decrypt it</div>
@@ -384,7 +397,7 @@ li
                 </div>
             </div>
         </div>
-        <div id="main_bulk" style="display: none;">
+        <div id="main_bulk" style="display: none; width: 80%; padding-left: 10px;">
             <div style="display: table-row; padding-right: 20px;">
                 <div class="title">Bulk Generate</div>
                 
@@ -397,7 +410,7 @@ li
                     </form>
                     <br />
                     <div style="display: table;">
-                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="bip38changed(event, 'bulk')" style="margin-bottom: 20px;" id="bip38enabled_bulk">Bip38 encrypt</label>
+                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="bip38changed(this, 'bulk')" style="margin-bottom: 20px;" id="bip38enabled_bulk">Bip38 encrypt</label>
                         <div class="linkStyle" onclick="showBip38Info()" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</div>
                     </div>
                 </div>
@@ -408,21 +421,21 @@ li
                 <br />
                 <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Number of addresses to generate (max 1000):</div>
                 <div style="display: table;">
-                    <input id="bulk_count" type="number" value="10" style="display: table-cell; font-size: 25px; width: 100px; padding: 5px;">
-                    <button style="display: table-cell; width: 300px; margin-left: 20px;" onclick="bulk_generate()">Generate</button>
+                    <input id="bulk_count" type="number" value="10" style="display: inline-block; font-size: 25px; width: 100px; padding: 5px;">
+                    <button style="display: inline-block; width: 300px; margin-left: 20px;" onclick="bulk_generate()">Generate</button>
                 </div>
             </div>
             <textarea style="display: block; width: 100%; height: 400px; font-family: roboto-mono; font-size: 19px; padding: 8px; margin-top: 15px; border: 2px solid #bbbbbb; resize: none;" id="bulk_addresses" readonly>Press generate to start generating</textarea>
         </div>
-        <div id="main_paper" style="display: none;">
+        <div id="main_paper" style="display: none; width: 80%; padding-left: 10px;">
             <div class="title">Paper wallet</div>
             <div style="display: table; padding-left: 10px; margin-bottom: 10px;">
                 <div style="padding-bottom: 10px; padding-right: 10px; width: 500px;">
                     <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Address type:</div>
                     <form>
-                        <label style="white-space: nowrap;"><input id="bulk_radio_type_segwit" type="radio" name="address_type" onchange="setPaperAddressType('segwit')">Segwit</label>
-                        <label style="white-space: nowrap;"><input id="bulk_radio_type_bech32" type="radio" name="address_type" onchange="setPaperAddressType('bech32')" checked>Segwit (bech32)</label>
-                        <label style="white-space: nowrap;"><input id="bulk_radio_type_legacy" type="radio" name="address_type" onchange="setPaperAddressType('legacy')">Legacy</label>
+                        <label style="white-space: nowrap;"><input id="paper_radio_type_segwit" type="radio" name="address_type" onchange="setPaperAddressType('segwit')">Segwit</label>
+                        <label style="white-space: nowrap;"><input id="paper_radio_type_bech32" type="radio" name="address_type" onchange="setPaperAddressType('bech32')" checked>Segwit (bech32)</label>
+                        <label style="white-space: nowrap;"><input id="paper_radio_type_legacy" type="radio" name="address_type" onchange="setPaperAddressType('legacy')">Legacy</label>
                     </form>
                     <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px; margin-top: 20px;">QR code error correction level:</div>
                     <form>
@@ -433,7 +446,7 @@ li
                     </form>
                     <br />
                     <div style="display: table; padding-top: 10px;">
-                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="bip38changed(event, 'paper')" style="margin-bottom: 20px;" id="bip38enabled_paper">Bip38 encrypt</label>
+                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="bip38changed(this, 'paper')" style="margin-bottom: 20px;" id="bip38enabled_paper">Bip38 encrypt</label>
                         <div class="linkStyle" onclick="showBip38Info()" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</div>
                     </div>
                     <div id="bip38_password_box_div_paper" style="display: none; padding-bottom: 15px;">
@@ -450,19 +463,19 @@ li
                     <br />
                     <br />
                     <div style="font-weight: bold; font-size: 20px;">Vertical gap between wallets (in pixels):</div>
-                    <input id="paperwallet_vertical_gap" type="number" value="0" style="font-size: 25px; padding: 5px; width: 100%;" oninput="paperwallet_vertical_gap_changed(event)">
+                    <input id="paperwallet_vertical_gap" type="number" value="0" style="font-size: 25px; padding: 5px; width: 100%;" oninput="paperwallet_vertical_gap_changed(this)">
                     <br />
                     <br />
                     <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="document.getElementById('paper_custom_addresses_container').style.display = event.target.checked ? 'block' : 'none'" id="use_custom_addresses_paper">Use your own addresses</label>
                     <div id="paper_custom_addresses_container" style="display: none;">
-                        <div style="width: 480px; padding: 5px;">If you have already generated addresses / private keys, you can paste them here to use them in paper wallets.<br /><strong>Make sure that the addresses and private keys are correct!</strong><br /><br />Use the following format: separate the address and the private key with a space character, and separate each pair with commas: (address1) (privkey1), (address2) (privkey2), etc...<br /><br />Click on "Generate paper wallets" to make the paper wallets.</div>
+                        <div style="width: 480px; padding: 5px;">If you have already generated addresses / private keys, you can paste them here to use them in paper wallets.<br /><strong>Make sure that the addresses and private keys are correct!</strong><br /><br />Use the following format: separate the address and the private key with a space character, and separate each pair with commas: address1 privkey1, address2 privkey2, etc...<br /><br />Click on "Generate paper wallets" to make the paper wallets.</div>
                         <div id="paper_custom_address_error" style="padding: 5px; font-weight: bold;"></div>
                         <textarea id="paper_custom_addresses" style="width: 100%; height: 150px; resize: none; margin-top: 10px;"></textarea>
                     </div>
                     <br />
                     <div style="display: table; padding-top: 10px; width: 500px;">
                         <div style="display: table-cell; font-weight: bold; font-size: 20px; width: 100px;">Style:</div>
-                        <select style="display: table-cell; font-size: 25px; padding: 5px; width: 400px; margin-left: 20px; margin-bottom: 10px; right: 0px;" onchange="paperWalletStyleChange(event)">
+                        <select style="display: table-cell; font-size: 25px; padding: 5px; width: 400px; margin-left: 20px; margin-bottom: 10px; right: 0px;" onchange="paperWalletStyleChange(this)">
                             <option value="design0">Simple</option>
                             <option value="design6">bitaddress.org</option>
                             <option value="design1">bitcoinpaperwallet.com (black and white)</option>
@@ -480,72 +493,74 @@ li
             </div>
             <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px; line-height: 30px;">Adjust the print scale if necessary!</div>
             <div id="paperwallet_generate_progress_text" style="font-weight: bold; font-size: 20px; padding-bottom: 10px; line-height: 30px;"></div>
-            <div id="paperwallet_custom_parameters" style="display: none;">
+            <div id="paperwallet_custom_parameters" style="display: none; border-bottom: 2px solid #bbbbbb; padding-bottom: 20px; margin-bottom: 20px;">
                 <div style="display: table-cell; padding-right: 40px; white-space: nowrap;">
                     <input id="paperwallet_file_chooser" type="file" accept="image/*" onchange="paperWalletCustomImageSelected(this)"> &lt;- Background image
                     <br />
                     <br />
-                    <input id="paperwallet_custom_background_scale" type="number" value="100" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Background image preview scale (percent)
+                    <input id="paperwallet_custom_background_scale" type="number" value="100" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Background image preview scale (percent)
                     <br />
-                    <input id="paperwallet_custom_address_posx" type="number" value="170" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Address position x (left)
+                    <input id="paperwallet_custom_address_posx" type="number" value="170" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address position x (left)
                     <br />
-                    <input id="paperwallet_custom_address_posy" type="number" value="10" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Address position y (top)
+                    <input id="paperwallet_custom_address_posy" type="number" value="10" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address position y (top)
                     <br />
-                    <input id="paperwallet_custom_address_size" type="number" value="20" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Address font size
+                    <input id="paperwallet_custom_address_size" type="number" value="20" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address font size
                     <br />
-                    <input id="paperwallet_custom_address_length" type="number" value="0" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Address letters per line (0: no line breaks)
+                    <input id="paperwallet_custom_address_length" type="number" value="0" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address letters per line (0: no line breaks)
                     <br />
-                    <input id="paperwallet_custom_address_rotation" type="number" value="0" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Address rotation (degrees)
+                    <input id="paperwallet_custom_address_rotation" type="number" value="0" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address rotation (degrees)
                     <br />
-                    <input id="paperwallet_custom_address_qr_posx" type="number" value="10" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Address QR code position x (left)
+                    <input id="paperwallet_custom_address_qr_posx" type="number" value="10" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address QR code position x (left)
                     <br />
-                    <input id="paperwallet_custom_address_qr_posy" type="number" value="10" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Address QR code position y (top)
+                    <input id="paperwallet_custom_address_qr_posy" type="number" value="10" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address QR code position y (top)
                     <br />
-                    <input id="paperwallet_custom_address_qr_size" type="number" value="150" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Address QR code size
+                    <input id="paperwallet_custom_address_qr_size" type="number" value="150" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address QR code size
                     <br />
-                    <input id="paperwallet_custom_address_qr_rotation" type="number" value="0" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Address QR rotation (degrees)
+                    <input id="paperwallet_custom_address_qr_rotation" type="number" value="0" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address QR rotation (degrees)
                     <br />
-                    <input id="paperwallet_custom_privkey_posx" type="number" value="170" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Private key position x (left)
+                    <input id="paperwallet_custom_privkey_posx" type="number" value="170" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key position x (left)
                     <br />
-                    <input id="paperwallet_custom_privkey_posy" type="number" value="180" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Private key position y (top)
+                    <input id="paperwallet_custom_privkey_posy" type="number" value="180" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key position y (top)
                     <br />
-                    <input id="paperwallet_custom_privkey_size" type="number" value="20" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Private key font size
+                    <input id="paperwallet_custom_privkey_size" type="number" value="20" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key font size
                     <br />
-                    <input id="paperwallet_custom_privkey_length" type="number" value="0" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Private key letters per line (0: no line breaks)
+                    <input id="paperwallet_custom_privkey_length" type="number" value="0" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key letters per line (0: no line breaks)
                     <br />
-                    <input id="paperwallet_custom_privkey_rotation" type="number" value="0" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Private key rotation (degrees)
+                    <input id="paperwallet_custom_privkey_rotation" type="number" value="0" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key rotation (degrees)
                     <br />
-                    <input id="paperwallet_custom_privkey_qr_posx" type="number" value="10" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Private key QR code position x (left)
+                    <input id="paperwallet_custom_privkey_qr_posx" type="number" value="10" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key QR code position x (left)
                     <br />
-                    <input id="paperwallet_custom_privkey_qr_posy" type="number" value="170" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Private key QR code position y (top)
+                    <input id="paperwallet_custom_privkey_qr_posy" type="number" value="170" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key QR code position y (top)
                     <br />
-                    <input id="paperwallet_custom_privkey_qr_size" type="number" value="150" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Private key QR code size
+                    <input id="paperwallet_custom_privkey_qr_size" type="number" value="150" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key QR code size
                     <br />
-                    <input id="paperwallet_custom_privkey_qr_rotation" type="number" value="0" oninput="paperwallet_update_element(event)" class="paperwallet-custom-params"> Private key QR rotation (degrees)
+                    <input id="paperwallet_custom_privkey_qr_rotation" type="number" value="0" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key QR rotation (degrees)
                 </div>
                 <div style="display: table-cell;">
                     <div style="font-size: 25px;">Preview:</div>
                     <br />
-                    <div id="paperwallet_preview_div" style="width: 700px; height: 400px; border: 2px solid black; font-size: 30px;">Choose a background image first!</div>
+                    <div id="paperwallet_preview_div" style="width: 700px; height: 400px; border: 2px solid black; font-size: 30px; background-color: #d0d0d0;">Choose a background image first!</div>
                 </div>
             </div>
             <div id="paperwallet_canvas_print_container" style="width: 100%;">
                 <div id="paperwallet_print_area" class="print_visible"></div>
             </div>
         </div>
-        <div id="main_info" style="display: none;">
+        <div id="main_info" style="display: none; width: 80%; padding-left: 10px;">
             <div class="title">Information</div>
             <ul>
                 <li>P2SH-P2WPKH addresses are referenced as "Segwit" addresses, Bech32-encoded P2WPKH addresses are referenced as "Segwit (bech32)" addresses, and regular P2PKH addresses are referenced as "Legacy" addresses.</li>
                 <li>QR codes of bech32 addresses contain the text capitalized, so the size of the QR codes can be reduced. For more information, see the <a href="https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#Specification">BIP 173 specification (Uppercase/lowercase part)</a>.</li>
-                <li>Testnet version available <a href="?testnet">here.</a></li>
+                <li id="testnet_link_li">Testnet version available <a href="?testnet">here.</a></li>
+                <li id="mainnet_link_li" style="display: none;">Mainnet version available <a href="?">here.</a></li>
                 <li>JavaScript libraries used on this site: <a href="https://github.com/indutny/bn.js">BigNumber</a>, <a href="http://code.google.com/p/crypto-js/">Crypto-JS</a>, <a href="https://github.com/kazuhikoarase/qrcode-generator">QR code generator</a>, <a href="https://github.com/dchest/scrypt-async-js">Scrypt</a>, <a href="https://github.com/YuzuJS/setImmediate">setImmediate.js</a></li>
                 <li>Source code is available at <a href="https://github.com/Kimbatt/btc-address-generator">Github</a> or by viewing this page's source (it is a single html file)</li>
-                <li>This site was made by /u/Kimbatt</li>
-                <li>If you liked this site, you can donate to: 3Ee3fDqTmERBpxAvV8GgdQUiTparohPaHX</li>
+                <li id="run_tests_link"><p class="linkStyle" onclick="runTests()">Click here</p> to run tests</li>
+                <li>This site was made by <a href="https://github.com/Kimbatt">Kimbatt</a></li>
+                <li>If you liked this site, you can donate to: <a href="bitcoin:3Ee3fDqTmERBpxAvV8GgdQUiTparohPaHX">3Ee3fDqTmERBpxAvV8GgdQUiTparohPaHX</a></li>
             </ul>
         </div>
-        <div id="main_beginner" style="display: none;">
+        <div id="main_beginner" style="display: none; width: 80%; padding-left: 10px;">
             <div class="title">Beginner's guide</div>
             <br />
             <div class="title-small">What is Bitcoin?</div>
@@ -563,7 +578,7 @@ li
             <div class="title-small">What is Bip38 encryption?</div>
             <div><a href="https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki">Bip38</a> encryption allows you to protect your paper wallet with a password, so if your paper wallet is stolen, or its private key is exposed, your paper wallet will still be safe. However, if you use bip38 encryption, you must remember the password very well, because if you forget the password, the paper wallet will be as worthless as if you lost the private key. Bip38 was designed to resist brute-force attacks, that's why it's practically impossible to recover the wallet if the password is forgotten. You can unlock a bip38 encrypted wallet on the "Address details" section of this site.</div>
         </div>
-        <div id="main_security" style="display: none;">
+        <div id="main_security" style="display: none; width: 80%; padding-left: 10px;">
             <div class="title">Security tips</div>
             <ul>
                 <li>Paper wallets should be only used if you know exactly how they work. It is easy for inexperienced people to make mistakes, resulting in permanent loss of funds. See the <a href="https://en.bitcoin.it/wiki/Paper_wallet">bitcoin wiki</a> for more details.</li>
