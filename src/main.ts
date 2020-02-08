@@ -2805,6 +2805,12 @@
         "info": {
             "main_info": "print_visible",
         },
+        "beginner": {
+            "main_beginner": "print_visible",
+        },
+        "security": {
+            "main_security": "print_visible",
+        }
     };
 
     const initialPageState: { [key: string]: string | null } = getAllQueryValues();

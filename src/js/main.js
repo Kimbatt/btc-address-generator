@@ -2228,6 +2228,12 @@ var __assign = (this && this.__assign) || function () {
         "info": {
             "main_info": "print_visible",
         },
+        "beginner": {
+            "main_beginner": "print_visible",
+        },
+        "security": {
+            "main_security": "print_visible",
+        }
     };
     var initialPageState = getAllQueryValues();
     var pageState = __assign({}, initialPageState);
