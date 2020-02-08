@@ -44,7 +44,48 @@
     const hour = new Date().getHours();
     let darkMode = hour < 7 || hour > 18;
 
-    const isTestnet = window.location.search === "?testnet";
+    function hasQueryKey(key: string)
+    {
+        return getQueryValue(key) !== null;
+    }
+
+    function getQueryValue(key: string)
+    {
+        if (window.location.search.length === 0 || window.location.search[0] !== "?")
+            return null;
+
+        const queryValues = window.location.search.substr(1).split("&");
+        for (let i = 0; i < queryValues.length; ++i)
+        {
+            const match = queryValues[i].match(/([a-zA-Z0-9]+)(=([a-zA-Z0-9]+))?/);
+            if (match)
+            {
+                if (match[1] === key)
+                    return match[3] ?? "";
+            }
+        }
+
+        return null;
+    }
+
+    function getAllQueryValues()
+    {
+        if (window.location.search.length === 0 || window.location.search[0] !== "?")
+            return {};
+
+        const result: { [key: string]: string | null } = {};
+        const queryValues = window.location.search.substr(1).split("&");
+        for (let i = 0; i < queryValues.length; ++i)
+        {
+            const match = queryValues[i].match(/([a-zA-Z0-9]+)(=([a-zA-Z0-9]+))?/);
+            if (match)
+                result[match[1]] = match[3] ?? null;
+        }
+
+        return result;
+    }
+
+    const isTestnet = hasQueryKey("testnet");
     if (isTestnet)
     {
         document.getElementById("testnet_text")!.style.display = "";
@@ -340,7 +381,7 @@
             case "bulk":
                 element = "bip38_password_box_div_bulk";
                 break;
-            case "paper":
+            case "paperwallet":
                 element = "bip38_password_box_div_paper";
                 const customPaperWalletDummyPrivkey = document.getElementById("paperwallet_custom_preview_privkey");
                 if (customPaperWalletDummyPrivkey)
@@ -2757,7 +2798,7 @@
         "bulk": {
             "bulk_addresses": "print_visible",
         },
-        "paper": {
+        "paperwallet": {
             "paperwallet_canvas_print_container": "print_container",
             "paperwallet_print_area": "print_visible",
         },
@@ -2766,30 +2807,103 @@
         },
     };
 
-    let currentLayout = "singleaddress";
-    function set_layout(newLayout: string)
+    const initialPageState: { [key: string]: string | null } = getAllQueryValues();
+    const pageState: { [key: string]: string | null } = { ...initialPageState };
+
+    function setPageState(key: string, value: string | null)
     {
-        if (currentLayout === newLayout)
+        pageState[key] = value;
+        return pageState;
+    }
+
+    function pushPageState(key: string, value: string | null)
+    {
+        history.pushState(setPageState(key, value), "", getPageStateString());
+    }
+
+    const pageStatePopHandlers: { [key: string]: (newValue: string | null) => void } = {
+        "page": layout =>
+        {
+            if (layout !== null)
+                set_layout(layout, false);
+        }
+    };
+
+    function popPageState(key: string, value: string | null)
+    {
+        if (pageStatePopHandlers.hasOwnProperty(key))
+            pageStatePopHandlers[key](value);
+    }
+
+    function getPageStateString()
+    {
+        const stateStrings: string[] = [];
+        for (let key in pageState)
+        {
+            const value = pageState[key];
+            if (value !== null)
+                stateStrings.push(key + "=" + value);
+            else
+                stateStrings.push(key);
+        }
+
+        return "?" + stateStrings.join("&");
+    }
+
+    let currentLayout = "singleaddress";
+    function set_layout(newLayout: string, setState = true)
+    {
+        if (currentLayout === newLayout || !layoutPrintAreas.hasOwnProperty(newLayout))
             return;
 
         const prevLayout = currentLayout;
+        if (prevLayout)
+        {
+            (<HTMLButtonElement>document.getElementById("button_layout_" + prevLayout)).disabled = false;
+            document.getElementById("main_" + prevLayout)!.style.display = "none";
 
-        (<HTMLButtonElement>document.getElementById("button_layout_" + prevLayout)).disabled = false;
+            const prevPrintAreas = layoutPrintAreas[prevLayout];
+            for (let c in prevPrintAreas)
+                document.getElementById(c)!.classList.remove(prevPrintAreas[c]);    
+        }
+
         (<HTMLButtonElement>document.getElementById("button_layout_" + newLayout)).disabled = true;
-
-        document.getElementById("main_" + prevLayout)!.style.display = "none";
         document.getElementById("main_" + newLayout)!.style.display = "table";
-
-        const prevPrintAreas = layoutPrintAreas[prevLayout];
-        for (let c in prevPrintAreas)
-            document.getElementById(c)!.classList.remove(prevPrintAreas[c]);
-
-        const values = layoutPrintAreas[newLayout];
-        for (let c in values)
-            document.getElementById(c)!.classList.add(values[c]);
+        const newPrintAreas = layoutPrintAreas[newLayout];
+        for (let c in newPrintAreas)
+            document.getElementById(c)!.classList.add(newPrintAreas[c]);
 
         currentLayout = newLayout;
+
+        if (setState)
+            pushPageState("page", currentLayout);
     }
+
+    window.addEventListener("popstate", ev =>
+    {
+        if (ev.state !== null)
+        {
+            if (typeof ev.state === "object")
+            {
+                for (let key in ev.state)
+                    popPageState(key, ev.state[key]);
+            }
+        }
+        else
+        {
+            for (let key in initialPageState)
+                popPageState(key, initialPageState[key]);
+        }
+    });
+
+    const initialPage = getQueryValue("page");
+    if (initialPage !== null)
+    {
+        initialPageState["page"] = initialPage;
+        set_layout(initialPage, false);
+    }
+    else
+        initialPageState["page"] = "singleaddress";
 
     interface TestAddressAndPrivkey
     {

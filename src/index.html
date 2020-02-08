@@ -307,7 +307,7 @@ li
             <br />
             <button id="button_layout_bulk" style="width: 250px;" onclick="set_layout('bulk')">Bulk Generate</button>
             <br />
-            <button id="button_layout_paper" style="width: 250px;" onclick="set_layout('paper')">Paper wallet</button>
+            <button id="button_layout_paperwallet" style="width: 250px;" onclick="set_layout('paperwallet')">Paper wallet</button>
             <br />
             <button id="button_layout_info" style="width: 250px;" onclick="set_layout('info')">Information</button>
             <br />
@@ -427,7 +427,7 @@ li
             </div>
             <textarea style="display: block; width: 100%; height: 400px; font-family: roboto-mono; font-size: 19px; padding: 8px; margin-top: 15px; border: 2px solid #bbbbbb; resize: none;" id="bulk_addresses" readonly>Press generate to start generating</textarea>
         </div>
-        <div id="main_paper" style="display: none; width: 80%; padding-left: 10px;">
+        <div id="main_paperwallet" style="display: none; width: 80%; padding-left: 10px;">
             <div class="title">Paper wallet</div>
             <div style="display: table; padding-left: 10px; margin-bottom: 10px;">
                 <div style="padding-bottom: 10px; padding-right: 10px; width: 500px;">
@@ -446,7 +446,7 @@ li
                     </form>
                     <br />
                     <div style="display: table; padding-top: 10px;">
-                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="bip38changed(this, 'paper')" style="margin-bottom: 20px;" id="bip38enabled_paper">Bip38 encrypt</label>
+                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="bip38changed(this, 'paperwallet')" style="margin-bottom: 20px;" id="bip38enabled_paper">Bip38 encrypt</label>
                         <div class="linkStyle" onclick="showBip38Info()" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</div>
                     </div>
                     <div id="bip38_password_box_div_paper" style="display: none; padding-bottom: 15px;">
@@ -630,23 +630,23 @@ li
         </a>
     </div>
 
-    <script type="text/javascript" src="setImmediate.js"></script>
+    <script type="text/javascript" src="js/setImmediate.js"></script>
 
-    <script type="text/javascript" src="BN.js"></script>
+    <script type="text/javascript" src="js/BN.js"></script>
 
-    <script type="text/javascript" src="native_bigint.js"></script>
+    <script type="text/javascript" src="js/native_bigint.js"></script>
     
-    <script type="text/javascript" src="hash.js"></script>
+    <script type="text/javascript" src="js/hash.js"></script>
     
-    <script type="text/javascript" src="QR.js"></script>
+    <script type="text/javascript" src="js/QR.js"></script>
     
-    <script type="text/javascript" src="scrypt.js"></script>
+    <script type="text/javascript" src="js/scrypt.js"></script>
     
-    <script type="text/javascript" src="aes256.js"></script>
+    <script type="text/javascript" src="js/aes256.js"></script>
     
-    <script type="text/javascript" src="imagesources.js"></script>
+    <script type="text/javascript" src="js/imagesources.js"></script>
 
-    <script type="text/javascript" src="main.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
     
 </body>
 </html>

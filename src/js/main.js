@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 (function () {
     var randomnessCanvas = document.getElementById("randomness_canvas");
     var randomnessCanvasCTX = randomnessCanvas.getContext("2d");
@@ -32,7 +43,37 @@
     var randomnessNumbers = [];
     var hour = new Date().getHours();
     var darkMode = hour < 7 || hour > 18;
-    var isTestnet = window.location.search === "?testnet";
+    function hasQueryKey(key) {
+        return getQueryValue(key) !== null;
+    }
+    function getQueryValue(key) {
+        var _a;
+        if (window.location.search.length === 0 || window.location.search[0] !== "?")
+            return null;
+        var queryValues = window.location.search.substr(1).split("&");
+        for (var i = 0; i < queryValues.length; ++i) {
+            var match = queryValues[i].match(/([a-zA-Z0-9]+)(=([a-zA-Z0-9]+))?/);
+            if (match) {
+                if (match[1] === key)
+                    return _a = match[3], (_a !== null && _a !== void 0 ? _a : "");
+            }
+        }
+        return null;
+    }
+    function getAllQueryValues() {
+        var _a;
+        if (window.location.search.length === 0 || window.location.search[0] !== "?")
+            return {};
+        var result = {};
+        var queryValues = window.location.search.substr(1).split("&");
+        for (var i = 0; i < queryValues.length; ++i) {
+            var match = queryValues[i].match(/([a-zA-Z0-9]+)(=([a-zA-Z0-9]+))?/);
+            if (match)
+                result[match[1]] = (_a = match[3], (_a !== null && _a !== void 0 ? _a : null));
+        }
+        return result;
+    }
+    var isTestnet = hasQueryKey("testnet");
     if (isTestnet) {
         document.getElementById("testnet_text").style.display = "";
         document.getElementById("run_tests_link").style.display = "none";
@@ -242,7 +283,7 @@
             case "bulk":
                 element = "bip38_password_box_div_bulk";
                 break;
-            case "paper":
+            case "paperwallet":
                 element = "bip38_password_box_div_paper";
                 var customPaperWalletDummyPrivkey = document.getElementById("paperwallet_custom_preview_privkey");
                 if (customPaperWalletDummyPrivkey) {
@@ -2180,7 +2221,7 @@
         "bulk": {
             "bulk_addresses": "print_visible",
         },
-        "paper": {
+        "paperwallet": {
             "paperwallet_canvas_print_container": "print_container",
             "paperwallet_print_area": "print_visible",
         },
@@ -2188,23 +2229,77 @@
             "main_info": "print_visible",
         },
     };
+    var initialPageState = getAllQueryValues();
+    var pageState = __assign({}, initialPageState);
+    function setPageState(key, value) {
+        pageState[key] = value;
+        return pageState;
+    }
+    function pushPageState(key, value) {
+        history.pushState(setPageState(key, value), "", getPageStateString());
+    }
+    var pageStatePopHandlers = {
+        "page": function (layout) {
+            if (layout !== null)
+                set_layout(layout, false);
+        }
+    };
+    function popPageState(key, value) {
+        if (pageStatePopHandlers.hasOwnProperty(key))
+            pageStatePopHandlers[key](value);
+    }
+    function getPageStateString() {
+        var stateStrings = [];
+        for (var key in pageState) {
+            var value = pageState[key];
+            if (value !== null)
+                stateStrings.push(key + "=" + value);
+            else
+                stateStrings.push(key);
+        }
+        return "?" + stateStrings.join("&");
+    }
     var currentLayout = "singleaddress";
-    function set_layout(newLayout) {
-        if (currentLayout === newLayout)
+    function set_layout(newLayout, setState) {
+        if (setState === void 0) { setState = true; }
+        if (currentLayout === newLayout || !layoutPrintAreas.hasOwnProperty(newLayout))
             return;
         var prevLayout = currentLayout;
-        document.getElementById("button_layout_" + prevLayout).disabled = false;
+        if (prevLayout) {
+            document.getElementById("button_layout_" + prevLayout).disabled = false;
+            document.getElementById("main_" + prevLayout).style.display = "none";
+            var prevPrintAreas = layoutPrintAreas[prevLayout];
+            for (var c in prevPrintAreas)
+                document.getElementById(c).classList.remove(prevPrintAreas[c]);
+        }
         document.getElementById("button_layout_" + newLayout).disabled = true;
-        document.getElementById("main_" + prevLayout).style.display = "none";
         document.getElementById("main_" + newLayout).style.display = "table";
-        var prevPrintAreas = layoutPrintAreas[prevLayout];
-        for (var c in prevPrintAreas)
-            document.getElementById(c).classList.remove(prevPrintAreas[c]);
-        var values = layoutPrintAreas[newLayout];
-        for (var c in values)
-            document.getElementById(c).classList.add(values[c]);
+        var newPrintAreas = layoutPrintAreas[newLayout];
+        for (var c in newPrintAreas)
+            document.getElementById(c).classList.add(newPrintAreas[c]);
         currentLayout = newLayout;
+        if (setState)
+            pushPageState("page", currentLayout);
     }
+    window.addEventListener("popstate", function (ev) {
+        if (ev.state !== null) {
+            if (typeof ev.state === "object") {
+                for (var key in ev.state)
+                    popPageState(key, ev.state[key]);
+            }
+        }
+        else {
+            for (var key in initialPageState)
+                popPageState(key, initialPageState[key]);
+        }
+    });
+    var initialPage = getQueryValue("page");
+    if (initialPage !== null) {
+        initialPageState["page"] = initialPage;
+        set_layout(initialPage, false);
+    }
+    else
+        initialPageState["page"] = "singleaddress";
     function runTests() {
         if (isTestnet) {
             alert("No tests are implemented for testnet!");

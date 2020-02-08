@@ -56,7 +56,7 @@ while (true)
 }
 
 // process images
-const imageSources = fs.readFileSync("../src/imagesources.js").toString("utf-8");
+const imageSources = fs.readFileSync("../src/js/imagesources.js").toString("utf-8");
 const imagePaths = JSON.parse(imageSources.match(/{.*}/gs));
 const imageDataUrls = {};
 
