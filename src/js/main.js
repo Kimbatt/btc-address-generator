@@ -292,6 +292,8 @@ var __assign = (this && this.__assign) || function () {
                         lineLength = 0;
                     customPaperWalletDummyPrivkey.innerHTML = splitTextLength((checkbox.checked) ? "6Pnabcdefghijkmnopqrstuvwxyz1234567ABCDEFGHJKLMNPQRSTUVXYZ" : "K1abcdefghijkmnopqrstuvwxyzabcdefghijkmnopqrstuvwxyz", lineLength);
                 }
+                document.getElementById("paper_custom_privkeys_bip38").style.display = checkbox.checked ? "" : "none";
+                document.getElementById("paper_custom_addresses_no_bip38").style.display = checkbox.checked ? "none" : "";
                 break;
             default:
                 return;
@@ -475,8 +477,13 @@ var __assign = (this && this.__assign) || function () {
             if (sha_result[i] !== checksum[i])
                 return "invalid checksum";
         }
+        if (bytes[0] !== 0x01)
+            return "invalid byte at position 0";
         bytes.shift();
         var AES_opts = { mode: new window.AES_mode.ECB(window.AES_pad.NoPadding), asBytes: true };
+        // typescript will show an error if I have (bytes[0] === 0x43) here, because it doesn't know that bytes.shift() changes the array
+        // see https://github.com/microsoft/TypeScript/issues/35795
+        // putting any here so it works
         if (bytes[0] === 0x43) {
             if ((bytes[1] & 0x20) === 0)
                 return "only compressed private keys are supported";
@@ -522,8 +529,29 @@ var __assign = (this && this.__assign) || function () {
                 privkey: finalprivkey
             };
         }
-        else if (bytes[0] === 0x42)
-            return "only EC multiplied key decryption is supported";
+        else if (bytes[0] === 0x42) {
+            if (bytes[1] !== 0xe0)
+                return "only compressed private keys are supported";
+            if (dummyTest)
+                return 1;
+            var addresshash = bytes.slice(2, 6);
+            var derivedBytes = scrypt(password, addresshash, 14, 8, 8, 64);
+            var decrypted = window.AES.decrypt(bytes.slice(6, 38), derivedBytes.slice(32), AES_opts);
+            var privkeyBytes = byteArrayXOR(decrypted, derivedBytes);
+            var finalprivkeybigint = byteArrayToBigint(privkeyBytes);
+            var finalkeypair = getECCKeypair(finalprivkeybigint);
+            var finaladdress = makeAddress(finalkeypair);
+            var finaladdresshash = SHA256(SHA256(finaladdress));
+            for (var i = 0; i < 4; ++i) {
+                if (addresshash[i] !== finaladdresshash[i])
+                    return "invalid password";
+            }
+            var finalprivkey = makePrivateKey(finalprivkeybigint);
+            return {
+                address: finaladdress,
+                privkey: finalprivkey
+            };
+        }
         else
             return "invalid byte at EC multiply flag";
     }
@@ -807,6 +835,16 @@ var __assign = (this && this.__assign) || function () {
         }
         else
             document.getElementById("bip38_decrypt_div").style.display = "none";
+        var keypair = privkeyStringToKeyPair(privkey);
+        if (typeof keypair === "string")
+            return keypair;
+        return {
+            segwitAddress: makeSegwitAddress(keypair.keypair),
+            bech32Address: makeBech32Address(keypair.keypair),
+            legacyAddress: makeAddress(keypair.keypair)
+        };
+    }
+    function privkeyStringToKeyPair(privkey) {
         var newstring = privkey.split("").reverse().join("");
         for (var i = 0; i < privkey.length; ++i) {
             if (privkey[i] === base58Characters[0])
@@ -844,9 +882,8 @@ var __assign = (this && this.__assign) || function () {
         if (privkey !== privkey2)
             return "cannot decode private key";
         return {
-            segwitAddress: makeSegwitAddress(keypair),
-            bech32Address: makeBech32Address(keypair),
-            legacyAddress: makeAddress(keypair)
+            privkey: bigint,
+            keypair: keypair
         };
     }
     // shows addresses generated from the given private key
@@ -1043,9 +1080,18 @@ var __assign = (this && this.__assign) || function () {
     function paperWallet() {
         if (paperWalletArray)
             return;
-        if (document.getElementById("use_custom_addresses_paper").checked) {
-            paperWalletFromUserAddresses();
-            return;
+        var isBip38 = document.getElementById("bip38enabled_paper").checked;
+        if (isBip38) {
+            if (document.getElementById("use_custom_privkeys_bip38_paper").checked) {
+                paperWalletBip38FromUserPrivkeys();
+                return;
+            }
+        }
+        else {
+            if (document.getElementById("use_custom_addresses_paper").checked) {
+                paperWalletFromUserAddresses();
+                return;
+            }
         }
         var num = Number(document.getElementById("paperwallet_generate_count").value) | 0;
         if (isNaN(num)) {
@@ -1064,7 +1110,7 @@ var __assign = (this && this.__assign) || function () {
         paperwalletCurrentCount = 0;
         paperWalletAddressType = paperAddressType;
         paperWalletQRErrorCorrectionLevel = paperQRErrorCorrectionLevel;
-        if (document.getElementById("bip38enabled_paper").checked) {
+        if (isBip38) {
             paperWalletProgressText.textContent = "Generating initial values";
             paperWalletArray = [];
             setImmediate(paperWalletBip38Start);
@@ -1989,6 +2035,126 @@ var __assign = (this && this.__assign) || function () {
         errorMessageDiv.textContent = "";
         paperWalletCreate(addressData, isBip38);
     }
+    var paper_custom_privkeys_bigints_with_keypair = null;
+    var paper_custom_privkeys_index = 0;
+    var paper_custom_privkeys_password = "";
+    var paper_custom_privkeys_encrypted = null;
+    function paperWalletBip38FromUserPrivkeys() {
+        if (paper_custom_privkeys_bigints_with_keypair !== null)
+            return;
+        var errorMessageDiv = document.getElementById("paper_custom_privkey_bip38_error");
+        var password = document.getElementById("bip38_password_box_paper").value;
+        if (password === "") {
+            errorMessageDiv.textContent = "Password must not be empty";
+            return;
+        }
+        var privkeys = document.getElementById("paper_custom_privkeys_bip38_textarea").value.split(/\s+/g);
+        if (privkeys.length === 0) {
+            errorMessageDiv.textContent = "No private keys entered";
+            return;
+        }
+        paperWalletProgressText.textContent = "Checking private keys";
+        setImmediate(function () {
+            function ShowError(privkey, reason) {
+                errorMessageDiv.textContent = "Private key \"" +
+                    (privkey.length < 8 ? privkey : privkey.substr(0, 8) + "...") +
+                    "\" is not valid: " + reason;
+            }
+            var privkeyBigints = Array(privkeys.length);
+            for (var i = 0; i < privkeys.length; ++i) {
+                var currentPrivkey = privkeys[i];
+                if (/[^123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]/.test(currentPrivkey)) {
+                    ShowError(currentPrivkey, "private key contains invalid characters");
+                    return;
+                }
+                var keypair = privkeyStringToKeyPair(currentPrivkey);
+                if (typeof keypair === "string") {
+                    ShowError(currentPrivkey, keypair);
+                    return;
+                }
+                if (keypair.privkey.isZero() || keypair.privkey.gte(ecc_n)) {
+                    ShowError(currentPrivkey, "invalid private key value");
+                    return;
+                }
+                privkeyBigints[i] = keypair;
+            }
+            errorMessageDiv.textContent = "";
+            paper_custom_privkeys_index = 0;
+            paper_custom_privkeys_password = password;
+            paper_custom_privkeys_bigints_with_keypair = privkeyBigints;
+            paper_custom_privkeys_encrypted = [];
+            setImmediate(paperWalletBip38FromUserPrivkeys_timeout);
+        });
+    }
+    function bip38encrypt(privkeyWithKeypair, password) {
+        var privkeyBytes = bigintToByteArray(privkeyWithKeypair.privkey);
+        while (privkeyBytes.length < 32)
+            privkeyBytes.push(0);
+        privkeyBytes.reverse();
+        var address = makeAddress(privkeyWithKeypair.keypair); // legacy address
+        var salt = SHA256(SHA256(address)).slice(0, 4);
+        var derivedBytes = scrypt(password, salt, 14, 8, 8, 64);
+        var firstHalf = byteArrayXOR(privkeyBytes, derivedBytes.slice(0, 32));
+        var secondHalf = derivedBytes.slice(32);
+        var finalprivkey = [0x01, 0x42, 0xe0];
+        finalprivkey.push.apply(finalprivkey, salt);
+        var AES_opts = { mode: new window.AES_mode.ECB(window.AES_pad.NoPadding), asBytes: true };
+        var encrypted = window.AES.encrypt(firstHalf, secondHalf, AES_opts);
+        finalprivkey.push.apply(finalprivkey, encrypted);
+        var checksum = SHA256(SHA256(finalprivkey)).slice(0, 4);
+        finalprivkey.push.apply(finalprivkey, checksum);
+        return {
+            privkey: base58encode(finalprivkey),
+            address: address
+        };
+    }
+    function paperWalletBip38FromUserPrivkeys_timeout() {
+        if (paper_custom_privkeys_bigints_with_keypair === null || paper_custom_privkeys_encrypted === null)
+            return;
+        var index = paper_custom_privkeys_index++;
+        if (index === paper_custom_privkeys_bigints_with_keypair.length) {
+            // finished
+            paper_custom_privkeys_index = 0;
+            paper_custom_privkeys_password = "";
+            paper_custom_privkeys_bigints_with_keypair = null;
+            paperWalletProgressText.textContent = "";
+            paperWalletCreate(paper_custom_privkeys_encrypted, true);
+            return;
+        }
+        paperWalletProgressText.textContent = "Encrypting private keys: " + (index + 1) + " / " + paper_custom_privkeys_bigints_with_keypair.length;
+        var currentPrivkey = paper_custom_privkeys_bigints_with_keypair[index];
+        var privKeyAndAddress = bip38encrypt(currentPrivkey, paper_custom_privkeys_password);
+        var finaladdress;
+        switch (paperAddressType) {
+            case "segwit":
+                finaladdress = makeSegwitAddress(currentPrivkey.keypair);
+                break;
+            case "bech32":
+                finaladdress = makeBech32Address(currentPrivkey.keypair);
+                break;
+            case "legacy":
+                finaladdress = privKeyAndAddress.address;
+                break;
+        }
+        var privKeyString = privKeyAndAddress.privkey;
+        var privkeyQR = qrcode(0, paperQRErrorCorrectionLevel);
+        privkeyQR.addData(privKeyString);
+        privkeyQR.make();
+        var addressQR = qrcode(0, paperQRErrorCorrectionLevel);
+        if (paperAddressType === "bech32")
+            addressQR.addData(finaladdress.toUpperCase(), "Alphanumeric");
+        else
+            addressQR.addData(finaladdress);
+        addressQR.make();
+        paper_custom_privkeys_encrypted.push({
+            address: finaladdress,
+            privkey: privKeyString,
+            addressType: paperAddressType,
+            addressQR: addressQR,
+            privkeyQR: privkeyQR
+        });
+        setImmediate(paperWalletBip38FromUserPrivkeys_timeout);
+    }
     // sources of the paper wallet designs
     var paperWalletStyleSources = {
         "design0": "",
@@ -2314,12 +2480,12 @@ var __assign = (this && this.__assign) || function () {
         if (!confirm("This can take up to 20-30 seconds, do you want to continue?"))
             return;
         var failedTestMessages = [];
-        function assert(actual, expected, errorMessage) {
+        function assertEqual(actual, expected, errorMessage) {
             if (actual !== expected)
                 failedTestMessages.push("Assertion failed: " + errorMessage + "\nExpected: " + expected + "\nActual: " + actual);
         }
-        function assertTrue(actual, errorMessage) {
-            assert(actual, true, errorMessage);
+        function assert(actual, errorMessage) {
+            assertEqual(actual, true, errorMessage);
         }
         function TestAddressesAndPrivkeys() {
             var testAddresses = [];
@@ -2456,17 +2622,17 @@ var __assign = (this && this.__assign) || function () {
                 var segwitAddress = makeSegwitAddress(keypair);
                 var bech32Address = makeBech32Address(keypair);
                 var legacyAddress = makeAddress(keypair);
-                assert(privKeyString, testCase.privKeyString, "Private key string does not match");
+                assertEqual(privKeyString, testCase.privKeyString, "Private key string does not match");
                 if (typeof addresses !== "object")
-                    assertTrue(false, "Address generation error for privkey \"" + testCase.privKeyString + "\": " + addresses);
+                    assert(false, "Address generation error for privkey \"" + testCase.privKeyString + "\": " + addresses);
                 else {
-                    assert(addresses.segwitAddress, testCase.addresses.segwitAddress, "Segwit address generated from private key string does not match");
-                    assert(addresses.bech32Address, testCase.addresses.bech32Address, "Bech32 address generated from private key string does not match");
-                    assert(addresses.legacyAddress, testCase.addresses.legacyAddress, "Legacy address generated from private key string does not match");
+                    assertEqual(addresses.segwitAddress, testCase.addresses.segwitAddress, "Segwit address generated from private key string does not match");
+                    assertEqual(addresses.bech32Address, testCase.addresses.bech32Address, "Bech32 address generated from private key string does not match");
+                    assertEqual(addresses.legacyAddress, testCase.addresses.legacyAddress, "Legacy address generated from private key string does not match");
                 }
-                assert(segwitAddress, testCase.addresses.segwitAddress, "Segwit address generated from private bigint value does not match");
-                assert(bech32Address, testCase.addresses.bech32Address, "Bech32 address generated from private bigint value does not match");
-                assert(legacyAddress, testCase.addresses.legacyAddress, "Legacy address generated from private bigint value does not match");
+                assertEqual(segwitAddress, testCase.addresses.segwitAddress, "Segwit address generated from private bigint value does not match");
+                assertEqual(bech32Address, testCase.addresses.bech32Address, "Bech32 address generated from private bigint value does not match");
+                assertEqual(legacyAddress, testCase.addresses.legacyAddress, "Legacy address generated from private bigint value does not match");
             });
         }
         function TestBip38() {
@@ -2474,6 +2640,7 @@ var __assign = (this && this.__assign) || function () {
             testCases.push({
                 password: "a",
                 encryptedPrivKey: "6PnW1PdhwyuwyGRVHPBNhZTRy8MdCcUGU5vpKQZbZU8JL7ri2GQW19acDj",
+                encryptedPrivKeyFromPrivkey: "6PYTvmU4NwNMgdT4ibYvRkAnZe3tWAMUXhvR9AxDziriJ6fWusqRo1BfaN",
                 decryptedPrivKey: "KyaXDTGN2znu9iHX8hKcnLit5vYsc4HdvJSdMHBcYiKnVKQdAcrW",
                 addresses: {
                     segwitAddress: "3EzuqmCFnWopyDSM14MvEDmHKrwvYzLyde",
@@ -2484,6 +2651,7 @@ var __assign = (this && this.__assign) || function () {
             testCases.push({
                 password: "a",
                 encryptedPrivKey: "6PnNubLWkatUwokXjjH4vSdacztW1bvNL5oFqrypnULWnm6ssDs5sCbaJK",
+                encryptedPrivKeyFromPrivkey: "6PYLpyAsCpquTahxC96c5BJtW7ZQjMLJCyd2Fw4BpQutjArJTzkrXB7Piv",
                 decryptedPrivKey: "L4batR1BPtG4BwRcATq6F3iRV3tJLLD3jk7xK5dJKHsSbURC3AQv",
                 addresses: {
                     segwitAddress: "3JQGpJJiBzrTWHTAjokpfFcB81yr4U8D3o",
@@ -2494,6 +2662,7 @@ var __assign = (this && this.__assign) || function () {
             testCases.push({
                 password: "Test Password 1234",
                 encryptedPrivKey: "6PnXbmzLH2x8dwPvpECwngEkf4fLboB9xbWPWP5NBK4QE5odnV6nVUv8Ar",
+                encryptedPrivKeyFromPrivkey: "6PYVX9pgijT18gua44qWPypmzsoHCe8pPXCNQZpghSGg7oS6PUPMQ7G1uJ",
                 decryptedPrivKey: "Kxbkxhq1qCdCScvCyYKgvNo5HjJL3dbp7cipLngWVaLYKYJ4ghyt",
                 addresses: {
                     segwitAddress: "31sBmB1Ad69388VvDQELZF1ACYaGoBhTeT",
@@ -2504,6 +2673,7 @@ var __assign = (this && this.__assign) || function () {
             testCases.push({
                 password: "Test Password 1234",
                 encryptedPrivKey: "6PnYqiahSyjzFCu3eECKSQrqVozpXWj7g3WarnMp1oNYX18m9bP7jyncS5",
+                encryptedPrivKeyFromPrivkey: "6PYWm6R3tdgAaJKna9veriFkCcMeoLLWVTnpcznxot1Xqwi4TtWHhnXXxk",
                 decryptedPrivKey: "KwkLbkYUZwxYHe5nozJz6gxmrGhrDrgiZHc87omKZcVyZYw8fgBf",
                 addresses: {
                     segwitAddress: "3GLHhj6aNqqnui8Y72KbcmUxt7xL7ZbBhx",
@@ -2514,6 +2684,7 @@ var __assign = (this && this.__assign) || function () {
             testCases.push({
                 password: "😂👌🔥💯💯💯🅱",
                 encryptedPrivKey: "6PnV6kdAWBYp53troJeaesPN7xrsFn7uyTSEXxkGi25CqG7sHCTHxBkX5s",
+                encryptedPrivKeyFromPrivkey: "6PYT28TWz92xdoTBoFeo7jF4xyi69wENqHmSgjJyAxxC3gMHathn17MLfh",
                 decryptedPrivKey: "L2QgX6EkcTh9x8uH3hKbSo1sms7aGoqaQnDmF79KgTsvTWQ7Pcoa",
                 addresses: {
                     segwitAddress: "3NUyzUng1iQogrHKZ8zQoQ3dGu9CqjmeqC",
@@ -2524,6 +2695,7 @@ var __assign = (this && this.__assign) || function () {
             testCases.push({
                 password: "😂👌🔥💯💯💯🅱",
                 encryptedPrivKey: "6PnVA1kcZktzR4VW76HKU62f4D6dfTpghKSnszrRPXn5ggnumnK3nBdwsm",
+                encryptedPrivKeyFromPrivkey: "6PYT5Pay1zNPJKLheQTknQAdTX7PZC4aaUGwm85D3m4GXVLyoL6asAaymA",
                 decryptedPrivKey: "L4h2QmyA1UQHjmkG2j4tF67u8JsQquQrC2EX9mkSRNUVCBFqWy21",
                 addresses: {
                     segwitAddress: "3BQmwBdHWY7S9yLGESZSq65RxAQVxG24Ws",
@@ -2532,23 +2704,38 @@ var __assign = (this && this.__assign) || function () {
                 }
             });
             testCases.forEach(function (testCase) {
-                var decrypted = bip38decrypt(testCase.encryptedPrivKey, testCase.password);
-                if (typeof decrypted !== "object")
-                    assertTrue(false, "Bip38 decrypt error for privkey \"" + testCase.encryptedPrivKey + "\": " + decrypted);
-                else {
-                    var decryptedPrivKey = decrypted.privkey;
-                    var decryptedAddress = decrypted.address;
-                    assert(decryptedPrivKey, testCase.decryptedPrivKey, "Decrypted private keys do not match");
-                    assert(decryptedAddress, testCase.addresses.legacyAddress, "Decrypted addresses keys do not match");
-                    var addresses = view_address_details_result(testCase.decryptedPrivKey);
-                    if (typeof addresses !== "object")
-                        assertTrue(false, "Address generation error for privkey \"" + testCase.decryptedPrivKey + "\": " + addresses);
+                function TestDecrypt(privkey, password) {
+                    var decrypted = bip38decrypt(privkey, password);
+                    if (typeof decrypted !== "object")
+                        assert(false, "Bip38 decrypt error for privkey \"" + privkey + "\": " + decrypted);
                     else {
-                        assert(addresses.segwitAddress, testCase.addresses.segwitAddress, "Decrypted segwit address does not match");
-                        assert(addresses.bech32Address, testCase.addresses.bech32Address, "Decrypted bech32 address does not match");
-                        assert(addresses.legacyAddress, testCase.addresses.legacyAddress, "Decrypted legacy address does not match");
+                        var decryptedPrivKey = decrypted.privkey;
+                        var decryptedAddress = decrypted.address;
+                        assertEqual(decryptedPrivKey, testCase.decryptedPrivKey, "Decrypted private keys do not match");
+                        assertEqual(decryptedAddress, testCase.addresses.legacyAddress, "Decrypted addresses keys do not match");
+                        var addresses = view_address_details_result(testCase.decryptedPrivKey);
+                        if (typeof addresses !== "object")
+                            assert(false, "Address generation error for privkey \"" + testCase.decryptedPrivKey + "\": " + addresses);
+                        else {
+                            assertEqual(addresses.segwitAddress, testCase.addresses.segwitAddress, "Decrypted segwit address does not match");
+                            assertEqual(addresses.bech32Address, testCase.addresses.bech32Address, "Decrypted bech32 address does not match");
+                            assertEqual(addresses.legacyAddress, testCase.addresses.legacyAddress, "Decrypted legacy address does not match");
+                        }
                     }
                 }
+                TestDecrypt(testCase.encryptedPrivKey, testCase.password);
+                TestDecrypt(testCase.encryptedPrivKeyFromPrivkey, testCase.password);
+                function TestEncrypt(privkey, password) {
+                    var privkeyWithKeypair = privkeyStringToKeyPair(privkey);
+                    if (typeof privkeyWithKeypair !== "object")
+                        assert(false, "Bip38 encrypt error for privkey \"" + privkey + "\": " + testCase.decryptedPrivKey);
+                    else {
+                        var encrypted = bip38encrypt(privkeyWithKeypair, password);
+                        assertEqual(encrypted.privkey, testCase.encryptedPrivKeyFromPrivkey, "Encrypted private key does not match");
+                        assertEqual(encrypted.address, testCase.addresses.legacyAddress, "Encrypted address does not match");
+                    }
+                }
+                TestEncrypt(testCase.decryptedPrivKey, testCase.password);
             });
         }
         TestAddressesAndPrivkeys();

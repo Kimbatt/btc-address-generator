@@ -466,11 +466,21 @@ li
                     <input id="paperwallet_vertical_gap" type="number" value="0" style="font-size: 25px; padding: 5px; width: 100%;" oninput="paperwallet_vertical_gap_changed(this)">
                     <br />
                     <br />
-                    <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="document.getElementById('paper_custom_addresses_container').style.display = event.target.checked ? 'block' : 'none'" id="use_custom_addresses_paper">Use your own addresses</label>
-                    <div id="paper_custom_addresses_container" style="display: none;">
-                        <div style="width: 480px; padding: 5px;">If you have already generated addresses / private keys, you can paste them here to use them in paper wallets.<br /><strong>Make sure that the addresses and private keys are correct!</strong><br /><br />Use the following format: separate the address and the private key with a space character, and separate each pair with commas: address1 privkey1, address2 privkey2, etc...<br /><br />Click on "Generate paper wallets" to make the paper wallets.</div>
-                        <div id="paper_custom_address_error" style="padding: 5px; font-weight: bold;"></div>
-                        <textarea id="paper_custom_addresses" style="width: 100%; height: 150px; resize: none; margin-top: 10px;"></textarea>
+                    <div id="paper_custom_privkeys_bip38" style="display: none;">
+                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="document.getElementById('paper_custom_privkeys_bip38_container').style.display=event.target.checked?'':'none'" id="use_custom_privkeys_bip38_paper">Use your own private keys</label>
+                        <div id="paper_custom_privkeys_bip38_container" style="display: none;">
+                            <div style="width: 480px; padding: 5px;">You can encrypt existing private keys to use them with paper wallets. Paste the private keys below, separated with spaces or new lines.<br /><br />Click on "Generate paper wallets" to make the paper wallets.</div>
+                            <div id="paper_custom_privkey_bip38_error" style="padding: 5px; font-weight: bold;"></div>
+                            <textarea id="paper_custom_privkeys_bip38_textarea" style="width: 100%; height: 150px; resize: none; margin-top: 10px;" placeholder="Paste the private keys here..."></textarea>
+                        </div>
+                    </div>
+                    <div id="paper_custom_addresses_no_bip38">
+                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="document.getElementById('paper_custom_addresses_container').style.display=event.target.checked?'':'none'" id="use_custom_addresses_paper">Use your own addresses</label>
+                        <div id="paper_custom_addresses_container" style="display: none;">
+                            <div style="width: 480px; padding: 5px;">If you have already generated addresses / private keys, you can paste them here to use them in paper wallets.<br /><strong>Make sure that the addresses and private keys are correct!</strong><br /><br />Use the following format: separate the address and the private key with a space character, and separate each pair with commas: address1 privkey1, address2 privkey2, etc...<br /><br />Click on "Generate paper wallets" to make the paper wallets.</div>
+                            <div id="paper_custom_address_error" style="padding: 5px; font-weight: bold;"></div>
+                            <textarea id="paper_custom_addresses" style="width: 100%; height: 150px; resize: none; margin-top: 10px;" placeholder="Enter the addresses and private keys here..."></textarea>
+                        </div>
                     </div>
                     <br />
                     <div style="display: table; padding-top: 10px; width: 500px;">
