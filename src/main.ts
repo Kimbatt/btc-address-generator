@@ -2670,6 +2670,7 @@
                 return;
             }
 
+            errorMessageDiv.textContent = "";
             paper_custom_privkeys_index = 0;
             paper_custom_privkeys_password = password;
             paper_custom_privkeys_bigints_with_keypair = privkeyBigints;
