@@ -2627,15 +2627,20 @@
         {
             function ShowError(privkey: string, reason: string)
             {
+                paperWalletProgressText.textContent = "";
                 errorMessageDiv.textContent = "Private key \"" +
                     (privkey.length < 8 ? privkey : privkey.substr(0, 8) + "...") +
                     "\" is not valid: " + reason;
             }
 
-            const privkeyBigints = Array<PrivateKeyWithKeypair>(privkeys.length);
+            const privkeyBigints: PrivateKeyWithKeypair[] = [];
             for (let i = 0; i < privkeys.length; ++i)
             {
                 const currentPrivkey = privkeys[i];
+
+                if (currentPrivkey === "")
+                    continue;
+
                 if (/[^123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]/.test(currentPrivkey))
                 {
                     ShowError(currentPrivkey, "private key contains invalid characters");
@@ -2655,10 +2660,16 @@
                     return;
                 }
 
-                privkeyBigints[i] = keypair;
+                privkeyBigints.push(keypair);
             }
 
-            errorMessageDiv.textContent = "";
+            if (privkeyBigints.length === 0)
+            {
+                paperWalletProgressText.textContent = "";
+                errorMessageDiv.textContent = "No private keys entered";
+                return;
+            }
+
             paper_custom_privkeys_index = 0;
             paper_custom_privkeys_password = password;
             paper_custom_privkeys_bigints_with_keypair = privkeyBigints;
