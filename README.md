@@ -10,7 +10,7 @@ Available at https://kimbatt.github.io/btc-address-generator/
 
 ## Libraries used:
 *  BigNumber (BN): https://github.com/indutny/bn.js
-*  SHA256, RIPEMD160, AES256: http://code.google.com/p/crypto-js/
+*  crypto-js: https://github.com/brix/crypto-js
 *  QR code generator: https://github.com/kazuhikoarase/qrcode-generator
 *  Scrypt: https://github.com/dchest/scrypt-async-js
 *  setImmediate.js: https://github.com/YuzuJS/setImmediate

@@ -201,6 +201,21 @@ li
     z-index: 2;
 }
 
+.light #seed_generate_result
+{
+    background-color: #a0a0a0;
+}
+
+.dark #seed_generate_result
+{
+    background-color: #404040;
+}
+
+#seed_generate_result.wide_spacing
+{
+    word-spacing: 15px;
+}
+
 .light #lightModeButton
 {
     display: none;
@@ -309,6 +324,10 @@ li
             <br />
             <button id="button_layout_paperwallet" style="width: 250px;" onclick="set_layout('paperwallet')">Paper wallet</button>
             <br />
+            <!--
+            <button id="button_layout_seed" style="width: 250px;" onclick="set_layout('seed')">Mnemonic Seed</button>
+            <br />
+            -->
             <button id="button_layout_info" style="width: 250px;" onclick="set_layout('info')">Information</button>
             <br />
             <button id="button_layout_beginner" style="width: 250px; margin-top: 50px;" onclick="set_layout('beginner')">Beginner's guide</button>
@@ -556,6 +575,29 @@ li
                 <div id="paperwallet_print_area" class="print_visible"></div>
             </div>
         </div>
+        <div id="main_seed" style="display: none; width: 80%; padding-left: 10px;">
+            <div style="display: grid; grid-template-columns: 300px 260px auto;">
+                <div class="title">Mnemonic Seed</div>
+                <button style="width: 250px; height: 48px;">Generate a seed</button>
+                <button style="width: 250px; height: 48px;">View seed details</button>
+            </div>
+            <div id="seed_generate_page" style="display: table; padding-left: 10px; margin-bottom: 10px;">
+                <div style="margin: 80px 0px 40px 0px;">
+                    <button style="width: 300px; height: 60px; margin-left: 20px; font-size: 24px;" onclick="GenerateNewSeedButton()">Generate new seed</button>
+                    <select id="seed_generate_wordcount" style="margin-left: 40px; padding: 8px 20px; font-size: 24px;">
+                        <option value="12">Generate 12 words</option>
+                        <option value="15">Generate 15 words</option>
+                        <option value="18">Generate 18 words</option>
+                        <option value="21">Generate 21 words</option>
+                        <option value="24" selected>Generate 24 words</option>
+                    </select>
+                </div>
+                <div id="seed_generate_result" style="font-size: 40px; margin: 40px 20px 0px 20px; padding: 20px;">Click the button to generate a new seed</div>
+            </div>
+            <div id="seed_details_page" style="display: none;">
+
+            </div>
+        </div>
         <div id="main_info" style="display: none; width: 80%; padding-left: 10px;">
             <div class="title">Information</div>
             <ul>
@@ -563,7 +605,7 @@ li
                 <li>QR codes of bech32 addresses contain the text capitalized, so the size of the QR codes can be reduced. For more information, see the <a href="https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#Specification">BIP 173 specification (Uppercase/lowercase part)</a>.</li>
                 <li id="testnet_link_li">Testnet version available <a href="?testnet">here.</a></li>
                 <li id="mainnet_link_li" style="display: none;">Mainnet version available <a href="?">here.</a></li>
-                <li>JavaScript libraries used on this site: <a href="https://github.com/indutny/bn.js">BigNumber</a>, <a href="http://code.google.com/p/crypto-js/">Crypto-JS</a>, <a href="https://github.com/kazuhikoarase/qrcode-generator">QR code generator</a>, <a href="https://github.com/dchest/scrypt-async-js">Scrypt</a>, <a href="https://github.com/YuzuJS/setImmediate">setImmediate.js</a></li>
+                <li>JavaScript libraries used on this site: <a href="https://github.com/indutny/bn.js">BigNumber</a>, <a href="https://github.com/brix/crypto-js">crypto-js</a>, <a href="https://github.com/kazuhikoarase/qrcode-generator">QR code generator</a>, <a href="https://github.com/dchest/scrypt-async-js">Scrypt</a>, <a href="https://github.com/YuzuJS/setImmediate">setImmediate.js</a></li>
                 <li>Source code is available at <a href="https://github.com/Kimbatt/btc-address-generator">Github</a> or by viewing this page's source (it is a single html file)</li>
                 <li id="run_tests_link"><p class="linkStyle" onclick="runTests()">Click here</p> to run tests</li>
                 <li>This site was made by <a href="https://github.com/Kimbatt">Kimbatt</a></li>
@@ -646,13 +688,13 @@ li
 
     <script type="text/javascript" src="js/native_bigint.js"></script>
     
-    <script type="text/javascript" src="js/hash.js"></script>
+    <script type="text/javascript" src="js/crypto-js.js"></script>
+
+    <script type="text/javascript" src="js/crypto-helper.js"></script>
     
     <script type="text/javascript" src="js/QR.js"></script>
     
     <script type="text/javascript" src="js/scrypt.js"></script>
-    
-    <script type="text/javascript" src="js/aes256.js"></script>
     
     <script type="text/javascript" src="js/imagesources.js"></script>
 
