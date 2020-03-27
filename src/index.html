@@ -201,14 +201,57 @@ li
     z-index: 2;
 }
 
-.light #seed_generate_result
+.light .highlighted
 {
-    background-color: #a0a0a0;
+    background-color: #c0c0c0;
 }
 
-.dark #seed_generate_result
+.dark .highlighted
 {
     background-color: #404040;
+}
+
+.light #seed_details_results_addresses_table_header, .light #seed_details_results_addresses_table_header *,
+.light .seed_details_results_address_row, .light .seed_details_results_address_row *
+{
+    border-color: #bbbbbb;
+}
+
+.dark #seed_details_results_addresses_table_header, .dark #seed_details_results_addresses_table_header *,
+.dark .seed_details_results_address_row, .dark .seed_details_results_address_row *
+{
+    border-color: #707070;
+}
+
+.seed_details_results_address_row
+{
+    border-width: 2px;
+    border-style: solid;
+    border-top: 0px;
+}
+
+.seed_details_results_address_row > :nth-child(1)
+{
+    border-right-width: 2px;
+    border-right-style: solid;
+    width: 200px;
+    display: inline-block;
+    padding: 4px 8px;
+}
+
+.seed_details_results_address_row > :nth-child(2)
+{
+    border-right-width: 2px;
+    border-right-style: solid;
+    width: 420px;
+    display: inline-block;
+    padding: 4px 8px;
+}
+
+.seed_details_results_address_row > :nth-child(3)
+{
+    display: inline-block;
+    padding: 4px 8px;
 }
 
 #seed_generate_result.wide_spacing
@@ -290,9 +333,6 @@ li
         // setup IE shit
         if (window.msCrypto)
             window.crypto = window.msCrypto;
-        
-        if (!Number.parseInt)
-            Number.parseInt = parseInt;
 
         if (!window.crypto || !window.crypto.getRandomValues)
         {
@@ -578,12 +618,12 @@ li
         <div id="main_seed" style="display: none; width: 80%; padding-left: 10px;">
             <div style="display: grid; grid-template-columns: 300px 260px auto;">
                 <div class="title">Mnemonic Seed</div>
-                <button style="width: 250px; height: 48px;">Generate a seed</button>
-                <button style="width: 250px; height: 48px;">View seed details</button>
+                <button id="seed_generate_page_button" style="width: 250px; height: 48px;" onclick="SetSeedPage(true)" disabled>Seed generator</button>
+                <button id="seed_details_page_button" style="width: 250px; height: 48px;" onclick="SetSeedPage(false)">View seed details</button>
             </div>
             <div id="seed_generate_page" style="display: table; padding-left: 10px; margin-bottom: 10px;">
-                <div style="margin: 80px 0px 40px 0px;">
-                    <button style="width: 300px; height: 60px; margin-left: 20px; font-size: 24px;" onclick="GenerateNewSeedButton()">Generate new seed</button>
+                <div style="margin: 40px 0px 40px 0px;">
+                    <button style="width: 320px; height: 60px; margin-left: 20px; font-size: 24px;" onclick="GenerateNewSeedButton()">Generate a new seed</button>
                     <select id="seed_generate_wordcount" style="margin-left: 40px; padding: 8px 20px; font-size: 24px;">
                         <option value="12">Generate 12 words</option>
                         <option value="15">Generate 15 words</option>
@@ -592,10 +632,72 @@ li
                         <option value="24" selected>Generate 24 words</option>
                     </select>
                 </div>
-                <div id="seed_generate_result" style="font-size: 40px; margin: 40px 20px 0px 20px; padding: 20px;">Click the button to generate a new seed</div>
+                <div id="seed_generate_result" class="highlighted" style="font-size: 32px; margin: 40px 20px 0px 20px; padding: 20px; display: none;"></div>
             </div>
             <div id="seed_details_page" style="display: none;">
-
+                <div>
+                    <div style="margin: 20px 0px 10px 0px; font-size: 20px;">Enter a seed phrase or a BIP32 extended key to view its details.</div>
+                    <textarea id="seed_details_textarea"
+                        style="font-size: 20px; width: 100%; padding: 4px 8px; margin-bottom: 10px; line-height: 32px; resize: none; height: 66px;"
+                        ></textarea>
+                    <div style="margin: 10px 0px; font-size: 20px;">Passphrase</div>
+                    <textarea placeholder="(empty)" style="font-size: 20px; width: 100%; padding: 6px 8px; margin-bottom: 10px; resize: none;"></textarea>
+                    <button style="margin-top: 10px;">View details</button>
+                </div>
+                <div id="seed_details_results">
+                    <!-- temp placeholder values -->
+                    <div style="margin: 20px 0px 10px 0px; font-size: 20px;">BIP32 root key</div>
+                    <textarea id="seed_details_results_rootkey" readonly
+                        style="font-size: 20px; width: 100%; padding: 4px 8px; margin-bottom: 10px; line-height: 32px; resize: none; height: 66px;"
+                        >xprv9s21ZrQH143K2fk81KHjzzrBLMZGymMSNGxSMWpfymEmbtkHQGxHDS2jzT7SEsWWibStEWURWkqwrF3oLAodK7jMzXtPmd14hiJVzVw6eqM</textarea>
+                    <div style="width: 100%; height: 2px; background-color: #bbbbbb; margin-bottom: 10px;"></div>
+                    <div>
+                        <button style="width: 250px; margin-right: 20px;">Calculate addresses</button>
+                        <div style="margin: 20px 0px 10px 0px; font-size: 24px; display: inline-block;">Preset:</div>
+                        <select id="derivation-path-preset" style="font-size: 24px; margin-right: 20px; padding: 2px 4px;">
+                            <option value="44">Legacy</option>
+                            <option value="49" selected="">Segwit</option>
+                            <option value="84">Bech32</option>
+                            <option value="32">Custom</option>
+                        </select>
+                        <div style="margin: 20px 0px 10px 0px; font-size: 24px; display: inline-block;">Derivation path:</div>
+                        <input type="text" value="m/49'/0'/0'" placeholder="e.g. m/0'/0" disabled
+                            style="font-size: 24px; margin-right: 20px; width: 200px; padding: 2px 4px;">
+                    </div>
+                    <div>
+                        <div style="margin: 20px 0px 10px 0px; font-size: 24px; display: inline-block;">Count:</div>
+                        <input type="number" value="10" min="1" max="100" step="1" style="font-size: 24px; margin-right: 20px; width: 60px; padding: 2px 4px;">
+                        <div style="margin: 20px 0px 10px 0px; font-size: 24px; display: inline-block;">Offset:</div>
+                        <input type="number" value="0" min="0" max="2147483648" step="1" style="font-size: 24px; margin-right: 20px; width: 160px; padding: 2px 4px;">
+                        <label style="font-size: 24px; margin-right: 20px; width: 160px; padding: 2px 4px; white-space: nowrap;"><input type="checkbox"> Calculate hardened addresses?</label>
+                        <label style="font-size: 24px; margin-right: 20px; width: 160px; padding: 2px 4px; white-space: nowrap"><input type="checkbox"> Calculate change addresses?</label>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <button style="width: 280px;" onclick="SeedToggleExtendedKeys(this)">Show extended keys</button>
+                        <div id="seed_details_results_extended_keys" style="margin: 0px 0px 30px 20px; display: none;">
+                            <div style="margin: 10px 0px; font-size: 20px;">Extended public key</div>
+                            <textarea id="seed_details_results_extended_pubkey" readonly
+                                style="font-size: 20px; width: 100%; padding: 4px 8px; margin-bottom: 10px; line-height: 32px; resize: none; height: 66px;"
+                                >xpub661MyMwAqRbcF9pb7LpkN8nutPPmPE5HjVt39uEHY6mkUh5RwpGXmEMDqga5p2hA5scjXcHEsFRZLpH5yLrVssorTpBCdFzq9o42nX5NiTv</textarea>
+                            <div style="margin: 10px 0px; font-size: 20px;">Extended private key</div>
+                            <textarea id="seed_details_results_extended_privkey" readonly
+                                style="font-size: 20px; width: 100%; padding: 4px 8px; margin-bottom: 10px; line-height: 32px; resize: none; height: 66px;"
+                                >xprv9s21ZrQH143K2fk81KHjzzrBLMZGymMSNGxSMWpfymEmbtkHQGxHDS2jzT7SEsWWibStEWURWkqwrF3oLAodK7jMzXtPmd14hiJVzVw6eqM</textarea>
+                        </div>
+                        <div style="margin-top: 10px; white-space: nowrap; display: table;">
+                            <div style="border-width: 2px; border-style: solid; font-size: 24px;" id="seed_details_results_addresses_table_header">
+                                <div style="border-right-width: 2px; border-right-style: solid; width: 200px; display: inline-block; padding: 4px 8px;"
+                                    >Path</div><div style="border-right-width: 2px; border-right-style: solid; width: 420px; display: inline-block; padding: 4px 8px;"
+                                    >Address</div><div style="display: inline-block; width: 500px; padding: 4px 8px;">Private key</div>
+                            </div>
+                            <div style="font-size: 16px; font-family: roboto-mono;" id="seed_details_results_addresses_table">
+                                <div class="seed_details_results_address_row">
+                                    <div>m/84'/0'/0'/0/0</div><div>bc1qvd5fc02tkf7fdxhyjpfnnar2ndenayyahz49am</div><div>L2zFiwnGCQPnBYEwRBphNAck5XJ79BWYV1FGNzULTFSTchm66Mt5</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div id="main_info" style="display: none; width: 80%; padding-left: 10px;">

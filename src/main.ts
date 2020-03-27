@@ -41,8 +41,31 @@
 
     const randomnessNumbers: number[] = [];
 
-    const hour = new Date().getHours();
-    let darkMode = hour < 7 || hour > 18;
+    function initDarkMode()
+    {
+        // check if browser supports prefers-color-scheme
+        if (window.matchMedia && window.matchMedia("(prefers-color-scheme)").matches)
+        {
+            // media query supported, check preference
+            if (window.matchMedia("(prefers-color-scheme: dark)").matches)
+            {
+                // use dark mode
+                return true;
+            }
+            else if (window.matchMedia("(prefers-color-scheme: light)").matches)
+            {
+                // use light mode
+                return false;
+            }
+        }
+
+        // use dark mode based on time
+        const hour = new Date().getHours();
+        return hour < 7 || hour > 18;
+    }
+
+    let darkMode = initDarkMode();
+
 
     function hasQueryKey(key: string)
     {
@@ -3558,9 +3581,37 @@
     {
         const seedDiv = document.getElementById("seed_generate_result")!;
         seedDiv.classList.add("wide_spacing");
+        seedDiv.style.display = "";
 
         const wordCount = Number((<HTMLSelectElement>document.getElementById("seed_generate_wordcount")).value);
         seedDiv.textContent = GenerateSeedPhrase(wordCount);
+    }
+
+    function SetSeedPage(isGeneratePage: boolean)
+    {
+        document.getElementById("seed_generate_page")!.style.display = isGeneratePage ? "" : "none";
+        document.getElementById("seed_details_page")!.style.display = isGeneratePage ? "none" : "";
+
+        (<HTMLButtonElement>document.getElementById("seed_generate_page_button")).disabled = isGeneratePage;
+        (<HTMLButtonElement>document.getElementById("seed_details_page_button")).disabled = !isGeneratePage;
+    }
+
+    function ViewSeedDetailsButton()
+    {
+
+    }
+
+    function SeedCalculateAddressesButton()
+    {
+
+    }
+
+    let seedExtendedKeysVisible = false;
+    function SeedToggleExtendedKeys(button: HTMLButtonElement)
+    {
+        seedExtendedKeysVisible = !seedExtendedKeysVisible;
+        document.getElementById("seed_details_results_extended_keys")!.style.display = seedExtendedKeysVisible ? "" : "none";
+        button.textContent = seedExtendedKeysVisible ? "Hide extended keys" : "Show extended keys";
     }
 
     const layoutPrintAreas: { [key: string]: { [key: string]: string } } = {
@@ -3577,7 +3628,9 @@
             "paperwallet_canvas_print_container": "print_container",
             "paperwallet_print_area": "print_visible",
         },
-        "seed": {},
+        "seed": {
+            "seed_generate_result": "print_visible",
+        },
         "info": {
             "main_info": "print_visible",
         },
@@ -4036,7 +4089,14 @@
     (<any>window)["paperWalletCustomImageSelected"] = paperWalletCustomImageSelected;
     (<any>window)["paperwallet_update_element"] = paperwallet_update_element;
     (<any>window)["GenerateNewSeedButton"] = GenerateNewSeedButton;
+    (<any>window)["SetSeedPage"] = SetSeedPage;
+    (<any>window)["ViewSeedDetailsButton"] = ViewSeedDetailsButton;
+    (<any>window)["SeedCalculateAddressesButton"] = SeedCalculateAddressesButton;
+    (<any>window)["SeedToggleExtendedKeys"] = SeedToggleExtendedKeys;
     (<any>window)["skipRandomness"] = skipRandomness;
     (<any>window)["setDarkMode"] = setDarkMode;
     (<any>window)["runTests"] = runTests;
+
+    // DEBUG ONLY
+    // window.addEventListener("load", skipRandomness);
 })();
