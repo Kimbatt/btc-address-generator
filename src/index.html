@@ -364,10 +364,8 @@ li
             <br />
             <button id="button_layout_paperwallet" style="width: 250px;" onclick="set_layout('paperwallet')">Paper wallet</button>
             <br />
-            <!--
             <button id="button_layout_seed" style="width: 250px;" onclick="set_layout('seed')">Mnemonic Seed</button>
             <br />
-            -->
             <button id="button_layout_info" style="width: 250px;" onclick="set_layout('info')">Information</button>
             <br />
             <button id="button_layout_beginner" style="width: 250px; margin-top: 50px;" onclick="set_layout('beginner')">Beginner's guide</button>
@@ -637,53 +635,53 @@ li
             <div id="seed_details_page" style="display: none;">
                 <div>
                     <div style="margin: 20px 0px 10px 0px; font-size: 20px;">Enter a seed phrase or a BIP32 extended key to view its details.</div>
-                    <textarea id="seed_details_textarea"
+                    <textarea id="seed_details_seed_textarea" oninput="SeedChanged(this)"
                         style="font-size: 20px; width: 100%; padding: 4px 8px; margin-bottom: 10px; line-height: 32px; resize: none; height: 66px;"
                         ></textarea>
-                    <div style="margin: 10px 0px; font-size: 20px;">Passphrase</div>
-                    <textarea placeholder="(empty)" style="font-size: 20px; width: 100%; padding: 6px 8px; margin-bottom: 10px; resize: none;"></textarea>
-                    <button style="margin-top: 10px;">View details</button>
+                    <div id="seed_details_password_container">
+                        <div style="margin: 10px 0px; font-size: 20px;">Passphrase</div>
+                        <textarea id="seed_details_seed_password" placeholder="(empty)" oninput="SeedPasswordChanged()"
+                            style="font-size: 20px; width: 100%; padding: 6px 8px; margin-bottom: 10px; resize: none;"></textarea>
+                    </div>
+                    <button style="margin-top: 10px;" onclick="ViewSeedDetailsButton()">View details</button>
+                    <div id="seed_details_error_text" style="font-size: 24px; color: red; margin-top: 10px; display: none;"></div>
                 </div>
-                <div id="seed_details_results">
-                    <!-- temp placeholder values -->
-                    <div style="margin: 20px 0px 10px 0px; font-size: 20px;">BIP32 root key</div>
-                    <textarea id="seed_details_results_rootkey" readonly
-                        style="font-size: 20px; width: 100%; padding: 4px 8px; margin-bottom: 10px; line-height: 32px; resize: none; height: 66px;"
-                        >xprv9s21ZrQH143K2fk81KHjzzrBLMZGymMSNGxSMWpfymEmbtkHQGxHDS2jzT7SEsWWibStEWURWkqwrF3oLAodK7jMzXtPmd14hiJVzVw6eqM</textarea>
-                    <div style="width: 100%; height: 2px; background-color: #bbbbbb; margin-bottom: 10px;"></div>
+                <div id="seed_details_results" style="display: none;">
+                    <div id="seed_details_results_bip32_rootkey_container">
+                        <div style="margin: 20px 0px 10px 0px; font-size: 20px;">BIP32 root key</div>
+                        <textarea id="seed_details_results_rootkey" readonly
+                            style="font-size: 20px; width: 100%; padding: 4px 8px; margin-bottom: 10px; line-height: 32px; resize: none; height: 66px;"
+                            ></textarea>
+                    </div>
+                    <div style="width: 100%; height: 2px; background-color: #bbbbbb; margin: 10px 0px;"></div>
                     <div>
-                        <button style="width: 250px; margin-right: 20px;">Calculate addresses</button>
-                        <div style="margin: 20px 0px 10px 0px; font-size: 24px; display: inline-block;">Preset:</div>
-                        <select id="derivation-path-preset" style="font-size: 24px; margin-right: 20px; padding: 2px 4px;">
+                        <div style="margin: 10px 0px; font-size: 24px; display: inline-block;">Preset:</div>
+                        <select id="derivation_path_preset" style="font-size: 24px; margin-right: 20px; padding: 2px 4px;" onchange="SeedDerivationPresetChanged(this.value)">
                             <option value="44">Legacy</option>
                             <option value="49" selected="">Segwit</option>
                             <option value="84">Bech32</option>
                             <option value="32">Custom</option>
                         </select>
                         <div style="margin: 20px 0px 10px 0px; font-size: 24px; display: inline-block;">Derivation path:</div>
-                        <input type="text" value="m/49'/0'/0'" placeholder="e.g. m/0'/0" disabled
+                        <input type="text" id="seed_details_results_derivation_path_input" value="m/49'/0'/0'" placeholder="e.g. m/0'/0" disabled
                             style="font-size: 24px; margin-right: 20px; width: 200px; padding: 2px 4px;">
-                    </div>
-                    <div>
                         <div style="margin: 20px 0px 10px 0px; font-size: 24px; display: inline-block;">Count:</div>
-                        <input type="number" value="10" min="1" max="100" step="1" style="font-size: 24px; margin-right: 20px; width: 60px; padding: 2px 4px;">
+                        <input id="seed_details_address_count" type="number" value="10" min="1" max="100" step="1" style="font-size: 24px; margin-right: 20px; width: 60px; padding: 2px 4px;">
                         <div style="margin: 20px 0px 10px 0px; font-size: 24px; display: inline-block;">Offset:</div>
-                        <input type="number" value="0" min="0" max="2147483648" step="1" style="font-size: 24px; margin-right: 20px; width: 160px; padding: 2px 4px;">
-                        <label style="font-size: 24px; margin-right: 20px; width: 160px; padding: 2px 4px; white-space: nowrap;"><input type="checkbox"> Calculate hardened addresses?</label>
-                        <label style="font-size: 24px; margin-right: 20px; width: 160px; padding: 2px 4px; white-space: nowrap"><input type="checkbox"> Calculate change addresses?</label>
-                    </div>
-                    <div style="margin-top: 20px;">
-                        <button style="width: 280px;" onclick="SeedToggleExtendedKeys(this)">Show extended keys</button>
-                        <div id="seed_details_results_extended_keys" style="margin: 0px 0px 30px 20px; display: none;">
-                            <div style="margin: 10px 0px; font-size: 20px;">Extended public key</div>
-                            <textarea id="seed_details_results_extended_pubkey" readonly
-                                style="font-size: 20px; width: 100%; padding: 4px 8px; margin-bottom: 10px; line-height: 32px; resize: none; height: 66px;"
-                                >xpub661MyMwAqRbcF9pb7LpkN8nutPPmPE5HjVt39uEHY6mkUh5RwpGXmEMDqga5p2hA5scjXcHEsFRZLpH5yLrVssorTpBCdFzq9o42nX5NiTv</textarea>
-                            <div style="margin: 10px 0px; font-size: 20px;">Extended private key</div>
-                            <textarea id="seed_details_results_extended_privkey" readonly
-                                style="font-size: 20px; width: 100%; padding: 4px 8px; margin-bottom: 10px; line-height: 32px; resize: none; height: 66px;"
-                                >xprv9s21ZrQH143K2fk81KHjzzrBLMZGymMSNGxSMWpfymEmbtkHQGxHDS2jzT7SEsWWibStEWURWkqwrF3oLAodK7jMzXtPmd14hiJVzVw6eqM</textarea>
+                        <input id="seed_details_address_offset" type="number" value="0" min="0" max="2147483648" step="1" style="font-size: 24px; margin-right: 20px; width: 160px; padding: 2px 4px;">
+                        <div style="margin-top: 10px;">
+                            <label id="seed_details_results_hardened_addresses_checkbox"
+                                style="font-size: 24px; margin-right: 20px; width: 160px; padding: 2px 4px; white-space: nowrap;"><input type="checkbox"
+                                id="seed_details_hardened_addresses_checkbox"> Calculate hardened addresses?</label>
+                            <label id="seed_details_results_change_addresses_checkbox"
+                                style="font-size: 24px; margin-right: 20px; width: 160px; padding: 2px 4px; white-space: nowrap"
+                                ><input type="checkbox" id="seed_details_change_addresses_checkbox"> Calculate change addresses?</label>
                         </div>
+                        <button style="width: 250px; margin-top: 20px;" onclick="SeedCalculateAddressesButton()">Calculate addresses</button>
+                        <div id="seed_details_address_calculate_progress" style="display: none; font-size: 24px; margin-left: 20px;"></div>
+                    </div>
+                    <div id="seed_details_addresses_error_text" style="font-size: 24px; color: red; margin-top: 10px; display: none;"></div>
+                    <div id="seed_details_results_addresses_container" style="margin-top: 20px;">
                         <div style="margin-top: 10px; white-space: nowrap; display: table;">
                             <div style="border-width: 2px; border-style: solid; font-size: 24px;" id="seed_details_results_addresses_table_header">
                                 <div style="border-right-width: 2px; border-right-style: solid; width: 200px; display: inline-block; padding: 4px 8px;"
@@ -694,6 +692,19 @@ li
                                 <div class="seed_details_results_address_row">
                                     <div>m/84'/0'/0'/0/0</div><div>bc1qvd5fc02tkf7fdxhyjpfnnar2ndenayyahz49am</div><div>L2zFiwnGCQPnBYEwRBphNAck5XJ79BWYV1FGNzULTFSTchm66Mt5</div>
                                 </div>
+                            </div>
+                        </div>
+                        <div style="margin: 20px 0px;">
+                            <button style="width: 280px;" onclick="SeedToggleExtendedKeys(this)">Show extended keys</button>
+                            <div id="seed_details_results_extended_keys" style="margin: 0px 0px 30px 20px; display: none;">
+                                <div style="margin: 10px 0px; font-size: 20px;">Extended public key</div>
+                                <textarea id="seed_details_results_extended_pubkey" readonly
+                                    style="font-size: 20px; width: 100%; padding: 4px 8px; margin-bottom: 10px; line-height: 32px; resize: none; height: 66px;"
+                                    ></textarea>
+                                <div style="margin: 10px 0px; font-size: 20px;">Extended private key</div>
+                                <textarea id="seed_details_results_extended_privkey" readonly
+                                    style="font-size: 20px; width: 100%; padding: 4px 8px; margin-bottom: 10px; line-height: 32px; resize: none; height: 66px;"
+                                    ></textarea>
                             </div>
                         </div>
                     </div>

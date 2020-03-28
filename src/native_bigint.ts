@@ -60,12 +60,12 @@
             return new BN(this.value % BN.ConvertNumber(num));
         }
         
-        shrn(num: NumberSource)
+        shrn(num: number)
         {
             return new BN(this.value >> BN.ConvertNumber(num));
         }
         
-        shln(num: NumberSource)
+        shln(num: number)
         {
             return new BN(this.value << BN.ConvertNumber(num));
         }

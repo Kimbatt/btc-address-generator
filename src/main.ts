@@ -864,7 +864,13 @@
 
         let bigint = bn_0;
         for (let i = newstring.length - 1; i >= 0; --i)
-            bigint = (bigint.mul(bn_58)).add(new BN(base58CharsIndices[newstring[i]]));
+        {
+            const charIndex = base58CharsIndices[newstring[i]]
+            if (charIndex === undefined)
+                throw new Error("invalid character: " + newstring[i]);
+
+            bigint = (bigint.mul(bn_58)).add(new BN(charIndex));
+        }
 
         let bytes = bigintToByteArray(bigint);
         if (bytes[bytes.length - 1] == 0)
@@ -3150,7 +3156,7 @@
             if (!(exponent.and(bn_1)).isZero())
                 ret = (ret.mul(num)).mod(mod);
 
-            exponent.shrn(bn_1);
+            exponent = exponent.shrn(1);
             num = (num.mul(num)).mod(mod);
         }
 
@@ -3189,7 +3195,7 @@
         const childKey = (parsed256IL.add(parentKeyBigint)).mod(ecc_n);
 
         // In case parse256(IL) >= n or ki == 0, the resulting key is invalid, and one should proceed with the next value for i. (Note: this has probability lower than 1 in 2^127.)
-        if (parsed256IL >= ecc_n || childKey.isZero())
+        if (parsed256IL.gte(ecc_n) || childKey.isZero())
             return CKD_Priv(parent, index + 1);
 
         return <DerivedPrivKey>{
@@ -3221,7 +3227,7 @@
         const isOdd = parentKeyPair.isOdd;
 
         const val = (pointX.mul(pointX).mul(pointX)).add(new BN(7));
-        let pointY = ModPow(val, (ecc_p.add(bn_1)).shrn(bn_2), ecc_p);
+        let pointY = ModPow(val, (ecc_p.add(bn_1)).shrn(2), ecc_p);
         if (pointY.lt(bn_0))
             pointY = pointY.add(ecc_p);
 
@@ -3243,7 +3249,7 @@
             childKeyPair.y = childKeyPair.y.add(ecc_p);
 
         // In case parse256(IL) >= n or Ki is the point at infinity, the resulting key is invalid, and one should proceed with the next value for i.
-        if (tempBigint >= ecc_n || tempBigint.isZero())
+        if (tempBigint.gte(ecc_n) || tempBigint.isZero())
             return CKD_Pub(parent, index + 1);
 
         return <DerivedPubKey>{
@@ -3270,7 +3276,7 @@
         };
     }
 
-    type Bip32Purpose = "44" | "49" | "84";
+    type Bip32Purpose = "44" | "49" | "84" | "32";
     function SerializeExtendedKey(isPrivate: boolean, depth: number, parentKeyFingerprint: number[],
         childIndex: number, chainCode: number[], keyData: number[], purpose: Bip32Purpose)
     {
@@ -3292,6 +3298,7 @@
                     versionBytes = [0x04, 0xB2, 0x47, 0x46];
                 break;
             case "44":
+            case "32":
                 if (isPrivate)
                     versionBytes = [0x04, 0x88, 0xAD, 0xE4];
                 else
@@ -3344,7 +3351,7 @@
             if (index === "")
                 continue;
 
-            const match = index.match(/(\d+)(')?/);
+            const match = index.match(/^(\d+)(')?$/);
             if (match)
             {
                 const index = parseInt(match[1]);
@@ -3352,7 +3359,7 @@
                 childIndices.push((isHardened ? (index | 0x80000000) : index) >>> 0);
             }
             else
-                throw new Error("invalid path");
+                throw new Error("Invalid path segment: " + index);
         }
 
         const decodedKey = base58checkDecode(extendedKey);
@@ -3375,16 +3382,8 @@
             if (fromPrivate)
             {
                 const privkey = keyData.slice(1);
-                //if (toPrivate)
-                //{
                 derivedKey = CKD_Priv(<KeyData>{ key: privkey, chainCode: chainCode}, childIndex);
                 keyData = [0x00, ...bigintToByteArray_littleEndian(derivedKey.key)];
-                //}
-                //else
-                //{
-                //    derivedKey = CKD_N([privkey, chainCode]);
-                //    keyData = SerializeECCKeypairCompressed(derivedKey[0]);
-                //}
             }
             else
             {
@@ -3484,7 +3483,12 @@
             throw new Error("Word count must be 12, 15, 18, 21 or 24");
 
         const byteCount = ((wordCount / 3) | 0) * 4;
-        const randomBytes = crypto.getRandomValues(new Uint8Array(byteCount));
+        const randomBytes: number[] = [];
+        for (let i = 0; i < byteCount; i += 32)
+            randomBytes.push(...get32SecureRandomBytes());
+
+        while (randomBytes.length > byteCount)
+            randomBytes.pop();
 
         const checksumByte = SHA256(randomBytes)[0];
         const checksumLength = byteCount / 4; // in bits
@@ -3508,18 +3512,18 @@
     function VerifyMnemonic(mnemonic: string)
     {
         if (mnemonic.trim() === "")
-            return "mnemonic is empty";
+            return "mnemonic seed is empty";
 
         const words = mnemonic.match(/\S+/g);
         if (words === null)
-            return "mnemonic contains invalid characters";
+            return "mnemonic seed contains invalid characters";
 
         let bitString = "";
         for (let word of words)
         {
             const index = bip39wordlist[word];
             if (index === undefined)
-                return "unknown word: " + word;
+                return "'" + word + "' is not in wordlist";
 
             bitString += PadStart(index.toString(2), 11, "0");
         }
@@ -3546,6 +3550,15 @@
         return true;
     }
 
+    function NormalizeMnemonic(mnemonic: string)
+    {
+        const words = mnemonic.toLowerCase().match(/[a-z]+/g);
+        if (words === null)
+            return "";
+
+        return words.join(" ");
+    }
+
     function NormalizeStringIfPossibleNFKD(str: string)
     {
         if ((<any>String.prototype).normalize)
@@ -3565,7 +3578,7 @@
     {
         const passwordNormalized = NormalizeStringIfPossibleNFKD("mnemonic" + password);
         if (passwordNormalized === null)
-            throw new Error("password might contain non-normalized characters");
+            throw new Error("Error: password might contain non-normalized characters. Either use a modern browser (which can normalize the password), or use a password with english characters only.");
 
         const mnemonicBytes = Utf8StringToBytes(mnemonic);
         const passwordBytes = Utf8StringToBytes(passwordNormalized);
@@ -3596,14 +3609,289 @@
         (<HTMLButtonElement>document.getElementById("seed_details_page_button")).disabled = !isGeneratePage;
     }
 
+    const bip32extendedKeyStartRegex = /^[xyz](pub|prv)/;
+    function SeedChanged(textarea: HTMLTextAreaElement)
+    {
+        const seed = textarea.value;
+        const isBIP32key = bip32extendedKeyStartRegex.test(seed);
+        document.getElementById("seed_details_password_container")!.style.display = isBIP32key ? "none" : "";
+        document.getElementById("seed_details_results")!.style.display = "none";
+        document.getElementById("seed_details_addresses_error_text")!.style.display = "none";
+    }
+
+    function SeedPasswordChanged()
+    {
+        document.getElementById("seed_details_results")!.style.display = "none";
+        document.getElementById("seed_details_addresses_error_text")!.style.display = "none";
+    }
+
     function ViewSeedDetailsButton()
     {
+        const seedTextArea = <HTMLTextAreaElement>document.getElementById("seed_details_seed_textarea");
+        let seed = seedTextArea.value.trim();
+        const errorTextDiv = document.getElementById("seed_details_error_text")!;
+        const resultsContainerDiv = document.getElementById("seed_details_results")!;
+        const rootKeyDiv = document.getElementById("seed_details_results_bip32_rootkey_container")!;
+        const changeAddressesCheckboxLabel = document.getElementById("seed_details_results_change_addresses_checkbox")!;
+        changeAddressesCheckboxLabel.style.display = "";
+        const hardenedAddressesCheckboxLabel = document.getElementById("seed_details_results_hardened_addresses_checkbox")!;
+        hardenedAddressesCheckboxLabel.style.display = "";
 
+        function ShowError(text: string)
+        {
+            errorTextDiv.textContent = text;
+            errorTextDiv.style.display = "";
+            resultsContainerDiv.style.display = "none";
+        }
+
+        if (seed === "")
+        {
+            ShowError("Seed is empty");
+            return;
+        }
+
+        let rootKey;
+        if (bip32extendedKeyStartRegex.test(seed))
+        {
+            // extended key
+            let decodedKey: number[];
+            try
+            {
+                decodedKey = base58checkDecode(seed);
+            }
+            catch (err)
+            {
+                ShowError("Invalid BIP32 extended key: " + err.message);
+                return;
+            }
+
+            if (decodedKey.length !== 78)
+            {
+                ShowError("Invalid BIP32 extended key: invalid length");
+                return;
+            }
+
+            switch (seed[0])
+            {
+                case "x":
+                    SeedDerivationPresetChanged("44");
+                    break;
+                case "y":
+                    SeedDerivationPresetChanged("49");
+                    break;
+                case "z":
+                    SeedDerivationPresetChanged("84");
+                    break;
+            }
+
+            if (seed.substr(1, 3) === "pub")
+            {
+                changeAddressesCheckboxLabel.style.display = "none";
+                hardenedAddressesCheckboxLabel.style.display = "none";
+            }
+
+            rootKeyDiv.style.display = "none";
+            rootKey = seed;
+        }
+        else
+        {
+            // seed
+            const result = VerifyMnemonic(seed);
+            if (typeof result === "string")
+            {
+                ShowError("Invalid mnemonic seed: " + result);
+                return;
+            }
+
+            seed = NormalizeMnemonic(seed);
+            try
+            {
+                rootKey = GetXprvFromMnemonic(seed, (<HTMLTextAreaElement>document.getElementById("seed_details_seed_password")).value);
+            }
+            catch (e)
+            {
+                ShowError(e.message);
+                return;
+            }
+
+            seedTextArea.value = seed;
+            rootKeyDiv.style.display = "";
+        }
+
+        document.getElementById("seed_details_results_rootkey")!.textContent = rootKey;
+        errorTextDiv.style.display = "none";
+        resultsContainerDiv.style.display = "";
+        document.getElementById("seed_details_results_addresses_container")!.style.display = "none";
+    }
+
+    function SeedDerivationPresetChanged(preset: string)
+    {
+        const input = <HTMLInputElement>document.getElementById("seed_details_results_derivation_path_input");
+        const changeAddressesCheckboxLabel = document.getElementById("seed_details_results_change_addresses_checkbox")!;
+        switch (preset)
+        {
+            case "44":
+                input.value = "m/44'/0'/0'";
+                break;
+            case "49":
+                input.value = "m/49'/0'/0'";
+                break;
+            case "84":
+                input.value = "m/84'/0'/0'";
+                break;
+            case "32":
+            default:
+                input.value = "";
+                break;
+        }
+
+        (<HTMLSelectElement>document.getElementById("derivation_path_preset")).value = preset;
+        input.disabled = preset !== "32";
+
+        // hide change addresses checkbox when using custom path
+        changeAddressesCheckboxLabel.style.display = preset === "32" ? "none" : "";
     }
 
     function SeedCalculateAddressesButton()
     {
+        const errorTextDiv = document.getElementById("seed_details_addresses_error_text")!;
+        const resultsContainerDiv = document.getElementById("seed_details_results_addresses_container")!;
+        function ShowError(text: string)
+        {
+            errorTextDiv.textContent = text;
+            errorTextDiv.style.display = "";
+            resultsContainerDiv.style.display = "none";
+        }
 
+        const rootKey = (<HTMLTextAreaElement>document.getElementById("seed_details_results_rootkey")).value;
+        let path = (<HTMLInputElement>document.getElementById("seed_details_results_derivation_path_input")).value;
+        const generateHardenedAddresses = (<HTMLInputElement>document.getElementById("seed_details_hardened_addresses_checkbox")).checked;
+        let derivedKeyPurpose = <Bip32Purpose>(<HTMLSelectElement>document.getElementById("derivation_path_preset")).value;
+
+        const addressCountInput = <HTMLInputElement>document.getElementById("seed_details_address_count");
+        let count = Number(addressCountInput.value) | 0;
+        if (isNaN(count) || count < 1)
+        {
+            count = 10;
+            addressCountInput.value = count.toString();
+        }
+
+        const addressIndexOffsetInput = <HTMLInputElement>document.getElementById("seed_details_address_offset");
+        let startIndex = Number(addressIndexOffsetInput.value) | 0;
+        if (isNaN(startIndex) || startIndex < 0)
+        {
+            startIndex = 0;
+            addressIndexOffsetInput.value = startIndex.toString();
+        }
+
+        const endIndex = startIndex + count;
+        if (endIndex > 0x80000000)
+        {
+            ShowError("Start index + Count must be 2147483648 at most");
+            return;
+        }
+
+        const isPrivate = rootKey.substr(1, 3) === "prv";
+        if (derivedKeyPurpose !== "32")
+        {
+            const generateChangeAddresses = (<HTMLInputElement>document.getElementById("seed_details_change_addresses_checkbox")).checked;
+            if (!isPrivate)
+                path = "m";
+            else
+                path += (generateChangeAddresses ? "/1" : "/0");
+        }
+        else
+        {
+            if (rootKey[0] === "y")
+                derivedKeyPurpose = "49";
+            else if (rootKey[0] === "z")
+                derivedKeyPurpose = "84";
+        }
+
+        if (!isPrivate && generateHardenedAddresses)
+        {
+            ShowError("Hardened addresses can only be derived from extended private keys");
+            return;
+        }
+
+        let derivedExtendedPrivateKey: string | null = null;
+        let derivedExtendedPublicKey: string;
+        try
+        {
+            derivedExtendedPublicKey = DeriveKey(rootKey, path, false, derivedKeyPurpose);
+            if (isPrivate)
+                derivedExtendedPrivateKey = DeriveKey(rootKey, path, isPrivate, derivedKeyPurpose);
+        }
+        catch (e)
+        {
+            ShowError(e.message);
+            return;
+        }
+
+        (<HTMLTextAreaElement>document.getElementById("seed_details_results_extended_pubkey")).value = derivedExtendedPublicKey;
+        (<HTMLTextAreaElement>document.getElementById("seed_details_results_extended_privkey")).value = derivedExtendedPrivateKey ?? "???";
+
+        const resultsTable = document.getElementById("seed_details_results_addresses_table")!;
+        while (resultsTable.lastChild)
+            resultsTable.removeChild(resultsTable.lastChild);
+
+        function CreateRow(path: string, address: string, privkey: string)
+        {
+            const row = document.createElement("div");
+            row.className = "seed_details_results_address_row";
+
+            const pathDiv = document.createElement("div");
+            pathDiv.textContent = path;
+
+            const addressDiv = document.createElement("div");
+            addressDiv.textContent = address;
+
+            const privkeyDiv = document.createElement("div");
+            privkeyDiv.textContent = privkey;
+
+            row.appendChild(pathDiv);
+            row.appendChild(addressDiv);
+            row.appendChild(privkeyDiv);
+
+            resultsTable.appendChild(row);
+        }
+
+        const progressTextDiv = document.getElementById("seed_details_address_calculate_progress")!;
+
+        let i = startIndex;
+        function CalculateRow()
+        {
+            if (i < endIndex)
+            {
+                const privkey = isPrivate
+                    ? UnextendKey(DeriveKey(derivedExtendedPrivateKey!, "m/" + i + (generateHardenedAddresses ? "'" : ""), true, derivedKeyPurpose))
+                    : "???";
+
+                const address = UnextendKey(DeriveKey(isPrivate
+                    ? derivedExtendedPrivateKey!
+                    : derivedExtendedPublicKey, "m/" + i + (generateHardenedAddresses ? "'" : ""), false, derivedKeyPurpose));
+
+                const addressPath = path + (path[path.length - 1] === "/" ? "" : "/") + i + (generateHardenedAddresses ? "'" : "");
+                CreateRow(addressPath, address, privkey);
+                ++i;
+
+                progressTextDiv.textContent = "Calculating: " + i + "/" + count;
+                setImmediate(CalculateRow);
+            }
+            else
+            {
+                document.body.style.pointerEvents = "";
+                resultsContainerDiv.style.display = "";
+                progressTextDiv.style.display = "none";
+            }
+        }
+
+        resultsContainerDiv.style.display = "none";
+        errorTextDiv.style.display = "none";
+        document.body.style.pointerEvents = "none";
+        progressTextDiv.textContent = "Calculating: 0/" + count;
+        progressTextDiv.style.display = "inline";
+        setImmediate(CalculateRow);
     }
 
     let seedExtendedKeysVisible = false;
@@ -4091,12 +4379,12 @@
     (<any>window)["GenerateNewSeedButton"] = GenerateNewSeedButton;
     (<any>window)["SetSeedPage"] = SetSeedPage;
     (<any>window)["ViewSeedDetailsButton"] = ViewSeedDetailsButton;
+    (<any>window)["SeedChanged"] = SeedChanged;
+    (<any>window)["SeedPasswordChanged"] = SeedPasswordChanged;
+    (<any>window)["SeedDerivationPresetChanged"] = SeedDerivationPresetChanged;
     (<any>window)["SeedCalculateAddressesButton"] = SeedCalculateAddressesButton;
     (<any>window)["SeedToggleExtendedKeys"] = SeedToggleExtendedKeys;
     (<any>window)["skipRandomness"] = skipRandomness;
     (<any>window)["setDarkMode"] = setDarkMode;
     (<any>window)["runTests"] = runTests;
-
-    // DEBUG ONLY
-    // window.addEventListener("load", skipRandomness);
 })();

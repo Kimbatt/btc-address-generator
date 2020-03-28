@@ -8,8 +8,8 @@ declare class BN
     mul(num: NumberSource): BN;
     div(num: NumberSource): BN;
     mod(num: NumberSource): BN;
-    shrn(num: NumberSource): BN;
-    shln(num: NumberSource): BN;
+    shrn(num: number): BN;
+    shln(num: number): BN;
     and(num: NumberSource): BN;
     or(num: NumberSource): BN;
     isZero(): boolean;
