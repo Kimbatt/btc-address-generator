@@ -2054,7 +2054,7 @@
                     const addressDiv = document.createElement("div");
                     addressDiv.textContent = currentAddress;
                     addressDiv.style.position = "absolute";
-                    addressDiv.style.top = "384px";
+                    addressDiv.style.top = "385px";
                     addressDiv.style.left = "197px";
                     addressDiv.style.fontFamily = "roboto-mono";
                     addressDiv.style.fontWeight = "bold";
@@ -2064,8 +2064,8 @@
                     privkeyDiv.innerHTML = splitText(currentPrivkey, 2);
                     privkeyDiv.style.fontSize = bip38 ? "13px" : "14.5px";
                     privkeyDiv.style.position = "absolute";
-                    privkeyDiv.style.top = "25px";
-                    privkeyDiv.style.left = "575px";
+                    privkeyDiv.style.top = "24px";
+                    privkeyDiv.style.left = "577px";
                     privkeyDiv.style.fontFamily = "roboto-mono";
                     privkeyDiv.style.fontWeight = "bold";
 
@@ -2363,8 +2363,8 @@
                     const addressQRImg = new Image();
                     addressQRImg.src = currentAddressQR.createDataURL(finalSize, 0);
                     addressQRImg.style.position = "absolute";
-                    addressQRImg.style.top = "118px"
-                    addressQRImg.style.left = "55px";
+                    addressQRImg.style.top = "110px"
+                    addressQRImg.style.left = "53px";
                     addressQRImg.style.width = addressTargetSize + "px";
                     addressQRImg.style.height = addressTargetSize + "px";
 
@@ -2374,8 +2374,8 @@
                     const privkeyQRImg = new Image();
                     privkeyQRImg.src = currentPrivkeyQR.createDataURL(finalSize, 0);
                     privkeyQRImg.style.position = "absolute";
-                    privkeyQRImg.style.top = "226px";
-                    privkeyQRImg.style.left = "755px";
+                    privkeyQRImg.style.top = "228px";
+                    privkeyQRImg.style.left = "757px";
                     privkeyQRImg.style.width = privkeyTargetSize + "px";
                     privkeyQRImg.style.height = privkeyTargetSize + "px";
 

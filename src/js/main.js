@@ -48,8 +48,24 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
     }
     ;
     var randomnessNumbers = [];
-    var hour = new Date().getHours();
-    var darkMode = hour < 7 || hour > 18;
+    function initDarkMode() {
+        // check if browser supports prefers-color-scheme
+        if (window.matchMedia && window.matchMedia("(prefers-color-scheme)").matches) {
+            // media query supported, check preference
+            if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+                // use dark mode
+                return true;
+            }
+            else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+                // use light mode
+                return false;
+            }
+        }
+        // use dark mode based on time
+        var hour = new Date().getHours();
+        return hour < 7 || hour > 18;
+    }
+    var darkMode = initDarkMode();
     function hasQueryKey(key) {
         return getQueryValue(key) !== null;
     }
@@ -632,8 +648,12 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                 break;
         }
         var bigint = bn_0;
-        for (var i_2 = newstring.length - 1; i_2 >= 0; --i_2)
-            bigint = (bigint.mul(bn_58)).add(new BN(base58CharsIndices[newstring[i_2]]));
+        for (var i_2 = newstring.length - 1; i_2 >= 0; --i_2) {
+            var charIndex = base58CharsIndices[newstring[i_2]];
+            if (charIndex === undefined)
+                throw new Error("invalid character: " + newstring[i_2]);
+            bigint = (bigint.mul(bn_58)).add(new BN(charIndex));
+        }
         var bytes = bigintToByteArray(bigint);
         if (bytes[bytes.length - 1] == 0)
             bytes.pop();
@@ -1532,7 +1552,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                         var addressDiv = document.createElement("div");
                         addressDiv.textContent = currentAddress;
                         addressDiv.style.position = "absolute";
-                        addressDiv.style.top = "384px";
+                        addressDiv.style.top = "385px";
                         addressDiv.style.left = "197px";
                         addressDiv.style.fontFamily = "roboto-mono";
                         addressDiv.style.fontWeight = "bold";
@@ -1541,8 +1561,8 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                         privkeyDiv.innerHTML = splitText(currentPrivkey, 2);
                         privkeyDiv.style.fontSize = bip38 ? "13px" : "14.5px";
                         privkeyDiv.style.position = "absolute";
-                        privkeyDiv.style.top = "25px";
-                        privkeyDiv.style.left = "575px";
+                        privkeyDiv.style.top = "24px";
+                        privkeyDiv.style.left = "577px";
                         privkeyDiv.style.fontFamily = "roboto-mono";
                         privkeyDiv.style.fontWeight = "bold";
                         var backgroundGraphic = new Image();
@@ -1806,8 +1826,8 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                         var addressQRImg = new Image();
                         addressQRImg.src = currentAddressQR.createDataURL(finalSize, 0);
                         addressQRImg.style.position = "absolute";
-                        addressQRImg.style.top = "118px";
-                        addressQRImg.style.left = "55px";
+                        addressQRImg.style.top = "110px";
+                        addressQRImg.style.left = "53px";
                         addressQRImg.style.width = addressTargetSize + "px";
                         addressQRImg.style.height = addressTargetSize + "px";
                         var currentPrivkeyQR = currentData.privkeyQR;
@@ -1816,8 +1836,8 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                         var privkeyQRImg = new Image();
                         privkeyQRImg.src = currentPrivkeyQR.createDataURL(finalSize, 0);
                         privkeyQRImg.style.position = "absolute";
-                        privkeyQRImg.style.top = "226px";
-                        privkeyQRImg.style.left = "755px";
+                        privkeyQRImg.style.top = "228px";
+                        privkeyQRImg.style.left = "757px";
                         privkeyQRImg.style.width = privkeyTargetSize + "px";
                         privkeyQRImg.style.height = privkeyTargetSize + "px";
                         var parentDiv = document.createElement("div");
@@ -2456,7 +2476,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         while (!exponent.isZero()) {
             if (!(exponent.and(bn_1)).isZero())
                 ret = (ret.mul(num)).mod(mod);
-            exponent.shrn(bn_1);
+            exponent = exponent.shrn(1);
             num = (num.mul(num)).mod(mod);
         }
         return ret;
@@ -2476,7 +2496,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         var parsed256IL = byteArrayToBigint(IL);
         var childKey = (parsed256IL.add(parentKeyBigint)).mod(ecc_n);
         // In case parse256(IL) >= n or ki == 0, the resulting key is invalid, and one should proceed with the next value for i. (Note: this has probability lower than 1 in 2^127.)
-        if (parsed256IL >= ecc_n || childKey.isZero())
+        if (parsed256IL.gte(ecc_n) || childKey.isZero())
             return CKD_Priv(parent, index + 1);
         return {
             key: childKey,
@@ -2491,7 +2511,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         var pointX = byteArrayToBigint(parentKeyPair.x);
         var isOdd = parentKeyPair.isOdd;
         var val = (pointX.mul(pointX).mul(pointX)).add(new BN(7));
-        var pointY = ModPow(val, (ecc_p.add(bn_1)).shrn(bn_2), ecc_p);
+        var pointY = ModPow(val, (ecc_p.add(bn_1)).shrn(2), ecc_p);
         if (pointY.lt(bn_0))
             pointY = pointY.add(ecc_p);
         if (pointY.isOdd() !== isOdd)
@@ -2507,7 +2527,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         if (childKeyPair.y.lt(bn_0))
             childKeyPair.y = childKeyPair.y.add(ecc_p);
         // In case parse256(IL) >= n or Ki is the point at infinity, the resulting key is invalid, and one should proceed with the next value for i.
-        if (tempBigint >= ecc_n || tempBigint.isZero())
+        if (tempBigint.gte(ecc_n) || tempBigint.isZero())
             return CKD_Pub(parent, index + 1);
         return {
             keypair: childKeyPair,
@@ -2544,6 +2564,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                     versionBytes = [0x04, 0xB2, 0x47, 0x46];
                 break;
             case "44":
+            case "32":
                 if (isPrivate)
                     versionBytes = [0x04, 0x88, 0xAD, 0xE4];
                 else
@@ -2585,14 +2606,14 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             var index = segments_1[_i];
             if (index === "")
                 continue;
-            var match = index.match(/(\d+)(')?/);
+            var match = index.match(/^(\d+)(')?$/);
             if (match) {
                 var index_1 = parseInt(match[1]);
                 var isHardened = match[2] !== undefined;
                 childIndices.push((isHardened ? (index_1 | 0x80000000) : index_1) >>> 0);
             }
             else
-                throw new Error("invalid path");
+                throw new Error("Invalid path segment: " + index);
         }
         var decodedKey = base58checkDecode(extendedKey);
         var currentDepth = decodedKey[4];
@@ -2610,16 +2631,8 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             var derivedKey = void 0;
             if (fromPrivate) {
                 var privkey = keyData.slice(1);
-                //if (toPrivate)
-                //{
                 derivedKey = CKD_Priv({ key: privkey, chainCode: chainCode }, childIndex);
                 keyData = __spreadArrays([0x00], bigintToByteArray_littleEndian(derivedKey.key));
-                //}
-                //else
-                //{
-                //    derivedKey = CKD_N([privkey, chainCode]);
-                //    keyData = SerializeECCKeypairCompressed(derivedKey[0]);
-                //}
             }
             else {
                 var keypair = {
@@ -2695,7 +2708,11 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         if (wordCount !== 12 && wordCount !== 15 && wordCount !== 18 && wordCount !== 21 && wordCount !== 24)
             throw new Error("Word count must be 12, 15, 18, 21 or 24");
         var byteCount = ((wordCount / 3) | 0) * 4;
-        var randomBytes = crypto.getRandomValues(new Uint8Array(byteCount));
+        var randomBytes = [];
+        for (var i = 0; i < byteCount; i += 32)
+            randomBytes.push.apply(randomBytes, get32SecureRandomBytes());
+        while (randomBytes.length > byteCount)
+            randomBytes.pop();
         var checksumByte = SHA256(randomBytes)[0];
         var checksumLength = byteCount / 4; // in bits
         var bits = "";
@@ -2711,16 +2728,16 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
     }
     function VerifyMnemonic(mnemonic) {
         if (mnemonic.trim() === "")
-            return "mnemonic is empty";
+            return "mnemonic seed is empty";
         var words = mnemonic.match(/\S+/g);
         if (words === null)
-            return "mnemonic contains invalid characters";
+            return "mnemonic seed contains invalid characters";
         var bitString = "";
         for (var _i = 0, words_1 = words; _i < words_1.length; _i++) {
             var word = words_1[_i];
             var index = bip39wordlist[word];
             if (index === undefined)
-                return "unknown word: " + word;
+                return "'" + word + "' is not in wordlist";
             bitString += PadStart(index.toString(2), 11, "0");
         }
         var wordCount = words.length;
@@ -2739,6 +2756,12 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             return "invalid checksum";
         return true;
     }
+    function NormalizeMnemonic(mnemonic) {
+        var words = mnemonic.toLowerCase().match(/[a-z]+/g);
+        if (words === null)
+            return "";
+        return words.join(" ");
+    }
     function NormalizeStringIfPossibleNFKD(str) {
         if (String.prototype.normalize)
             return str.normalize("NFKD");
@@ -2754,7 +2777,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         if (purpose === void 0) { purpose = "44"; }
         var passwordNormalized = NormalizeStringIfPossibleNFKD("mnemonic" + password);
         if (passwordNormalized === null)
-            throw new Error("password might contain non-normalized characters");
+            throw new Error("Error: password might contain non-normalized characters. Either use a modern browser (which can normalize the password), or use a password with english characters only.");
         var mnemonicBytes = Utf8StringToBytes(mnemonic);
         var passwordBytes = Utf8StringToBytes(passwordNormalized);
         var seed = PBKDF2(mnemonicBytes, passwordBytes, 2048, 512 / 32);
@@ -2766,8 +2789,237 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
     function GenerateNewSeedButton() {
         var seedDiv = document.getElementById("seed_generate_result");
         seedDiv.classList.add("wide_spacing");
+        seedDiv.style.display = "";
         var wordCount = Number(document.getElementById("seed_generate_wordcount").value);
         seedDiv.textContent = GenerateSeedPhrase(wordCount);
+    }
+    function SetSeedPage(isGeneratePage) {
+        document.getElementById("seed_generate_page").style.display = isGeneratePage ? "" : "none";
+        document.getElementById("seed_details_page").style.display = isGeneratePage ? "none" : "";
+        document.getElementById("seed_generate_page_button").disabled = isGeneratePage;
+        document.getElementById("seed_details_page_button").disabled = !isGeneratePage;
+    }
+    var bip32extendedKeyStartRegex = /^[xyz](pub|prv)/;
+    function SeedChanged(textarea) {
+        var seed = textarea.value;
+        var isBIP32key = bip32extendedKeyStartRegex.test(seed);
+        document.getElementById("seed_details_password_container").style.display = isBIP32key ? "none" : "";
+        document.getElementById("seed_details_results").style.display = "none";
+        document.getElementById("seed_details_addresses_error_text").style.display = "none";
+    }
+    function SeedPasswordChanged() {
+        document.getElementById("seed_details_results").style.display = "none";
+        document.getElementById("seed_details_addresses_error_text").style.display = "none";
+    }
+    function ViewSeedDetailsButton() {
+        var seedTextArea = document.getElementById("seed_details_seed_textarea");
+        var seed = seedTextArea.value.trim();
+        var errorTextDiv = document.getElementById("seed_details_error_text");
+        var resultsContainerDiv = document.getElementById("seed_details_results");
+        var rootKeyDiv = document.getElementById("seed_details_results_bip32_rootkey_container");
+        var changeAddressesCheckboxLabel = document.getElementById("seed_details_results_change_addresses_checkbox");
+        changeAddressesCheckboxLabel.style.display = "";
+        var hardenedAddressesCheckboxLabel = document.getElementById("seed_details_results_hardened_addresses_checkbox");
+        hardenedAddressesCheckboxLabel.style.display = "";
+        function ShowError(text) {
+            errorTextDiv.textContent = text;
+            errorTextDiv.style.display = "";
+            resultsContainerDiv.style.display = "none";
+        }
+        if (seed === "") {
+            ShowError("Seed is empty");
+            return;
+        }
+        var rootKey;
+        if (bip32extendedKeyStartRegex.test(seed)) {
+            // extended key
+            var decodedKey = void 0;
+            try {
+                decodedKey = base58checkDecode(seed);
+            }
+            catch (err) {
+                ShowError("Invalid BIP32 extended key: " + err.message);
+                return;
+            }
+            if (decodedKey.length !== 78) {
+                ShowError("Invalid BIP32 extended key: invalid length");
+                return;
+            }
+            switch (seed[0]) {
+                case "x":
+                    SeedDerivationPresetChanged("44");
+                    break;
+                case "y":
+                    SeedDerivationPresetChanged("49");
+                    break;
+                case "z":
+                    SeedDerivationPresetChanged("84");
+                    break;
+            }
+            if (seed.substr(1, 3) === "pub") {
+                changeAddressesCheckboxLabel.style.display = "none";
+                hardenedAddressesCheckboxLabel.style.display = "none";
+            }
+            rootKeyDiv.style.display = "none";
+            rootKey = seed;
+        }
+        else {
+            // seed
+            var result = VerifyMnemonic(seed);
+            if (typeof result === "string") {
+                ShowError("Invalid mnemonic seed: " + result);
+                return;
+            }
+            seed = NormalizeMnemonic(seed);
+            try {
+                rootKey = GetXprvFromMnemonic(seed, document.getElementById("seed_details_seed_password").value);
+            }
+            catch (e) {
+                ShowError(e.message);
+                return;
+            }
+            seedTextArea.value = seed;
+            rootKeyDiv.style.display = "";
+        }
+        document.getElementById("seed_details_results_rootkey").textContent = rootKey;
+        errorTextDiv.style.display = "none";
+        resultsContainerDiv.style.display = "";
+        document.getElementById("seed_details_results_addresses_container").style.display = "none";
+    }
+    function SeedDerivationPresetChanged(preset) {
+        var input = document.getElementById("seed_details_results_derivation_path_input");
+        var changeAddressesCheckboxLabel = document.getElementById("seed_details_results_change_addresses_checkbox");
+        switch (preset) {
+            case "44":
+                input.value = "m/44'/0'/0'";
+                break;
+            case "49":
+                input.value = "m/49'/0'/0'";
+                break;
+            case "84":
+                input.value = "m/84'/0'/0'";
+                break;
+            case "32":
+            default:
+                input.value = "";
+                break;
+        }
+        document.getElementById("derivation_path_preset").value = preset;
+        input.disabled = preset !== "32";
+        // hide change addresses checkbox when using custom path
+        changeAddressesCheckboxLabel.style.display = preset === "32" ? "none" : "";
+    }
+    function SeedCalculateAddressesButton() {
+        var errorTextDiv = document.getElementById("seed_details_addresses_error_text");
+        var resultsContainerDiv = document.getElementById("seed_details_results_addresses_container");
+        function ShowError(text) {
+            errorTextDiv.textContent = text;
+            errorTextDiv.style.display = "";
+            resultsContainerDiv.style.display = "none";
+        }
+        var rootKey = document.getElementById("seed_details_results_rootkey").value;
+        var path = document.getElementById("seed_details_results_derivation_path_input").value;
+        var generateHardenedAddresses = document.getElementById("seed_details_hardened_addresses_checkbox").checked;
+        var derivedKeyPurpose = document.getElementById("derivation_path_preset").value;
+        var addressCountInput = document.getElementById("seed_details_address_count");
+        var count = Number(addressCountInput.value) | 0;
+        if (isNaN(count) || count < 1) {
+            count = 10;
+            addressCountInput.value = count.toString();
+        }
+        var addressIndexOffsetInput = document.getElementById("seed_details_address_offset");
+        var startIndex = Number(addressIndexOffsetInput.value) | 0;
+        if (isNaN(startIndex) || startIndex < 0) {
+            startIndex = 0;
+            addressIndexOffsetInput.value = startIndex.toString();
+        }
+        var endIndex = startIndex + count;
+        if (endIndex > 0x80000000) {
+            ShowError("Start index + Count must be 2147483648 at most");
+            return;
+        }
+        var isPrivate = rootKey.substr(1, 3) === "prv";
+        if (derivedKeyPurpose !== "32") {
+            var generateChangeAddresses = document.getElementById("seed_details_change_addresses_checkbox").checked;
+            if (!isPrivate)
+                path = "m";
+            else
+                path += (generateChangeAddresses ? "/1" : "/0");
+        }
+        else {
+            if (rootKey[0] === "y")
+                derivedKeyPurpose = "49";
+            else if (rootKey[0] === "z")
+                derivedKeyPurpose = "84";
+        }
+        if (!isPrivate && generateHardenedAddresses) {
+            ShowError("Hardened addresses can only be derived from extended private keys");
+            return;
+        }
+        var derivedExtendedPrivateKey = null;
+        var derivedExtendedPublicKey;
+        try {
+            derivedExtendedPublicKey = DeriveKey(rootKey, path, false, derivedKeyPurpose);
+            if (isPrivate)
+                derivedExtendedPrivateKey = DeriveKey(rootKey, path, isPrivate, derivedKeyPurpose);
+        }
+        catch (e) {
+            ShowError(e.message);
+            return;
+        }
+        document.getElementById("seed_details_results_extended_pubkey").value = derivedExtendedPublicKey;
+        document.getElementById("seed_details_results_extended_privkey").value = (derivedExtendedPrivateKey !== null && derivedExtendedPrivateKey !== void 0 ? derivedExtendedPrivateKey : "???");
+        var resultsTable = document.getElementById("seed_details_results_addresses_table");
+        while (resultsTable.lastChild)
+            resultsTable.removeChild(resultsTable.lastChild);
+        function CreateRow(path, address, privkey) {
+            var row = document.createElement("div");
+            row.className = "seed_details_results_address_row";
+            var pathDiv = document.createElement("div");
+            pathDiv.textContent = path;
+            var addressDiv = document.createElement("div");
+            addressDiv.textContent = address;
+            var privkeyDiv = document.createElement("div");
+            privkeyDiv.textContent = privkey;
+            row.appendChild(pathDiv);
+            row.appendChild(addressDiv);
+            row.appendChild(privkeyDiv);
+            resultsTable.appendChild(row);
+        }
+        var progressTextDiv = document.getElementById("seed_details_address_calculate_progress");
+        var i = startIndex;
+        function CalculateRow() {
+            if (i < endIndex) {
+                var privkey = isPrivate
+                    ? UnextendKey(DeriveKey(derivedExtendedPrivateKey, "m/" + i + (generateHardenedAddresses ? "'" : ""), true, derivedKeyPurpose))
+                    : "???";
+                var address = UnextendKey(DeriveKey(isPrivate
+                    ? derivedExtendedPrivateKey
+                    : derivedExtendedPublicKey, "m/" + i + (generateHardenedAddresses ? "'" : ""), false, derivedKeyPurpose));
+                var addressPath = path + (path[path.length - 1] === "/" ? "" : "/") + i + (generateHardenedAddresses ? "'" : "");
+                CreateRow(addressPath, address, privkey);
+                ++i;
+                progressTextDiv.textContent = "Calculating: " + i + "/" + count;
+                setImmediate(CalculateRow);
+            }
+            else {
+                document.body.style.pointerEvents = "";
+                resultsContainerDiv.style.display = "";
+                progressTextDiv.style.display = "none";
+            }
+        }
+        resultsContainerDiv.style.display = "none";
+        errorTextDiv.style.display = "none";
+        document.body.style.pointerEvents = "none";
+        progressTextDiv.textContent = "Calculating: 0/" + count;
+        progressTextDiv.style.display = "inline";
+        setImmediate(CalculateRow);
+    }
+    var seedExtendedKeysVisible = false;
+    function SeedToggleExtendedKeys(button) {
+        seedExtendedKeysVisible = !seedExtendedKeysVisible;
+        document.getElementById("seed_details_results_extended_keys").style.display = seedExtendedKeysVisible ? "" : "none";
+        button.textContent = seedExtendedKeysVisible ? "Hide extended keys" : "Show extended keys";
     }
     var layoutPrintAreas = {
         "singleaddress": {
@@ -2783,7 +3035,10 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             "paperwallet_canvas_print_container": "print_container",
             "paperwallet_print_area": "print_visible",
         },
-        "seed": {},
+        "seed": {
+            "seed_generate_result": "print_visible",
+            "seed_details_page": "print_visible",
+        },
         "info": {
             "main_info": "print_visible",
         },
@@ -3009,23 +3264,28 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                 }
             });
             testAddresses.forEach(function (testCase) {
-                var privKeyString = makePrivateKey(testCase.privKeyValue);
-                var addresses = view_address_details_result(privKeyString);
-                var keypair = getECCKeypair(testCase.privKeyValue);
-                var segwitAddress = makeSegwitAddress(keypair);
-                var bech32Address = makeBech32Address(keypair);
-                var legacyAddress = makeAddress(keypair);
-                assertEqual(privKeyString, testCase.privKeyString, "Private key string does not match");
-                if (typeof addresses !== "object")
-                    assert(false, "Address generation error for privkey \"" + testCase.privKeyString + "\": " + addresses);
-                else {
-                    assertEqual(addresses.segwitAddress, testCase.addresses.segwitAddress, "Segwit address generated from private key string does not match");
-                    assertEqual(addresses.bech32Address, testCase.addresses.bech32Address, "Bech32 address generated from private key string does not match");
-                    assertEqual(addresses.legacyAddress, testCase.addresses.legacyAddress, "Legacy address generated from private key string does not match");
+                try {
+                    var privKeyString = makePrivateKey(testCase.privKeyValue);
+                    var addresses = view_address_details_result(privKeyString);
+                    var keypair = getECCKeypair(testCase.privKeyValue);
+                    var segwitAddress = makeSegwitAddress(keypair);
+                    var bech32Address = makeBech32Address(keypair);
+                    var legacyAddress = makeAddress(keypair);
+                    assertEqual(privKeyString, testCase.privKeyString, "Private key string does not match");
+                    if (typeof addresses !== "object")
+                        assert(false, "Address generation error for privkey \"" + testCase.privKeyString + "\": " + addresses);
+                    else {
+                        assertEqual(addresses.segwitAddress, testCase.addresses.segwitAddress, "Segwit address generated from private key string does not match");
+                        assertEqual(addresses.bech32Address, testCase.addresses.bech32Address, "Bech32 address generated from private key string does not match");
+                        assertEqual(addresses.legacyAddress, testCase.addresses.legacyAddress, "Legacy address generated from private key string does not match");
+                    }
+                    assertEqual(segwitAddress, testCase.addresses.segwitAddress, "Segwit address generated from private bigint value does not match");
+                    assertEqual(bech32Address, testCase.addresses.bech32Address, "Bech32 address generated from private bigint value does not match");
+                    assertEqual(legacyAddress, testCase.addresses.legacyAddress, "Legacy address generated from private bigint value does not match");
                 }
-                assertEqual(segwitAddress, testCase.addresses.segwitAddress, "Segwit address generated from private bigint value does not match");
-                assertEqual(bech32Address, testCase.addresses.bech32Address, "Bech32 address generated from private bigint value does not match");
-                assertEqual(legacyAddress, testCase.addresses.legacyAddress, "Legacy address generated from private bigint value does not match");
+                catch (e) {
+                    assert(false, "Unexpected error: " + e.message);
+                }
             });
         }
         function TestBip38() {
@@ -3098,41 +3358,217 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             });
             testCases.forEach(function (testCase) {
                 function TestDecrypt(privkey, password) {
-                    var decrypted = bip38decrypt(privkey, password);
-                    if (typeof decrypted !== "object")
-                        assert(false, "Bip38 decrypt error for privkey \"" + privkey + "\": " + decrypted);
-                    else {
-                        var decryptedPrivKey = decrypted.privkey;
-                        var decryptedAddress = decrypted.address;
-                        assertEqual(decryptedPrivKey, testCase.decryptedPrivKey, "Decrypted private keys do not match");
-                        assertEqual(decryptedAddress, testCase.addresses.legacyAddress, "Decrypted addresses keys do not match");
-                        var addresses = view_address_details_result(testCase.decryptedPrivKey);
-                        if (typeof addresses !== "object")
-                            assert(false, "Address generation error for privkey \"" + testCase.decryptedPrivKey + "\": " + addresses);
+                    try {
+                        var decrypted = bip38decrypt(privkey, password);
+                        if (typeof decrypted !== "object")
+                            assert(false, "Bip38 decrypt error for privkey \"" + privkey + "\": " + decrypted);
                         else {
-                            assertEqual(addresses.segwitAddress, testCase.addresses.segwitAddress, "Decrypted segwit address does not match");
-                            assertEqual(addresses.bech32Address, testCase.addresses.bech32Address, "Decrypted bech32 address does not match");
-                            assertEqual(addresses.legacyAddress, testCase.addresses.legacyAddress, "Decrypted legacy address does not match");
+                            var decryptedPrivKey = decrypted.privkey;
+                            var decryptedAddress = decrypted.address;
+                            assertEqual(decryptedPrivKey, testCase.decryptedPrivKey, "Decrypted private keys do not match");
+                            assertEqual(decryptedAddress, testCase.addresses.legacyAddress, "Decrypted addresses keys do not match");
+                            var addresses = view_address_details_result(testCase.decryptedPrivKey);
+                            if (typeof addresses !== "object")
+                                assert(false, "Address generation error for privkey \"" + testCase.decryptedPrivKey + "\": " + addresses);
+                            else {
+                                assertEqual(addresses.segwitAddress, testCase.addresses.segwitAddress, "Decrypted segwit address does not match");
+                                assertEqual(addresses.bech32Address, testCase.addresses.bech32Address, "Decrypted bech32 address does not match");
+                                assertEqual(addresses.legacyAddress, testCase.addresses.legacyAddress, "Decrypted legacy address does not match");
+                            }
                         }
+                    }
+                    catch (e) {
+                        assert(false, "Unexpected error: " + e.message);
                     }
                 }
                 TestDecrypt(testCase.encryptedPrivKey, testCase.password);
                 TestDecrypt(testCase.encryptedPrivKeyFromPrivkey, testCase.password);
                 function TestEncrypt(privkey, password) {
-                    var privkeyWithKeypair = privkeyStringToKeyPair(privkey);
-                    if (typeof privkeyWithKeypair !== "object")
-                        assert(false, "Bip38 encrypt error for privkey \"" + privkey + "\": " + testCase.decryptedPrivKey);
-                    else {
-                        var encrypted = bip38encrypt(privkeyWithKeypair, password);
-                        assertEqual(encrypted.privkey, testCase.encryptedPrivKeyFromPrivkey, "Encrypted private key does not match");
-                        assertEqual(encrypted.address, testCase.addresses.legacyAddress, "Encrypted address does not match");
+                    try {
+                        var privkeyWithKeypair = privkeyStringToKeyPair(privkey);
+                        if (typeof privkeyWithKeypair !== "object")
+                            assert(false, "Bip38 encrypt error for privkey \"" + privkey + "\": " + testCase.decryptedPrivKey);
+                        else {
+                            var encrypted = bip38encrypt(privkeyWithKeypair, password);
+                            assertEqual(encrypted.privkey, testCase.encryptedPrivKeyFromPrivkey, "Encrypted private key does not match");
+                            assertEqual(encrypted.address, testCase.addresses.legacyAddress, "Encrypted address does not match");
+                        }
+                    }
+                    catch (e) {
+                        assert(false, "Unexpected error: " + e.message);
                     }
                 }
                 TestEncrypt(testCase.decryptedPrivKey, testCase.password);
             });
         }
+        function TestBip39() {
+            var testCases = [];
+            testCases.push({
+                seed: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+                password: "",
+                rootKey: "xprv9s21ZrQH143K3GJpoapnV8SFfukcVBSfeCficPSGfubmSFDxo1kuHnLisriDvSnRRuL2Qrg5ggqHKNVpxR86QEC8w35uxmGoggxtQTPvfUu"
+            });
+            testCases.push({
+                seed: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+                password: "a",
+                rootKey: "xprv9s21ZrQH143K2TDcPeVnyE7Txn71rTGhYsXrdQBVMqYjubbSV4pCGMQXzim3ayzK46pURGRCG5r6KbkDN9NLQUTCDwZk9WU3tkSRZj6k6Gm"
+            });
+            testCases.push({
+                seed: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+                password: "Test Password 1234",
+                rootKey: "xprv9s21ZrQH143K2Y2XSuzBQaznCBg9AaRH2S25oKUAjmQEsEccMs8Ze85oGXge9xadr9vJv3r8CCtjgTGWFSjm6cHHAfGYJriZt43JgKVxDe1"
+            });
+            testCases.push({
+                seed: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about",
+                password: "😂👌🔥💯💯💯🅱",
+                rootKey: "xprv9s21ZrQH143K3GPCDEC6aPqoyLsG2u3k1Lm98EuPJX6F92WXrU4BPKdjkabyje5myuDWhyzUxa8ibSzUSJAb3ULLYLLdwMrxLH48dQunkpr"
+            });
+            testCases.push({
+                seed: "void come effort suffer camp survey warrior heavy shoot primary clutch crush open amazing screen patrol group space point ten exist slush involve unfold",
+                password: "",
+                rootKey: "xprv9s21ZrQH143K3vkVeVcLG5PeVoexN6hpu9r4mS2j3uVeZo7vBrRNGHENDZXwYBgbQ5eMvHCX9YRL8V7aykC7a4UNkvJCuBacLRHwsdMGhNF"
+            });
+            testCases.push({
+                seed: "void come effort suffer camp survey warrior heavy shoot primary clutch crush open amazing screen patrol group space point ten exist slush involve unfold",
+                password: "a",
+                rootKey: "xprv9s21ZrQH143K3Fh1GnR64eBTs2WRhNz7Fc7NSXheWAnurFqLLjNRD7FNJXbdWm7Ky3B3hS3Lob6vSJd1PY6eZ7XUmTR6PCfCGzyt4Z4FRaM"
+            });
+            testCases.push({
+                seed: "void come effort suffer camp survey warrior heavy shoot primary clutch crush open amazing screen patrol group space point ten exist slush involve unfold",
+                password: "Test Password 1234",
+                rootKey: "xprv9s21ZrQH143K2MRhDJs9Qk6iSxHhezBbDGE1GFQqWy5zyw9P32GbXeM387p61HcQKdN93eL2W5Z3vF9ty9Gmr3ZtedcFLsDMZ3fkMcKBK2s"
+            });
+            testCases.push({
+                seed: "void come effort suffer camp survey warrior heavy shoot primary clutch crush open amazing screen patrol group space point ten exist slush involve unfold",
+                password: "😂👌🔥💯💯💯🅱",
+                rootKey: "xprv9s21ZrQH143K26EJnA1yj46hTFK85x2X2JeghGeichfdSdLAoQfgA5fQHvSo556Qjme7mXN3AbvDPhioe9C5GhmFAzQWdaSvnvkyuHy5mQa"
+            });
+            testCases.forEach(function (testCase) {
+                try {
+                    var password = NormalizeStringIfPossibleNFKD(testCase.password);
+                    if (password === null)
+                        return; // string normalize not available, skip this test 
+                    try {
+                        assertEqual(GetXprvFromMnemonic(testCase.seed, password), testCase.rootKey, "Root key derived from seed phrase does not match");
+                    }
+                    catch (e) {
+                        assert(false, e.message);
+                    }
+                }
+                catch (e) {
+                    assert(false, "Unexpected error: " + e.message);
+                }
+            });
+        }
+        function TestBip32() {
+            var testCases = [];
+            testCases.push({
+                rootKey: "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi",
+                path: "m",
+                extendedPubkey: "xpub661MyMwAqRbcFtXgS5sYJABqqG9YLmC4Q1Rdap9gSE8NqtwybGhePY2gZ29ESFjqJoCu1Rupje8YtGqsefD265TMg7usUDFdp6W1EGMcet8",
+                extendedPrivkey: "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi"
+            });
+            testCases.push({
+                rootKey: "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi",
+                path: "m/0'",
+                extendedPubkey: "xpub68Gmy5EdvgibQVfPdqkBBCHxA5htiqg55crXYuXoQRKfDBFA1WEjWgP6LHhwBZeNK1VTsfTFUHCdrfp1bgwQ9xv5ski8PX9rL2dZXvgGDnw",
+                extendedPrivkey: "xprv9uHRZZhk6KAJC1avXpDAp4MDc3sQKNxDiPvvkX8Br5ngLNv1TxvUxt4cV1rGL5hj6KCesnDYUhd7oWgT11eZG7XnxHrnYeSvkzY7d2bhkJ7"
+            });
+            testCases.push({
+                rootKey: "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi",
+                path: "m/0'/1",
+                extendedPubkey: "xpub6ASuArnXKPbfEwhqN6e3mwBcDTgzisQN1wXN9BJcM47sSikHjJf3UFHKkNAWbWMiGj7Wf5uMash7SyYq527Hqck2AxYysAA7xmALppuCkwQ",
+                extendedPrivkey: "xprv9wTYmMFdV23N2TdNG573QoEsfRrWKQgWeibmLntzniatZvR9BmLnvSxqu53Kw1UmYPxLgboyZQaXwTCg8MSY3H2EU4pWcQDnRnrVA1xe8fs"
+            });
+            testCases.push({
+                rootKey: "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi",
+                path: "m/0'/1/2'",
+                extendedPubkey: "xpub6D4BDPcP2GT577Vvch3R8wDkScZWzQzMMUm3PWbmWvVJrZwQY4VUNgqFJPMM3No2dFDFGTsxxpG5uJh7n7epu4trkrX7x7DogT5Uv6fcLW5",
+                extendedPrivkey: "xprv9z4pot5VBttmtdRTWfWQmoH1taj2axGVzFqSb8C9xaxKymcFzXBDptWmT7FwuEzG3ryjH4ktypQSAewRiNMjANTtpgP4mLTj34bhnZX7UiM"
+            });
+            testCases.push({
+                rootKey: "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi",
+                path: "m/0'/1/2'/2",
+                extendedPubkey: "xpub6FHa3pjLCk84BayeJxFW2SP4XRrFd1JYnxeLeU8EqN3vDfZmbqBqaGJAyiLjTAwm6ZLRQUMv1ZACTj37sR62cfN7fe5JnJ7dh8zL4fiyLHV",
+                extendedPrivkey: "xprvA2JDeKCSNNZky6uBCviVfJSKyQ1mDYahRjijr5idH2WwLsEd4Hsb2Tyh8RfQMuPh7f7RtyzTtdrbdqqsunu5Mm3wDvUAKRHSC34sJ7in334"
+            });
+            testCases.push({
+                rootKey: "xprv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNNU3TGtRBeJgk33yuGBxrMPHi",
+                path: "m/0'/1/2'/2/1000000000",
+                extendedPubkey: "xpub6H1LXWLaKsWFhvm6RVpEL9P4KfRZSW7abD2ttkWP3SSQvnyA8FSVqNTEcYFgJS2UaFcxupHiYkro49S8yGasTvXEYBVPamhGW6cFJodrTHy",
+                extendedPrivkey: "xprvA41z7zogVVwxVSgdKUHDy1SKmdb533PjDz7J6N6mV6uS3ze1ai8FHa8kmHScGpWmj4WggLyQjgPie1rFSruoUihUZREPSL39UNdE3BBDu76"
+            });
+            testCases.push({
+                rootKey: "xprv9s21ZrQH143K25QhxbucbDDuQ4naNntJRi4KUfWT7xo4EKsHt2QJDu7KXp1A3u7Bi1j8ph3EGsZ9Xvz9dGuVrtHHs7pXeTzjuxBrCmmhgC6",
+                path: "m",
+                extendedPubkey: "xpub661MyMwAqRbcEZVB4dScxMAdx6d4nFc9nvyvH3v4gJL378CSRZiYmhRoP7mBy6gSPSCYk6SzXPTf3ND1cZAceL7SfJ1Z3GC8vBgp2epUt13",
+                extendedPrivkey: "xprv9s21ZrQH143K25QhxbucbDDuQ4naNntJRi4KUfWT7xo4EKsHt2QJDu7KXp1A3u7Bi1j8ph3EGsZ9Xvz9dGuVrtHHs7pXeTzjuxBrCmmhgC6"
+            });
+            testCases.push({
+                rootKey: "xprv9s21ZrQH143K25QhxbucbDDuQ4naNntJRi4KUfWT7xo4EKsHt2QJDu7KXp1A3u7Bi1j8ph3EGsZ9Xvz9dGuVrtHHs7pXeTzjuxBrCmmhgC6",
+                path: "m/0'",
+                extendedPubkey: "xpub68NZiKmJWnxxS6aaHmn81bvJeTESw724CRDs6HbuccFQN9Ku14VQrADWgqbhhTHBaohPX4CjNLf9fq9MYo6oDaPPLPxSb7gwQN3ih19Zm4Y",
+                extendedPrivkey: "xprv9uPDJpEQgRQfDcW7BkF7eTya6RPxXeJCqCJGHuCJ4GiRVLzkTXBAJMu2qaMWPrS7AANYqdq6vcBcBUdJCVVFceUvJFjaPdGZ2y9WACViL4L"
+            });
+            testCases.push({
+                rootKey: "xprv9s21ZrQH143K31xYSDQpPDxsXRTUcvj2iNHm5NUtrGiGG5e2DtALGdso3pGz6ssrdK4PFmM8NSpSBHNqPqm55Qn3LqFtT2emdEXVYsCzC2U",
+                path: "m",
+                extendedPubkey: "xpub661MyMwAqRbcFW31YEwpkMuc5THy2PSt5bDMsktWQcFF8syAmRUapSCGu8ED9W6oDMSgv6Zz8idoc4a6mr8BDzTJY47LJhkJ8UB7WEGuduB",
+                extendedPrivkey: "xprv9s21ZrQH143K31xYSDQpPDxsXRTUcvj2iNHm5NUtrGiGG5e2DtALGdso3pGz6ssrdK4PFmM8NSpSBHNqPqm55Qn3LqFtT2emdEXVYsCzC2U"
+            });
+            testCases.push({
+                rootKey: "xprv9s21ZrQH143K31xYSDQpPDxsXRTUcvj2iNHm5NUtrGiGG5e2DtALGdso3pGz6ssrdK4PFmM8NSpSBHNqPqm55Qn3LqFtT2emdEXVYsCzC2U",
+                path: "m/0",
+                extendedPubkey: "xpub69H7F5d8KSRgmmdJg2KhpAK8SR3DjMwAdkxj3ZuxV27CprR9LgpeyGmXUbC6wb7ERfvrnKZjXoUmmDznezpbZb7ap6r1D3tgFxHmwMkQTPH",
+                extendedPrivkey: "xprv9vHkqa6EV4sPZHYqZznhT2NPtPCjKuDKGY38FBWLvgaDx45zo9WQRUT3dKYnjwih2yJD9mkrocEZXo1ex8G81dwSM1fwqWpWkeS3v86pgKt"
+            });
+            testCases.push({
+                rootKey: "xprv9s21ZrQH143K31xYSDQpPDxsXRTUcvj2iNHm5NUtrGiGG5e2DtALGdso3pGz6ssrdK4PFmM8NSpSBHNqPqm55Qn3LqFtT2emdEXVYsCzC2U",
+                path: "m/0/2147483647'",
+                extendedPubkey: "xpub6ASAVgeehLbnwdqV6UKMHVzgqAG8Gr6riv3Fxxpj8ksbH9ebxaEyBLZ85ySDhKiLDBrQSARLq1uNRts8RuJiHjaDMBU4Zn9h8LZNnBC5y4a",
+                extendedPrivkey: "xprv9wSp6B7kry3Vj9m1zSnLvN3xH8RdsPP1Mh7fAaR7aRLcQMKTR2vidYEeEg2mUCTAwCd6vnxVrcjfy2kRgVsFawNzmjuHc2YmYRmagcEPdU9"
+            });
+            testCases.push({
+                rootKey: "xprv9s21ZrQH143K31xYSDQpPDxsXRTUcvj2iNHm5NUtrGiGG5e2DtALGdso3pGz6ssrdK4PFmM8NSpSBHNqPqm55Qn3LqFtT2emdEXVYsCzC2U",
+                path: "m/0/2147483647'/1",
+                extendedPubkey: "xpub6DF8uhdarytz3FWdA8TvFSvvAh8dP3283MY7p2V4SeE2wyWmG5mg5EwVvmdMVCQcoNJxGoWaU9DCWh89LojfZ537wTfunKau47EL2dhHKon",
+                extendedPrivkey: "xprv9zFnWC6h2cLgpmSA46vutJzBcfJ8yaJGg8cX1e5StJh45BBciYTRXSd25UEPVuesF9yog62tGAQtHjXajPPdbRCHuWS6T8XA2ECKADdw4Ef"
+            });
+            testCases.push({
+                rootKey: "xprv9s21ZrQH143K31xYSDQpPDxsXRTUcvj2iNHm5NUtrGiGG5e2DtALGdso3pGz6ssrdK4PFmM8NSpSBHNqPqm55Qn3LqFtT2emdEXVYsCzC2U",
+                path: "m/0/2147483647'/1/2147483646'",
+                extendedPubkey: "xpub6ERApfZwUNrhLCkDtcHTcxd75RbzS1ed54G1LkBUHQVHQKqhMkhgbmJbZRkrgZw4koxb5JaHWkY4ALHY2grBGRjaDMzQLcgJvLJuZZvRcEL",
+                extendedPrivkey: "xprvA1RpRA33e1JQ7ifknakTFpgNXPmW2YvmhqLQYMmrj4xJXXWYpDPS3xz7iAxn8L39njGVyuoseXzU6rcxFLJ8HFsTjSyQbLYnMpCqE2VbFWc"
+            });
+            testCases.push({
+                rootKey: "xprv9s21ZrQH143K31xYSDQpPDxsXRTUcvj2iNHm5NUtrGiGG5e2DtALGdso3pGz6ssrdK4PFmM8NSpSBHNqPqm55Qn3LqFtT2emdEXVYsCzC2U",
+                path: "m/0/2147483647'/1/2147483646'/2",
+                extendedPubkey: "xpub6FnCn6nSzZAw5Tw7cgR9bi15UV96gLZhjDstkXXxvCLsUXBGXPdSnLFbdpq8p9HmGsApME5hQTZ3emM2rnY5agb9rXpVGyy3bdW6EEgAtqt",
+                extendedPrivkey: "xprvA2nrNbFZABcdryreWet9Ea4LvTJcGsqrMzxHx98MMrotbir7yrKCEXw7nadnHM8Dq38EGfSh6dqA9QWTyefMLEcBYJUuekgW4BYPJcr9E7j"
+            });
+            testCases.forEach(function (testCase) {
+                try {
+                    var extendedPrivkey = DeriveKey(testCase.rootKey, testCase.path, true);
+                    var extendedPubkey = DeriveKey(testCase.rootKey, testCase.path, false);
+                    assertEqual(extendedPrivkey, testCase.extendedPrivkey, "Extended private keys don't match");
+                    assertEqual(extendedPubkey, testCase.extendedPubkey, "Extended public keys don't match");
+                    var privkey = UnextendKey(extendedPrivkey);
+                    var address = UnextendKey(extendedPubkey);
+                    var privKeyPair = privkeyStringToKeyPair(privkey);
+                    if (typeof privKeyPair === "string")
+                        assert(false, privKeyPair);
+                    else
+                        assertEqual(makeAddress(privKeyPair.keypair), address, "Address derived from private key does not match");
+                }
+                catch (e) {
+                    assert(false, "Unexpected error: " + e.message);
+                }
+            });
+        }
         TestAddressesAndPrivkeys();
         TestBip38();
+        TestBip39();
+        TestBip32();
         if (failedTestMessages.length === 0) {
             alert("All tests OK");
             return;
@@ -3158,6 +3594,13 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
     window["paperWalletCustomImageSelected"] = paperWalletCustomImageSelected;
     window["paperwallet_update_element"] = paperwallet_update_element;
     window["GenerateNewSeedButton"] = GenerateNewSeedButton;
+    window["SetSeedPage"] = SetSeedPage;
+    window["ViewSeedDetailsButton"] = ViewSeedDetailsButton;
+    window["SeedChanged"] = SeedChanged;
+    window["SeedPasswordChanged"] = SeedPasswordChanged;
+    window["SeedDerivationPresetChanged"] = SeedDerivationPresetChanged;
+    window["SeedCalculateAddressesButton"] = SeedCalculateAddressesButton;
+    window["SeedToggleExtendedKeys"] = SeedToggleExtendedKeys;
     window["skipRandomness"] = skipRandomness;
     window["setDarkMode"] = setDarkMode;
     window["runTests"] = runTests;
