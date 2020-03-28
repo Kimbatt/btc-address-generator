@@ -2,10 +2,13 @@
 Available at https://kimbatt.github.io/btc-address-generator/
 
 ## Features:
-*  Creation of bech32, segwit (p2sh-p2wpkh), and legacy (p2pkh) addresses
+*  Create bech32, segwit (p2sh-p2wpkh), and legacy (p2pkh) addresses
 *  Bulk generate addresses
-*  View details of a private key
-*  Create printable paper wallets
+*  View details of private keys
+*  Private key encryption and decryption (BIP38)
+*  Create printable paper wallets with multiple designs
+*  Generate BIP39 mnemonic seeds
+*  View details and derived addresses of BIP39 mnemonic seeds
 *  The entire page is a single html file, so it can be saved easily 
 
 ## Libraries used:
