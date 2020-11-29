@@ -1495,7 +1495,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                         privkeyDiv2.style.fontSize = "11px";
                         privkeyDiv2.style.transform = "rotate(180deg)";
                         var backgroundGraphic = new Image();
-                        backgroundGraphic.src = window["imageSources"]["bitcoinpaperwalletcom.jpg"];
+                        backgroundGraphic.src = window["imageSources"]["bitcoinpaperwaladfletcomblackandwhite.jpg"];
                         backgroundGraphic.style.position = "absolute";
                         backgroundGraphic.style.top = "0px";
                         backgroundGraphic.style.left = "0px";
@@ -1511,6 +1511,95 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                         container.appendChild(parentDiv);
                     }
                     break;
+                }
+            case "design9":
+                    {
+                        var addressTargetSize = 90.75;
+                        var privkeyTargetSize = 112.75;
+                        for (var i = 0; i < addressData.length; ++i) {
+                            var currentData = addressData[i];
+                            var currentAddress = currentData.address;
+                            var currentPrivkey = currentData.privkey;
+                            var currentAddressQR = currentData.addressQR;
+                            var addressSize = currentAddressQR.getModuleCount() + 4;
+                            var finalSize = Math.floor(addressTargetSize / addressSize) + 1;
+                            var addressQRImg = new Image();
+                            addressQRImg.src = currentAddressQR.createDataURL(finalSize, 0);
+                            addressQRImg.style.position = "absolute";
+                            addressQRImg.style.top = "125px";
+                            addressQRImg.style.left = "46px";
+                            addressQRImg.style.width = addressTargetSize + "px";
+                            addressQRImg.style.height = addressTargetSize + "px";
+                            var currentPrivkeyQR = currentData.privkeyQR;
+                            var privkeySize = currentPrivkeyQR.getModuleCount() + 4;
+                            finalSize = Math.floor(privkeyTargetSize / privkeySize) + 1;
+                            var privkeyQRImg = new Image();
+                            privkeyQRImg.src = currentPrivkeyQR.createDataURL(finalSize, 0);
+                            privkeyQRImg.style.position = "absolute";
+                            privkeyQRImg.style.top = "108px";
+                            privkeyQRImg.style.left = "833px";
+                            privkeyQRImg.style.width = privkeyTargetSize + "px";
+                            privkeyQRImg.style.height = privkeyTargetSize + "px";
+                            var parentDiv = document.createElement("div");
+                            parentDiv.className = "parent_div";
+                            parentDiv.style.background = "white";
+                            parentDiv.style.color = "black";
+                            parentDiv.style.position = "relative";
+                            parentDiv.style.border = "2px solid black";
+                            parentDiv.style.width = "1010px";
+                            parentDiv.style.height = "311px";
+                            parentDiv.style.marginBottom = verticalGap + "px";
+                            var addressDiv = document.createElement("div");
+                            addressDiv.textContent = currentAddress;
+                            addressDiv.style.position = "absolute";
+                            addressDiv.style.top = "272px";
+                            addressDiv.style.left = "43px";
+                            addressDiv.style.fontFamily = "roboto-mono";
+                            addressDiv.style.fontWeight = "bold";
+                            addressDiv.style.fontSize = "11px";
+                            var privkeyDiv = document.createElement("div");
+                            privkeyDiv.textContent = currentPrivkey;
+                            privkeyDiv.style.position = "absolute";
+                            privkeyDiv.style.top = "240px";
+                            privkeyDiv.style.left = bip38 ? "582px" : "600px";
+                            privkeyDiv.style.fontFamily = "roboto-mono";
+                            privkeyDiv.style.fontWeight = "bold";
+                            privkeyDiv.style.fontSize = "11px";
+                            var addressDiv2 = document.createElement("div");
+                            addressDiv2.textContent = currentAddress;
+                            addressDiv2.style.position = "absolute";
+                            addressDiv2.style.top = "46px";
+                            addressDiv2.style.right = "690px";
+                            addressDiv2.style.fontFamily = "roboto-mono";
+                            addressDiv2.style.fontWeight = "bold";
+                            addressDiv2.style.fontSize = "11px";
+                            addressDiv2.style.transform = "rotate(180deg)";
+                            var privkeyDiv2 = document.createElement("div");
+                            privkeyDiv2.textContent = currentPrivkey;
+                            privkeyDiv2.style.position = "absolute";
+                            privkeyDiv2.style.top = "74px";
+                            privkeyDiv2.style.left = bip38 ? "582px" : "600px";
+                            privkeyDiv2.style.fontFamily = "roboto-mono";
+                            privkeyDiv2.style.fontWeight = "bold";
+                            privkeyDiv2.style.fontSize = "11px";
+                            privkeyDiv2.style.transform = "rotate(180deg)";
+                            var backgroundGraphic = new Image();
+                            backgroundGraphic.src = window["imageSources"]["bitcoinpaperwalletcom.png"];
+                            backgroundGraphic.style.position = "absolute";
+                            backgroundGraphic.style.top = "0px";
+                            backgroundGraphic.style.left = "0px";
+                            backgroundGraphic.style.width = "100%";
+                            backgroundGraphic.style.height = "100%";
+                            parentDiv.appendChild(backgroundGraphic);
+                            parentDiv.appendChild(addressDiv);
+                            parentDiv.appendChild(privkeyDiv);
+                            parentDiv.appendChild(addressDiv2);
+                            parentDiv.appendChild(privkeyDiv2);
+                            parentDiv.appendChild(addressQRImg);
+                            parentDiv.appendChild(privkeyQRImg);
+                            container.appendChild(parentDiv);
+                        }
+                        break;
                 }
             case "design2":
                 {
@@ -2243,6 +2332,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         "design4": "Design source: <a href=\"https://steemit.com/bitcoin/@bunnychum/bitcoin-paper-wallet-redesigned-as-currency-note-free-psd-to-download\">https://steemit.com/bitcoin/@bunnychum/...</a>",
         "design5": "Design source: <a href=\"https://i.pinimg.com/originals/a3/89/89/a38989778a3e113a657016f5fab1803b.png\">https://i.pinimg.com/originals/a3/89/89/...</a>",
         "design6": "Design source: <a href=\"https://bitaddress.org\">https://bitaddress.org</a>",
+        "design9": "Design source: <a href=\"https://bitcoinpaperwallet.com\">https://bitcoinpaperwallet.com</a>",
         "design7": "Design source: <a href=\"https://github.com/Timbo925/walletprinter/blob/d8ae0eab0c5ef09b0ade59009d544ae5f78b12f8/img/wallet_designs/timbo-grey.svg\">https://github.com/Timbo925/walletprinter/...</a>",
         "design8": "Design source: <a href=\"https://github.com/nieldlr/walletprinter/blob/master/img/wallet_designs/75RTUGA.jpg\">https://github.com/nieldlr/walletprinter/.../75RTUGA.jpg</a>",
         "custom": "",

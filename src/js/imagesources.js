@@ -1,5 +1,6 @@
 window["imageSources"] = {
-    "bitcoinpaperwalletcom.jpg": "images/bitcoinpaperwalletcom.png",
+    "bitcoinpaperwalletcomblackandwhite.jpg": "images/bitcoinpaperwalletcomblackandwhite.png",
+    "bitcoinpaperwalletcom.png": "images/bitcoinpaperwalletcom.png",
     "dorian.jpg": "images/dorian.png",
     "walletgeneratornet.jpg": "images/walletgeneratornet.png",
     "currencynote.jpg": "images/currencynote.jpg",
