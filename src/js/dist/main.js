@@ -1088,7 +1088,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
     }
     // split text into rows, with each row having a max length
     function splitTextLength(text, length) {
-        if (length === 0)
+        if (length <= 0)
             return text;
         var len = text.length;
         var textarray = [];
@@ -3087,7 +3087,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
                 var addressPath = path + (path[path.length - 1] === "/" ? "" : "/") + i + (generateHardenedAddresses ? "'" : "");
                 CreateRow(addressPath, address, privkey);
                 ++i;
-                progressTextDiv.textContent = "Calculating: " + i + "/" + count;
+                progressTextDiv.textContent = "Calculating: " + (i - startIndex) + "/" + count;
                 setImmediate(CalculateRow);
             }
             else {

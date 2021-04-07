@@ -190,7 +190,6 @@ li
 #randomness_overlay
 {
     position: fixed;
-    display: table;
     width: 100%;
     height: 100%;
     top: 0px;
@@ -275,14 +274,14 @@ li
     {
         visibility: hidden;
     }
-    
+
     .print_container
     {
         visibility: visible;
         display: block;
         max-width: 100%;
     }
-    
+
     .print_visible
     {
         visibility: visible;
@@ -296,13 +295,13 @@ li
         right: 0px;
         page-break-inside: avoid;
     }
-    
+
     .print_visible *
     {
         visibility: visible;
         page-break-inside: avoid;
     }
-    
+
     *
     {
         background: white !important;
@@ -331,7 +330,7 @@ li
 <body class="dark">
     <script>
         // setup IE shit
-        if (window.msCrypto)
+        if (!window.crypto && window.msCrypto)
             window.crypto = window.msCrypto;
 
         if (!window.crypto || !window.crypto.getRandomValues)
@@ -351,7 +350,7 @@ li
             }
         }
     </script>
-    
+
     <div id="content" style="display: table; width: 100%;">
         <div id="button_container" style="display: table-cell; padding-right: 10px; border-right: 2px solid #bbbbbb; width: 250px;">
             <div id="testnet_text" style="display: none; font-size: 40px; font-weight: bold; text-align: center; color: #ff0000;"
@@ -382,7 +381,7 @@ li
         <div id="main_singleaddress" style="display: table; width: 80%; padding-left: 10px;">
             <div style="display: table-cell; padding-right: 20px;">
                 <div class="title">Single address</div>
-                
+
                 <div style="padding-left: 10px;">
                     <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Address type:</div>
                     <form>
@@ -390,7 +389,7 @@ li
                         <label style="white-space: nowrap;"><input type="radio" name="address_type" onchange="setAddressType('bech32')" checked>Segwit (bech32)</label>
                         <label style="white-space: nowrap;"><input type="radio" name="address_type" onchange="setAddressType('legacy')">Legacy</label>
                     </form>
-                    
+
                     <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px; margin-top: 20px;">QR code error correction level:</div>
                     <form>
                         <label style="white-space: nowrap;"><input id="singleaddress_radio_qr_errorcorrectionlevel_h" type="radio" name="qr_error_correction_level" onchange="setQRErrorCorrectionLevel('H')" checked>High</label>
@@ -398,7 +397,7 @@ li
                         <label style="white-space: nowrap;"><input id="singleaddress_radio_qr_errorcorrectionlevel_m" type="radio" name="qr_error_correction_level" onchange="setQRErrorCorrectionLevel('M')">Medium</label>
                         <label style="white-space: nowrap;"><input id="singleaddress_radio_qr_errorcorrectionlevel_l" type="radio" name="qr_error_correction_level" onchange="setQRErrorCorrectionLevel('L')">Low</label>
                     </form>
-                    
+
                     <button type="button" onclick="generate_address()" style="width: 290px; margin-top: 50px; margin-right: 50px;">Generate new address</button>
                 </div>
             </div>
@@ -457,7 +456,7 @@ li
         <div id="main_bulk" style="display: none; width: 80%; padding-left: 10px;">
             <div style="display: table-row; padding-right: 20px;">
                 <div class="title">Bulk Generate</div>
-                
+
                 <div style="padding-left: 10px;">
                     <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Address type:</div>
                     <form>
@@ -764,12 +763,12 @@ li
         <div id="randomness_overlay2" style="display: none; position: absolute; width: 100%; height: 100%;">
             <canvas id="randomness_canvas" style="border: 4px solid black; position: absolute;" width="600px" height="400px">
             </canvas>
-            
+
             <div id="randomness_div" style="width: 60%; height: 100px; font-size: 25px; text-align: center; cursor: default; padding-top: 20px; position: absolute; pointer-events: none;">Move your mouse around here for randomness<br />0%</div>
-            
+
             <div id="randomness_container" style="position: absolute; display: flex;">
                 <div style="float: left; color: white; font-size: 25px; padding: 15px; flex-grow: 1;">You can skip this step if you do not plan to generate valuable wallets.<br />If you skip, you can refresh the page to be able to enter randomness again.</div>
-                <button id="randomness_skip_button" style="float: right; width: 150px; height: 48px;" onclick="skipRandomness()">Skip</button>
+                <button id="randomness_skip_button" style="float: right; width: 150px; height: 48px;">Skip</button>
             </div>
         </div>
     </div>
@@ -796,23 +795,29 @@ li
         </a>
     </div>
 
-    <script type="text/javascript" src="js/setImmediate.js"></script>
+    <script type="text/javascript" src="js/promise-polyfill.js"></script>
 
     <script type="text/javascript" src="js/BN.js"></script>
 
-    <script type="text/javascript" src="js/native_bigint.js"></script>
-    
     <script type="text/javascript" src="js/crypto-js.js"></script>
 
-    <script type="text/javascript" src="js/crypto-helper.js"></script>
-    
     <script type="text/javascript" src="js/QR.js"></script>
-    
-    <script type="text/javascript" src="js/scrypt.js"></script>
-    
+
     <script type="text/javascript" src="js/imagesources.js"></script>
 
-    <script type="text/javascript" src="js/main.js"></script>
-    
+
+    <script type="text/javascript" src="js/dist/index.js"></script>
+    <script type="text/javascript" src="js/dist/util.js"></script>
+
+    <script type="text/javascript" src="js/dist/setImmediate.js"></script>
+
+    <script type="text/javascript" src="js/dist/native_bigint.js"></script>
+
+    <script type="text/javascript" src="js/dist/crypto-helper.js"></script>
+
+    <script type="text/javascript" src="js/dist/scrypt.js"></script>
+
+    <!-- <script type="text/javascript" src="js/dist/main.js"></script> -->
+
 </body>
 </html>
