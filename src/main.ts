@@ -1990,7 +1990,7 @@
                     privkeyDiv2.style.transform = "rotate(180deg)";
 
                     const backgroundGraphic = new Image();
-                    backgroundGraphic.src = (<any>window)["imageSources"]["bitcoinpaperwalletcombladsadackandwhite.jpg"];
+                    backgroundGraphic.src = (<any>window)["imageSources"]["bitcoinpaperwalletcomblackandwhite.png"];
                     backgroundGraphic.style.position = "absolute";
                     backgroundGraphic.style.top = "0px";
                     backgroundGraphic.style.left = "0px";
@@ -2018,29 +2018,29 @@
                         const currentData = addressData[i];
                         const currentAddress = currentData.address;
                         const currentPrivkey = currentData.privkey;
-    
+
                         const currentAddressQR = currentData.addressQR!;
                         const addressSize = currentAddressQR.getModuleCount() + 4;
                         let finalSize = Math.floor(addressTargetSize / addressSize) + 1;
                         const addressQRImg = new Image();
                         addressQRImg.src = currentAddressQR.createDataURL(finalSize, 0);
                         addressQRImg.style.position = "absolute";
-                        addressQRImg.style.top = "125px"
+                        addressQRImg.style.top = "113px"
                         addressQRImg.style.left = "46px";
                         addressQRImg.style.width = addressTargetSize + "px";
                         addressQRImg.style.height = addressTargetSize + "px";
-    
+
                         const currentPrivkeyQR = currentData.privkeyQR!;
                         const privkeySize = currentPrivkeyQR.getModuleCount() + 4;
                         finalSize = Math.floor(privkeyTargetSize / privkeySize) + 1;
                         const privkeyQRImg = new Image();
                         privkeyQRImg.src = currentPrivkeyQR.createDataURL(finalSize, 0);
                         privkeyQRImg.style.position = "absolute";
-                        privkeyQRImg.style.top = "108px";
+                        privkeyQRImg.style.top = "96px";
                         privkeyQRImg.style.left = "833px";
                         privkeyQRImg.style.width = privkeyTargetSize + "px";
                         privkeyQRImg.style.height = privkeyTargetSize + "px";
-    
+
                         const parentDiv = document.createElement("div");
                         parentDiv.className = "parent_div";
                         parentDiv.style.background = "white";
@@ -2048,47 +2048,47 @@
                         parentDiv.style.position = "relative";
                         parentDiv.style.border = "2px solid black";
                         parentDiv.style.width = "1010px";
-                        parentDiv.style.height = "331px";
+                        parentDiv.style.height = "307px";
                         parentDiv.style.marginBottom = verticalGap + "px";
-    
+
                         const addressDiv = document.createElement("div");
                         addressDiv.textContent = currentAddress;
                         addressDiv.style.position = "absolute";
-                        addressDiv.style.top = "272px";
+                        addressDiv.style.top = "260px";
                         addressDiv.style.left = "43px";
                         addressDiv.style.fontFamily = "roboto-mono";
                         addressDiv.style.fontWeight = "bold";
                         addressDiv.style.fontSize = "11px";
-    
+
                         const privkeyDiv = document.createElement("div");
                         privkeyDiv.textContent = currentPrivkey;
                         privkeyDiv.style.position = "absolute";
-                        privkeyDiv.style.top = "240px";
+                        privkeyDiv.style.top = "228px";
                         privkeyDiv.style.left = bip38 ? "582px" : "600px";
                         privkeyDiv.style.fontFamily = "roboto-mono";
                         privkeyDiv.style.fontWeight = "bold";
                         privkeyDiv.style.fontSize = "11px";
-    
+
                         const addressDiv2 = document.createElement("div");
                         addressDiv2.textContent = currentAddress;
                         addressDiv2.style.position = "absolute";
-                        addressDiv2.style.top = "46px";
+                        addressDiv2.style.top = "34px";
                         addressDiv2.style.right = "690px";
                         addressDiv2.style.fontFamily = "roboto-mono";
                         addressDiv2.style.fontWeight = "bold";
                         addressDiv2.style.fontSize = "11px";
                         addressDiv2.style.transform = "rotate(180deg)";
-    
+
                         const privkeyDiv2 = document.createElement("div");
                         privkeyDiv2.textContent = currentPrivkey;
                         privkeyDiv2.style.position = "absolute";
-                        privkeyDiv2.style.top = "74px";
+                        privkeyDiv2.style.top = "62px";
                         privkeyDiv2.style.left = bip38 ? "582px" : "600px";
                         privkeyDiv2.style.fontFamily = "roboto-mono";
                         privkeyDiv2.style.fontWeight = "bold";
                         privkeyDiv2.style.fontSize = "11px";
                         privkeyDiv2.style.transform = "rotate(180deg)";
-    
+
                         const backgroundGraphic = new Image();
                         backgroundGraphic.src = (<any>window)["imageSources"]["bitcoinpaperwalletcom.png"];
                         backgroundGraphic.style.position = "absolute";
@@ -2096,7 +2096,7 @@
                         backgroundGraphic.style.left = "0px";
                         backgroundGraphic.style.width = "100%";
                         backgroundGraphic.style.height = "100%";
-    
+
                         parentDiv.appendChild(backgroundGraphic);
                         parentDiv.appendChild(addressDiv);
                         parentDiv.appendChild(privkeyDiv);
@@ -2104,7 +2104,7 @@
                         parentDiv.appendChild(privkeyDiv2);
                         parentDiv.appendChild(addressQRImg);
                         parentDiv.appendChild(privkeyQRImg);
-    
+
                         container.appendChild(parentDiv);
                     }
                     break;
@@ -2175,7 +2175,7 @@
                     backgroundGraphic.style.top = "0px";
                     backgroundGraphic.style.left = "0px";
                     backgroundGraphic.style.width = "100%";
-                    backgroundGraphic.style.height = "100%";                    
+                    backgroundGraphic.style.height = "100%";
 
                     parentDiv.appendChild(backgroundGraphic);
                     parentDiv.appendChild(addressDiv);
@@ -2781,7 +2781,7 @@
                 address: address,
                 privkey: privkey,
                 addressQR: currentAddressQR,
-                privkeyQR: currentPrivkeyQR 
+                privkeyQR: currentPrivkeyQR
             });
         }
 
@@ -2809,7 +2809,7 @@
         }
 
         const privkeys = (<HTMLTextAreaElement>document.getElementById("paper_custom_privkeys_bip38_textarea")).value.split(/\s+/g);
-        if (privkeys.length === 0) 
+        if (privkeys.length === 0)
         {
             errorMessageDiv.textContent = "No private keys entered";
             return;
@@ -4089,7 +4089,7 @@
 
             const prevPrintAreas = layoutPrintAreas[prevLayout];
             for (let c in prevPrintAreas)
-                document.getElementById(c)!.classList.remove(prevPrintAreas[c]);    
+                document.getElementById(c)!.classList.remove(prevPrintAreas[c]);
         }
 
         (<HTMLButtonElement>document.getElementById("button_layout_" + newLayout)).disabled = true;
@@ -4540,7 +4540,7 @@
                 {
                     const password = NormalizeStringIfPossibleNFKD(testCase.password);
                     if (password === null)
-                        return; // string normalize not available, skip this test 
+                        return; // string normalize not available, skip this test
 
                     try
                     {

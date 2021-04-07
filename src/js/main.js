@@ -10,12 +10,10 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-var __spreadArrays = (this && this.__spreadArrays) || function () {
-    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-    for (var r = Array(s), k = 0, i = 0; i < il; i++)
-        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-            r[k] = a[j];
-    return r;
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
 };
 (function () {
     var randomnessCanvas = document.getElementById("randomness_canvas");
@@ -78,7 +76,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             var match = queryValues[i].match(/([a-zA-Z0-9]+)(=([a-zA-Z0-9]+))?/);
             if (match) {
                 if (match[1] === key)
-                    return _a = match[3], (_a !== null && _a !== void 0 ? _a : "");
+                    return (_a = match[3]) !== null && _a !== void 0 ? _a : "";
             }
         }
         return null;
@@ -92,7 +90,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         for (var i = 0; i < queryValues.length; ++i) {
             var match = queryValues[i].match(/([a-zA-Z0-9]+)(=([a-zA-Z0-9]+))?/);
             if (match)
-                result[match[1]] = (_a = match[3], (_a !== null && _a !== void 0 ? _a : null));
+                result[match[1]] = (_a = match[3]) !== null && _a !== void 0 ? _a : null;
         }
         return result;
     }
@@ -1495,7 +1493,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                         privkeyDiv2.style.fontSize = "11px";
                         privkeyDiv2.style.transform = "rotate(180deg)";
                         var backgroundGraphic = new Image();
-                        backgroundGraphic.src = window["imageSources"]["bitcoinpaperwaladfletcomblackandwhite.jpg"];
+                        backgroundGraphic.src = window["imageSources"]["bitcoinpaperwalletcomblackandwhite.png"];
                         backgroundGraphic.style.position = "absolute";
                         backgroundGraphic.style.top = "0px";
                         backgroundGraphic.style.left = "0px";
@@ -1513,93 +1511,93 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                     break;
                 }
             case "design9":
-                    {
-                        var addressTargetSize = 90.75;
-                        var privkeyTargetSize = 112.75;
-                        for (var i = 0; i < addressData.length; ++i) {
-                            var currentData = addressData[i];
-                            var currentAddress = currentData.address;
-                            var currentPrivkey = currentData.privkey;
-                            var currentAddressQR = currentData.addressQR;
-                            var addressSize = currentAddressQR.getModuleCount() + 4;
-                            var finalSize = Math.floor(addressTargetSize / addressSize) + 1;
-                            var addressQRImg = new Image();
-                            addressQRImg.src = currentAddressQR.createDataURL(finalSize, 0);
-                            addressQRImg.style.position = "absolute";
-                            addressQRImg.style.top = "125px";
-                            addressQRImg.style.left = "46px";
-                            addressQRImg.style.width = addressTargetSize + "px";
-                            addressQRImg.style.height = addressTargetSize + "px";
-                            var currentPrivkeyQR = currentData.privkeyQR;
-                            var privkeySize = currentPrivkeyQR.getModuleCount() + 4;
-                            finalSize = Math.floor(privkeyTargetSize / privkeySize) + 1;
-                            var privkeyQRImg = new Image();
-                            privkeyQRImg.src = currentPrivkeyQR.createDataURL(finalSize, 0);
-                            privkeyQRImg.style.position = "absolute";
-                            privkeyQRImg.style.top = "108px";
-                            privkeyQRImg.style.left = "833px";
-                            privkeyQRImg.style.width = privkeyTargetSize + "px";
-                            privkeyQRImg.style.height = privkeyTargetSize + "px";
-                            var parentDiv = document.createElement("div");
-                            parentDiv.className = "parent_div";
-                            parentDiv.style.background = "white";
-                            parentDiv.style.color = "black";
-                            parentDiv.style.position = "relative";
-                            parentDiv.style.border = "2px solid black";
-                            parentDiv.style.width = "1010px";
-                            parentDiv.style.height = "311px";
-                            parentDiv.style.marginBottom = verticalGap + "px";
-                            var addressDiv = document.createElement("div");
-                            addressDiv.textContent = currentAddress;
-                            addressDiv.style.position = "absolute";
-                            addressDiv.style.top = "272px";
-                            addressDiv.style.left = "43px";
-                            addressDiv.style.fontFamily = "roboto-mono";
-                            addressDiv.style.fontWeight = "bold";
-                            addressDiv.style.fontSize = "11px";
-                            var privkeyDiv = document.createElement("div");
-                            privkeyDiv.textContent = currentPrivkey;
-                            privkeyDiv.style.position = "absolute";
-                            privkeyDiv.style.top = "240px";
-                            privkeyDiv.style.left = bip38 ? "582px" : "600px";
-                            privkeyDiv.style.fontFamily = "roboto-mono";
-                            privkeyDiv.style.fontWeight = "bold";
-                            privkeyDiv.style.fontSize = "11px";
-                            var addressDiv2 = document.createElement("div");
-                            addressDiv2.textContent = currentAddress;
-                            addressDiv2.style.position = "absolute";
-                            addressDiv2.style.top = "46px";
-                            addressDiv2.style.right = "690px";
-                            addressDiv2.style.fontFamily = "roboto-mono";
-                            addressDiv2.style.fontWeight = "bold";
-                            addressDiv2.style.fontSize = "11px";
-                            addressDiv2.style.transform = "rotate(180deg)";
-                            var privkeyDiv2 = document.createElement("div");
-                            privkeyDiv2.textContent = currentPrivkey;
-                            privkeyDiv2.style.position = "absolute";
-                            privkeyDiv2.style.top = "74px";
-                            privkeyDiv2.style.left = bip38 ? "582px" : "600px";
-                            privkeyDiv2.style.fontFamily = "roboto-mono";
-                            privkeyDiv2.style.fontWeight = "bold";
-                            privkeyDiv2.style.fontSize = "11px";
-                            privkeyDiv2.style.transform = "rotate(180deg)";
-                            var backgroundGraphic = new Image();
-                            backgroundGraphic.src = window["imageSources"]["bitcoinpaperwalletcom.png"];
-                            backgroundGraphic.style.position = "absolute";
-                            backgroundGraphic.style.top = "0px";
-                            backgroundGraphic.style.left = "0px";
-                            backgroundGraphic.style.width = "100%";
-                            backgroundGraphic.style.height = "100%";
-                            parentDiv.appendChild(backgroundGraphic);
-                            parentDiv.appendChild(addressDiv);
-                            parentDiv.appendChild(privkeyDiv);
-                            parentDiv.appendChild(addressDiv2);
-                            parentDiv.appendChild(privkeyDiv2);
-                            parentDiv.appendChild(addressQRImg);
-                            parentDiv.appendChild(privkeyQRImg);
-                            container.appendChild(parentDiv);
-                        }
-                        break;
+                {
+                    var addressTargetSize = 90.75;
+                    var privkeyTargetSize = 112.75;
+                    for (var i = 0; i < addressData.length; ++i) {
+                        var currentData = addressData[i];
+                        var currentAddress = currentData.address;
+                        var currentPrivkey = currentData.privkey;
+                        var currentAddressQR = currentData.addressQR;
+                        var addressSize = currentAddressQR.getModuleCount() + 4;
+                        var finalSize = Math.floor(addressTargetSize / addressSize) + 1;
+                        var addressQRImg = new Image();
+                        addressQRImg.src = currentAddressQR.createDataURL(finalSize, 0);
+                        addressQRImg.style.position = "absolute";
+                        addressQRImg.style.top = "113px";
+                        addressQRImg.style.left = "46px";
+                        addressQRImg.style.width = addressTargetSize + "px";
+                        addressQRImg.style.height = addressTargetSize + "px";
+                        var currentPrivkeyQR = currentData.privkeyQR;
+                        var privkeySize = currentPrivkeyQR.getModuleCount() + 4;
+                        finalSize = Math.floor(privkeyTargetSize / privkeySize) + 1;
+                        var privkeyQRImg = new Image();
+                        privkeyQRImg.src = currentPrivkeyQR.createDataURL(finalSize, 0);
+                        privkeyQRImg.style.position = "absolute";
+                        privkeyQRImg.style.top = "96px";
+                        privkeyQRImg.style.left = "833px";
+                        privkeyQRImg.style.width = privkeyTargetSize + "px";
+                        privkeyQRImg.style.height = privkeyTargetSize + "px";
+                        var parentDiv = document.createElement("div");
+                        parentDiv.className = "parent_div";
+                        parentDiv.style.background = "white";
+                        parentDiv.style.color = "black";
+                        parentDiv.style.position = "relative";
+                        parentDiv.style.border = "2px solid black";
+                        parentDiv.style.width = "1010px";
+                        parentDiv.style.height = "307px";
+                        parentDiv.style.marginBottom = verticalGap + "px";
+                        var addressDiv = document.createElement("div");
+                        addressDiv.textContent = currentAddress;
+                        addressDiv.style.position = "absolute";
+                        addressDiv.style.top = "260px";
+                        addressDiv.style.left = "43px";
+                        addressDiv.style.fontFamily = "roboto-mono";
+                        addressDiv.style.fontWeight = "bold";
+                        addressDiv.style.fontSize = "11px";
+                        var privkeyDiv = document.createElement("div");
+                        privkeyDiv.textContent = currentPrivkey;
+                        privkeyDiv.style.position = "absolute";
+                        privkeyDiv.style.top = "228px";
+                        privkeyDiv.style.left = bip38 ? "582px" : "600px";
+                        privkeyDiv.style.fontFamily = "roboto-mono";
+                        privkeyDiv.style.fontWeight = "bold";
+                        privkeyDiv.style.fontSize = "11px";
+                        var addressDiv2 = document.createElement("div");
+                        addressDiv2.textContent = currentAddress;
+                        addressDiv2.style.position = "absolute";
+                        addressDiv2.style.top = "34px";
+                        addressDiv2.style.right = "690px";
+                        addressDiv2.style.fontFamily = "roboto-mono";
+                        addressDiv2.style.fontWeight = "bold";
+                        addressDiv2.style.fontSize = "11px";
+                        addressDiv2.style.transform = "rotate(180deg)";
+                        var privkeyDiv2 = document.createElement("div");
+                        privkeyDiv2.textContent = currentPrivkey;
+                        privkeyDiv2.style.position = "absolute";
+                        privkeyDiv2.style.top = "62px";
+                        privkeyDiv2.style.left = bip38 ? "582px" : "600px";
+                        privkeyDiv2.style.fontFamily = "roboto-mono";
+                        privkeyDiv2.style.fontWeight = "bold";
+                        privkeyDiv2.style.fontSize = "11px";
+                        privkeyDiv2.style.transform = "rotate(180deg)";
+                        var backgroundGraphic = new Image();
+                        backgroundGraphic.src = window["imageSources"]["bitcoinpaperwalletcom.png"];
+                        backgroundGraphic.style.position = "absolute";
+                        backgroundGraphic.style.top = "0px";
+                        backgroundGraphic.style.left = "0px";
+                        backgroundGraphic.style.width = "100%";
+                        backgroundGraphic.style.height = "100%";
+                        parentDiv.appendChild(backgroundGraphic);
+                        parentDiv.appendChild(addressDiv);
+                        parentDiv.appendChild(privkeyDiv);
+                        parentDiv.appendChild(addressDiv2);
+                        parentDiv.appendChild(privkeyDiv2);
+                        parentDiv.appendChild(addressQRImg);
+                        parentDiv.appendChild(privkeyQRImg);
+                        container.appendChild(parentDiv);
+                    }
+                    break;
                 }
             case "design2":
                 {
@@ -2559,7 +2557,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         return ((bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3]) >>> 0;
     }
     function SerializeECCKeypairCompressed(keypair) {
-        return __spreadArrays([0x2 + keypair.y.and(bn_1).toNumber()], bigintToByteArray_littleEndian(keypair.x));
+        return __spreadArray([0x2 + keypair.y.and(bn_1).toNumber()], bigintToByteArray_littleEndian(keypair.x));
     }
     function ModPow(num, exponent, mod) {
         var ret = bn_1;
@@ -2578,9 +2576,9 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         var parentChainCode = parent.chainCode;
         var I;
         if (isHardened)
-            I = HmacSHA512(__spreadArrays([0x00], parentKey, Uint32ToBytes(index)), parentChainCode);
+            I = HmacSHA512(__spreadArray(__spreadArray([0x00], parentKey), Uint32ToBytes(index)), parentChainCode);
         else
-            I = HmacSHA512(__spreadArrays(SerializeECCKeypairCompressed(getECCKeypair(parentKeyBigint)), Uint32ToBytes(index)), parentChainCode);
+            I = HmacSHA512(__spreadArray(__spreadArray([], SerializeECCKeypairCompressed(getECCKeypair(parentKeyBigint))), Uint32ToBytes(index)), parentChainCode);
         var IL = I.slice(0, 32);
         var IR = I.slice(32, 64);
         var parsed256IL = byteArrayToBigint(IL);
@@ -2608,7 +2606,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             pointY = ecc_p.sub(pointY);
         var parentKeyPairBigint = { x: pointX, y: pointY };
         var parentChainCode = parent.chainCode;
-        var I = HmacSHA512(__spreadArrays(SerializeECCKeypairCompressed(parentKeyPairBigint), Uint32ToBytes(index)), parentChainCode);
+        var I = HmacSHA512(__spreadArray(__spreadArray([], SerializeECCKeypairCompressed(parentKeyPairBigint)), Uint32ToBytes(index)), parentChainCode);
         var IL = I.slice(0, 32);
         var IR = I.slice(32, 64);
         var tempBigint = byteArrayToBigint(IL);
@@ -2663,7 +2661,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         }
         if (depth > 255)
             throw new Error("Depth must be 255 at most");
-        var finalResult = __spreadArrays(versionBytes, [depth], parentKeyFingerprint, Uint32ToBytes(childIndex), chainCode, keyData);
+        var finalResult = __spreadArray(__spreadArray(__spreadArray(__spreadArray(__spreadArray(__spreadArray([], versionBytes), [depth]), parentKeyFingerprint), Uint32ToBytes(childIndex)), chainCode), keyData);
         return base58checkEncode(finalResult);
     }
     function UnextendKey(extendedKey) {
@@ -2722,7 +2720,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             if (fromPrivate) {
                 var privkey = keyData.slice(1);
                 derivedKey = CKD_Priv({ key: privkey, chainCode: chainCode }, childIndex);
-                keyData = __spreadArrays([0x00], bigintToByteArray_littleEndian(derivedKey.key));
+                keyData = __spreadArray([0x00], bigintToByteArray_littleEndian(derivedKey.key));
             }
             else {
                 var keypair = {
@@ -2872,7 +2870,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
         var passwordBytes = Utf8StringToBytes(passwordNormalized);
         var seed = PBKDF2(mnemonicBytes, passwordBytes, 2048, 512 / 32);
         var masterKey = GetMasterKeyFromSeed(seed);
-        var masterPrivKey = __spreadArrays([0], bigintToByteArray_littleEndian(masterKey.key));
+        var masterPrivKey = __spreadArray([0], bigintToByteArray_littleEndian(masterKey.key));
         var masterChainCode = masterKey.chainCode;
         return SerializeExtendedKey(true, 0, [0, 0, 0, 0], 0, masterChainCode, masterPrivKey, purpose);
     }
@@ -3058,7 +3056,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             return;
         }
         document.getElementById("seed_details_results_extended_pubkey").value = derivedExtendedPublicKey;
-        document.getElementById("seed_details_results_extended_privkey").value = (derivedExtendedPrivateKey !== null && derivedExtendedPrivateKey !== void 0 ? derivedExtendedPrivateKey : "???");
+        document.getElementById("seed_details_results_extended_privkey").value = derivedExtendedPrivateKey !== null && derivedExtendedPrivateKey !== void 0 ? derivedExtendedPrivateKey : "???";
         var resultsTable = document.getElementById("seed_details_results_addresses_table");
         while (resultsTable.lastChild)
             resultsTable.removeChild(resultsTable.lastChild);
@@ -3537,7 +3535,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
                 try {
                     var password = NormalizeStringIfPossibleNFKD(testCase.password);
                     if (password === null)
-                        return; // string normalize not available, skip this test 
+                        return; // string normalize not available, skip this test
                     try {
                         assertEqual(GetXprvFromMnemonic(testCase.seed, password), testCase.rootKey, "Root key derived from seed phrase does not match");
                     }
