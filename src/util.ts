@@ -1,7 +1,16 @@
 
-var Util = (() =>
+// lazy evaluation, trying to achieve a behavior similar to imports
+function Lazy<T>(fn: () => T)
 {
-    const isDarkMode = (() =>
+    let evaluated: T | null = null;
+    return () => (evaluated ??= fn());
+}
+
+var Util = (() => Lazy(() =>
+{
+    const { HasQueryKey, GetQueryValue, GetAllQueryValues } = Query();
+
+    let isDarkMode = (() =>
     {
         // check if browser supports prefers-color-scheme
         if (window.matchMedia && window.matchMedia("(prefers-color-scheme)").matches)
@@ -24,6 +33,13 @@ var Util = (() =>
         return hour < 7 || hour > 18;
     })();
 
+    function SetDarkMode(isDark: boolean)
+    {
+        isDarkMode = isDark;
+        document.body.classList.remove(isDark ? "light" : "dark");
+        document.body.classList.add(isDark ? "dark" : "light");
+    }
+
     let entropy: number[] | null = null;
     function SetEntropy(values: number[])
     {
@@ -39,8 +55,6 @@ var Util = (() =>
             }
             while (value !== 0);
         }
-
-        console.log(entropy);
     }
 
     function TypedArrayPush(targetArray: number[], srcArray: Uint8Array | Uint32Array)
@@ -76,9 +90,13 @@ var Util = (() =>
         return ret;
     }
 
+    const isTestnet = HasQueryKey("testnet");
+
     return {
-        isDarkMode: isDarkMode,
+        IsDarkMode: () => isDarkMode,
+        SetDarkMode: SetDarkMode,
         SetEntropy: SetEntropy,
-        Get32SecureRandomBytes: Get32SecureRandomBytes
+        Get32SecureRandomBytes: Get32SecureRandomBytes,
+        IsTestnet: () => isTestnet
     };
-});
+})());

@@ -773,7 +773,7 @@ li
         </div>
     </div>
     <div style="position: absolute; top: 10px; right: 10px;">
-        <a id="lightModeButton" onclick="setDarkMode(false)" style="cursor: pointer;">
+        <a id="lightModeButton" style="cursor: pointer;">
             <svg width="32" height="32">
                 <circle cx="16" cy="16" r="16" style="fill:white"></circle>
                 <circle cx="16" cy="16" r="6" style="fill:black"></circle>
@@ -787,7 +787,7 @@ li
                 <line x1="4" y1="16" x2="6" y2="16" style="stroke:black;stroke-width:4;stroke-linecap:round;transform-origin:16px 16px;transform:rotate(315deg);"></line>
             </svg>
         </a>
-        <a id="darkModeButton" onclick="setDarkMode(true)" style="cursor: pointer;">
+        <a id="darkModeButton" style="cursor: pointer;">
             <svg height="32" width="32">
                 <circle cx="16" cy="16" r="16" stroke-width="4" style="fill:black"></circle>
                 <path d="M 12 6 Q 20 16 12 26 Q 24 26 24 16 Q 24 6 12 6" style="stroke-width:0;fill:white;stroke:white;"></path>
@@ -808,8 +808,8 @@ li
 
     <script type="text/javascript" src="js/dist/index.js"></script>
     <script type="text/javascript" src="js/dist/util.js"></script>
-
-    <script type="text/javascript" src="js/dist/setImmediate.js"></script>
+    <script type="text/javascript" src="js/dist/query.js"></script>
+    <script type="text/javascript" src="js/dist/entropyCanvas.js"></script>
 
     <script type="text/javascript" src="js/dist/native_bigint.js"></script>
 

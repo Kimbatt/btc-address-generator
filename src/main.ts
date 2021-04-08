@@ -5,6 +5,11 @@
     const randomnessCanvasCTX = randomnessCanvas.getContext("2d")!;
     const randomnessText = document.getElementById("randomness_div")!;
 
+    function setImmediate(callback: () => unknown)
+    {
+        window.requestAnimationFrame(callback);
+    }
+
     function randomnessCanvasResizerFunction()
     {
         const width = document.documentElement.clientWidth;
