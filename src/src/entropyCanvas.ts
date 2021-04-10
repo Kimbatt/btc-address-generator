@@ -1,7 +1,7 @@
 
 const EntropyCanvas = (() => Lazy(() =>
 {
-    const { IsDarkMode, SetEntropy } = Util();
+    const { IsDarkMode } = Util();
 
     async function ShowRandomnessCanvas()
     {
@@ -100,7 +100,7 @@ const EntropyCanvas = (() => Lazy(() =>
 
         if (entropy !== null)
         {
-            SetEntropy(entropy);
+            WorkerInterface.SetEntropy(entropy);
         }
 
         document.getElementById("randomness_overlay")!.style.display = "none";
@@ -108,6 +108,6 @@ const EntropyCanvas = (() => Lazy(() =>
     }
 
     return {
-        ShowRandomnessCanvas: ShowRandomnessCanvas
+        ShowRandomnessCanvas
     };
-})());
+}))();

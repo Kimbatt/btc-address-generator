@@ -1,11 +1,11 @@
 
 window.addEventListener("load", async () =>
 {
+    CreateWorkers();
+
     const {
         IsDarkMode,
         SetDarkMode,
-        Get32SecureRandomBytes,
-        SetEntropy,
         IsTestnet
     } = Util();
 

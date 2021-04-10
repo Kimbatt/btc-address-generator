@@ -3,7 +3,7 @@
 //
 // The MIT License
 //
-// Copyright (c) 2009-2013 Jeff Mott  
+// Copyright (c) 2009-2013 Jeff Mott
 // Copyright (c) 2013-2016 Evan Vosberg
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,20 +25,7 @@
 // THE SOFTWARE.
 //
 
-;(function (root, factory) {
-    if (typeof exports === "object") {
-        // CommonJS
-        module.exports = exports = factory();
-    }
-    else if (typeof define === "function" && define.amd) {
-        // AMD
-        define([], factory);
-    }
-    else {
-        // Global (browser)
-        root.CryptoJS = factory();
-    }
-}(this, function () {
+function INIT_CryptoJS () {
 
     /**
      * CryptoJS core components.
@@ -5976,4 +5963,6 @@
 
     return CryptoJS;
 
-}));
+}
+
+window.CryptoJS = INIT_CryptoJS();

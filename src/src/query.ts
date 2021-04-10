@@ -43,8 +43,8 @@ var Query = (() => Lazy(() =>
     }
 
     return {
-        HasQueryKey: HasQueryKey,
-        GetQueryValue: GetQueryValue,
-        GetAllQueryValues: GetAllQueryValues
+        HasQueryKey,
+        GetQueryValue,
+        GetAllQueryValues
     };
-})());
+}))();

@@ -1,9 +1,10 @@
 // BigNumber
 // source: https://github.com/indutny/bn.js/blob/master/lib/bn.js
 
-(function (module, exports) {
+function INIT_BN() {
+(function (exports) {
   'use strict';
-  
+
   // don't use this if the native BigInt is available
   if (typeof BigInt === "function")
     return;
@@ -3447,4 +3448,7 @@
     var res = this.imod(a._invmp(this.m).mul(this.r2));
     return res._forceRed(this);
   };
-})(typeof module === 'undefined' || module, this);
+})(self);
+}
+
+INIT_BN();
