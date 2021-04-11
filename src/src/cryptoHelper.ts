@@ -1,14 +1,5 @@
 
-declare var CryptoHelper: {
-    SHA256: (msg: number[] | string | Uint8Array) => number[];
-    SHA256Hex: (msg: number[] | string | Uint8Array) => string;
-    RIPEMD160: (bytes: number[]) => number[];
-    HmacSHA512: (msg: number[] | string, key: number[] | string) => number[];
-    AES_Encrypt_ECB_NoPadding: (msg: number[], password: number[]) => number[];
-    AES_Decrypt_ECB_NoPadding: (ciphertext: number[], password: number[]) => number[];
-    PBKDF2: (password: number[] | string, salt: number[] | string, iterations?: number, dklen?: number) => number[];
-    scrypt: (password: string | number[], salt: string | number[], logN: number, r: number, p: number, dkLen: number, encoding?: string | undefined) => string | number[] | Uint8Array;
-};
+declare var CryptoHelper: ReturnType<typeof INIT_CryptoHelper>;
 
 function INIT_CryptoHelper()
 {

@@ -11,6 +11,9 @@ window.addEventListener("load", async () =>
 
     const { ShowRandomnessCanvas } = EntropyCanvas();
 
+    // set testnet value
+    WorkerInterface.SetIsTestnet(IsTestnet());
+
     // initialize favicon
     {
         const newLink = document.createElement("link");

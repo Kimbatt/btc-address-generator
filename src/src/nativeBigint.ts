@@ -36,6 +36,11 @@
                     return BigInt(num);
             }
 
+            toString()
+            {
+                return this.value.toString();
+            }
+
             add(num: NumberSource)
             {
                 return new BN_(this.value + BN_.ConvertNumber(num));

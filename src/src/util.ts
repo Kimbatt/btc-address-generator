@@ -49,17 +49,20 @@ var Util = (() => Lazy(() =>
     };
 }))();
 
-declare var WorkerUtils: {
-    SetEntropy: (values: number[]) => void;
-    Get32SecureRandomBytes: () => number[];
-    BigintToBitArray: (bigint: BN) => boolean[];
-    BigintToByteArray: (bigint: BN) => number[];
-    ByteArrayToBigint: (bytes: number[]) => BN;
-    ByteArrayXOR: (b1: number[], b2: number[]) => number[];
-    Base58Encode: (bytes: number[]) => string;
-    Base58CheckEncode: (bytes: number[]) => string;
-    Base58CheckDecode: (text: string) => number[];
-};
+type Result<TResult, TError> = ResultOK<TResult> | ResultErr<TError>;
+interface ResultOK<T>
+{
+    type: "ok";
+    result: T;
+}
+
+interface ResultErr<T>
+{
+    type: "err";
+    error: T;
+}
+
+declare var WorkerUtils: ReturnType<typeof INIT_WorkerUtils>;
 
 function INIT_WorkerUtils()
 {
@@ -82,12 +85,37 @@ function INIT_WorkerUtils()
         console.log("entropy set to:", entropy);
     }
 
+    let isTestnet = false;
+    function SetIsTestnet(testnet: boolean)
+    {
+        isTestnet = testnet;
+    }
+
+    function IsTestnet()
+    {
+        return isTestnet;
+    }
+
     function TypedArrayPush(targetArray: number[], srcArray: Uint8Array | Uint32Array)
     {
         for (let i = 0; i < srcArray.length; ++i)
         {
             targetArray.push(srcArray[i]);
         }
+    }
+
+    function ArrayConcat<T>(...arrays: T[][])
+    {
+        const result: T[] = [];
+        for (let array of arrays)
+        {
+            for (let element of array)
+            {
+                result.push(element);
+            }
+        }
+
+        return result;
     }
 
     function Get32SecureRandomBytes()
@@ -262,7 +290,7 @@ function INIT_WorkerUtils()
         return ret.reverse().join("");
     }
 
-    function Base58CheckDecode(text: string)
+    function Base58CheckDecode(text: string): Result<number[], string>
     {
         let newstring = text.split("").reverse().join("");
         for (let i = 0; i < text.length; ++i)
@@ -276,9 +304,11 @@ function INIT_WorkerUtils()
         let bigint = bn_0;
         for (let i = newstring.length - 1; i >= 0; --i)
         {
-            const charIndex = base58CharsIndices[newstring[i]]
+            const charIndex = base58CharsIndices[newstring[i]];
             if (charIndex === undefined)
-                throw new Error("invalid character: " + newstring[i]);
+            {
+                return { type: "err", error: "invalid character: " + newstring[i] };
+            }
 
             bigint = (bigint.mul(bn_58)).add(new BN(charIndex));
         }
@@ -296,15 +326,20 @@ function INIT_WorkerUtils()
         for (var i = 0; i < 4; ++i)
         {
             if (sha_result[i] != checksum[i])
-                throw new Error("invalid checksum");
+            {
+                return { type: "err", error: "invalid checksum" };
+            }
         }
 
-        return bytes;
+        return { type: "ok", result: bytes };
     }
 
 
     return {
         SetEntropy,
+        SetIsTestnet,
+        IsTestnet,
+        ArrayConcat,
         Get32SecureRandomBytes,
         BigintToBitArray,
         BigintToByteArray,

@@ -1,9 +1,16 @@
 
 var WorkerInterface: {
     SetEntropy: (entropy: number[]) => Promise<void>;
-    GenerateRandomAddress: (addressType: "legacy" | "segwit" | "bech32", isTestnet: boolean, password?: string | undefined) => Promise<{ address: string, privateKey: string }>;
-    GetPrivateKeyDetails: (privateKey: string) => Promise<void>;
+    SetIsTestnet: (isTestnet: boolean) => Promise<void>;
+
+    GenerateRandomAddress: (addressType: AddressType) => Promise<{ address: string, privateKey: string }>;
+    GetPrivateKeyDetails: (privateKey: string) => Promise<GetPrivateKeyDetailsResult>;
+
     GetBIP38EncryptedPrivateKeyDetails: (privateKey: string, password: string) => Promise<unknown>;
+    GenerateRandomBIP38EncryptionData: (password: string, addressType: AddressType) => Promise<Result<BIP38EncryptionData, string>>;
+    GenerateRandomBIP38EncryptedAddress: (encryptionData: BIP38EncryptionData) => Promise<AddressWithPrivateKey>;
+    BIP38EncryptPrivateKey: (privateKey: string, password: string) => Promise<unknown>;
+
     GenerateMnemonicSeed: (wordCount: 12 | 15 | 18 | 21 | 24) => Promise<unknown>;
     GetBIP32RootKeyFromSeed: (seed: string, password?: string | undefined) => Promise<unknown>;
     DeriveBIP32: (extendedKey: string, derivationPath: string, offset: number, count: number, hardenedAddresses: boolean, changeAddresses: boolean) => Promise<unknown>;
@@ -25,12 +32,13 @@ var CreateWorkers = () =>
         { fn: INIT_CryptoJS, functionName: "INIT_CryptoJS", variableName: "CryptoJS" },
         { fn: INIT_CryptoHelper, functionName: "INIT_CryptoHelper", variableName: "CryptoHelper" },
         { fn: INIT_AddressUtil, functionName: "INIT_AddressUtil", variableName: "AddressUtil" },
+        { fn: INIT_BIP38, functionName: "INIT_BIP38", variableName: "BIP38Util" },
     ];
 
     const workersAvailable = typeof Worker !== "undefined";
-    const availableWorkers: Worker[] = [];
 
     let DoWorkerJobWrapper: (data: any) => any;
+    let ForEveryWorkerWrapper: (data: any) => any;
 
     if (!workersAvailable)
     {
@@ -44,7 +52,7 @@ var CreateWorkers = () =>
             }
         });
 
-        const DoWorkerJobSync = async (data: any) =>
+        ForEveryWorkerWrapper = DoWorkerJobWrapper = async (data: any) =>
         {
             const functionPath = data.functionName.split(".");
             let fn = (<any>self)[functionPath[0]];
@@ -55,8 +63,6 @@ var CreateWorkers = () =>
 
             return await new Promise(resolve => window.setTimeout(() => resolve(fn(...data.functionParams)), 0));
         };
-
-        DoWorkerJobWrapper = DoWorkerJobSync;
     }
     else
     {
@@ -91,11 +97,15 @@ var CreateWorkers = () =>
         const blobUrl = URL.createObjectURL(blob);
 
 
+        const availableWorkers: Worker[] = [];
+        const allWorkers: Worker[] = [];
         const maxWorkerCount = navigator.hardwareConcurrency ?? 1;
 
         for (let i = 0; i < maxWorkerCount; ++i)
         {
-            availableWorkers.push(new Worker(blobUrl));
+            const worker = new Worker(blobUrl);
+            availableWorkers.push(worker);
+            allWorkers.push(worker);
         }
 
         URL.revokeObjectURL(blobUrl);
@@ -117,7 +127,7 @@ var CreateWorkers = () =>
             }
         }
 
-        const DoWorkerJob = async (data: any) =>
+        DoWorkerJobWrapper = async (data: any) =>
         {
             async function GetAvailableWorker()
             {
@@ -147,30 +157,77 @@ var CreateWorkers = () =>
             return result;
         };
 
-        DoWorkerJobWrapper = DoWorkerJob;
+        ForEveryWorkerWrapper = async (data: any) =>
+        {
+            for (let worker of allWorkers)
+            {
+                worker.postMessage(data);
+            }
+        };
     }
 
     WorkerInterface = {
         SetEntropy: async (entropy: number[]) =>
         {
-            await DoWorkerJobWrapper({
+            await ForEveryWorkerWrapper({
                 functionName: "WorkerUtils.SetEntropy",
                 functionParams: [entropy]
             });
         },
+        SetIsTestnet: async (isTestnet: boolean) =>
+        {
+            await ForEveryWorkerWrapper({
+                functionName: "WorkerUtils.SetIsTestnet",
+                functionParams: [isTestnet]
+            });
+        },
 
-        GenerateRandomAddress: async (addressType: "legacy" | "segwit" | "bech32", isTestnet: boolean, password?: string) =>
+        GenerateRandomAddress: async (addressType: AddressType) =>
         {
             return await DoWorkerJobWrapper({
                 functionName: "AddressUtil.GenerateNewRandomAddress",
-                functionParams: [addressType, isTestnet, password]
+                functionParams: [addressType]
             });
         },
-        GetPrivateKeyDetails: async (privateKey: string) => { },
-        GetBIP38EncryptedPrivateKeyDetails: async (privateKey: string, password: string) => { },
-        GenerateMnemonicSeed: async (wordCount: 12 | 15 | 18 | 21 | 24) => { },
+        GetPrivateKeyDetails: async (privateKey: string) =>
+        {
+            return await DoWorkerJobWrapper({
+                functionName: "AddressUtil.GetPrivateKeyDetails",
+                functionParams: [privateKey]
+            });
+        },
 
-        GetBIP32RootKeyFromSeed: async (seed: string, password?: string) => { },
+        GetBIP38EncryptedPrivateKeyDetails: async (privateKey: string, password: string) =>
+        {
+
+        },
+        GenerateRandomBIP38EncryptionData: async (password: string, addressType: AddressType) =>
+        {
+            return await DoWorkerJobWrapper({
+                functionName: "BIP38Util.GenerateRandomBIP38EncryptionData",
+                functionParams: [password, addressType]
+            });
+        },
+        GenerateRandomBIP38EncryptedAddress: async (encryptionData: BIP38EncryptionData) =>
+        {
+            return await DoWorkerJobWrapper({
+                functionName: "BIP38Util.GenerateRandomBIP38EncryptedAddress",
+                functionParams: [encryptionData]
+            });
+        },
+        BIP38EncryptPrivateKey: async (privateKey: string, password: string) =>
+        {
+
+        },
+
+        GenerateMnemonicSeed: async (wordCount: 12 | 15 | 18 | 21 | 24) =>
+        {
+
+        },
+        GetBIP32RootKeyFromSeed: async (seed: string, password?: string) =>
+        {
+
+        },
         DeriveBIP32: async (extendedKey: string, derivationPath: string, offset: number, count: number, hardenedAddresses: boolean, changeAddresses: boolean) =>
         {
             // return {

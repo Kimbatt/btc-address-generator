@@ -5,14 +5,15 @@ interface EcKeypair
     y: BN;
 }
 
-declare var EllipticCurve: {
-    GetECCKeypair: (val: BN) => EcKeypair;
-    EcAdd: (ax: BN, ay: BN, bx: BN, by: BN) => EcKeypair;
-    EcDouble: (ax: BN, ay: BN) => EcKeypair;
-    EccMultiply: (gx: BN, gy: BN, scalar: BN) => EcKeypair;
-};
+interface EcKeypairString
+{
+    x: string;
+    y: string;
+}
 
-var INIT_EllipticCurve = function()
+declare var EllipticCurve: ReturnType<typeof INIT_EllipticCurve>;
+
+function INIT_EllipticCurve()
 {
     const bn_0 = new BN(0);
 
@@ -138,6 +139,7 @@ var INIT_EllipticCurve = function()
         GetECCKeypair,
         EcAdd,
         EcDouble,
-        EccMultiply
+        EccMultiply,
+        ecc_Gx, ecc_Gy
     };
 }
