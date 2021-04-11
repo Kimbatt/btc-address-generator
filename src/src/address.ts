@@ -251,7 +251,7 @@ function INIT_AddressUtil()
         };
     }
 
-    function PrivateKeyStringToKeyPair(privateKey: string): Result<{ privateKey: BN, keypair: EcKeypair }, string>
+    function PrivateKeyStringToValue(privateKey: string): Result<BN, string>
     {
         const decoded = WorkerUtils.Base58CheckDecode(privateKey);
         if (decoded.type === "err")
@@ -281,21 +281,37 @@ function INIT_AddressUtil()
             privateKeyValue = privateKeyValue.or(new BN(bytes[j]));
         }
 
+        return {
+            type: "ok",
+            result: privateKeyValue
+        };
+    }
+
+    function PrivateKeyStringToKeyPair(privateKey: string): Result<{ privateKeyValue: BN, keypair: EcKeypair }, string>
+    {
+        const privateKeyDecoded = PrivateKeyStringToValue(privateKey);
+        if (privateKeyDecoded.type === "err")
+        {
+            return privateKeyDecoded;
+        }
+
+        const privateKeyValue = privateKeyDecoded.result;
         const keypair = EllipticCurve.GetECCKeypair(privateKeyValue);
 
         const privateKeyReEncoded = MakePrivateKey(privateKeyValue);
         if (privateKey !== privateKeyReEncoded)
+        {
             return { type: "err", error: "cannot decode private key" };
+        }
 
         return {
             type: "ok",
             result: {
-                privateKey: privateKeyValue,
+                privateKeyValue,
                 keypair: keypair
             }
         };
     }
-
 
     function GetPrivateKeyDetails(privateKey: string): GetPrivateKeyDetailsResult
     {
@@ -322,6 +338,9 @@ function INIT_AddressUtil()
 
     return {
         GenerateNewRandomAddress,
+        PrivateKeyStringToValue,
+        PrivateKeyStringToKeyPair,
+        MakePrivateKey,
         MakeLegacyAddress,
         MakeSegwitAddress,
         MakeBech32Address,

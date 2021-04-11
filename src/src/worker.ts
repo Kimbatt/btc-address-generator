@@ -6,7 +6,7 @@ var WorkerInterface: {
     GenerateRandomAddress: (addressType: AddressType) => Promise<{ address: string, privateKey: string }>;
     GetPrivateKeyDetails: (privateKey: string) => Promise<GetPrivateKeyDetailsResult>;
 
-    GetBIP38EncryptedPrivateKeyDetails: (privateKey: string, password: string) => Promise<unknown>;
+    BIP38DecryptPrivateKey: (privateKey: string, password: string) => Promise<Result<string, string>>;
     GenerateRandomBIP38EncryptionData: (password: string, addressType: AddressType) => Promise<Result<BIP38EncryptionData, string>>;
     GenerateRandomBIP38EncryptedAddress: (encryptionData: BIP38EncryptionData) => Promise<AddressWithPrivateKey>;
     BIP38EncryptPrivateKey: (privateKey: string, password: string) => Promise<unknown>;
@@ -197,9 +197,12 @@ var CreateWorkers = () =>
             });
         },
 
-        GetBIP38EncryptedPrivateKeyDetails: async (privateKey: string, password: string) =>
+        BIP38DecryptPrivateKey: async (privateKey: string, password: string) =>
         {
-
+            return await DoWorkerJobWrapper({
+                functionName: "BIP38Util.DecryptPrivateKey",
+                functionParams: [privateKey, password]
+            });
         },
         GenerateRandomBIP38EncryptionData: async (password: string, addressType: AddressType) =>
         {
@@ -217,7 +220,10 @@ var CreateWorkers = () =>
         },
         BIP38EncryptPrivateKey: async (privateKey: string, password: string) =>
         {
-
+            return await DoWorkerJobWrapper({
+                functionName: "BIP38Util.EncryptPrivateKey",
+                functionParams: [privateKey, password]
+            });
         },
 
         GenerateMnemonicSeed: async (wordCount: 12 | 15 | 18 | 21 | 24) =>

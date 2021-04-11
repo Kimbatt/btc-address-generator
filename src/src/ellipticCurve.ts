@@ -140,6 +140,6 @@ function INIT_EllipticCurve()
         EcAdd,
         EcDouble,
         EccMultiply,
-        ecc_Gx, ecc_Gy
+        ecc_Gx, ecc_Gy, ecc_n
     };
 }

@@ -89,20 +89,183 @@ function INIT_BIP38()
             encryptedpart2
         );
 
-        const finalPrivateKey = WorkerUtils.ArrayConcat(
-            finalPrivateKeyWithoutChecksum,
-            CryptoHelper.SHA256(CryptoHelper.SHA256(finalPrivateKeyWithoutChecksum)).slice(0, 4)
-        );
-
         return {
             addressType: encryptionData.addressType,
             address: addressWithType,
-            privateKey: WorkerUtils.Base58Encode(finalPrivateKey) // TODO?: Base58CheckEncode + don't add checksum above
+            privateKey: WorkerUtils.Base58CheckEncode(finalPrivateKeyWithoutChecksum)
         };
+    }
+
+    function DecryptPrivateKey(privateKey: string, password: string): Result<string, string>
+    {
+        if (password === "")
+        {
+            return { type: "err", error: "password must not be empty" };
+        }
+
+        const decoded = WorkerUtils.Base58CheckDecode(privateKey);
+        if (decoded.type === "err")
+        {
+            return decoded;
+        }
+
+        const bytes = decoded.result;
+        if (bytes[0] !== 0x01)
+        {
+            return { type: "err", error: "invalid byte at position 0" };
+        }
+
+        bytes.shift();
+
+        // typescript will show an error if I have (bytes[0] === 0x43) here, because it doesn't know that bytes.shift() changes the array
+        // see https://github.com/microsoft/TypeScript/issues/35795
+        // putting any here so it works
+        if (<any>bytes[0] === 0x43)
+        {
+            if ((bytes[1] & 0x20) === 0)
+            {
+                return { type: "err", error: "only compressed private keys are supported" };
+            }
+
+            const ownerSalt = bytes.slice(6, 14);
+            const scryptResult = <number[]>CryptoHelper.scrypt(password, ownerSalt, 14, 8, 8, 32);
+            const bigint = WorkerUtils.ByteArrayToBigint(scryptResult);
+            const keypair = EllipticCurve.GetECCKeypair(bigint);
+
+            const publicKeyBytesX = WorkerUtils.BigintToByteArray(keypair.x);
+            while (publicKeyBytesX.length < 32)
+            {
+                publicKeyBytesX.push(0);
+            }
+
+            const passpoint = publicKeyBytesX.slice();
+            passpoint.push(keypair.y.isOdd() ? 0x03 : 0x02);
+            passpoint.reverse();
+            const encryptedPart2 = bytes.slice(22, 38);
+            const addressHash = bytes.slice(2, 14);
+            const scryptResult2 = <number[]>CryptoHelper.scrypt(passpoint, addressHash, 10, 1, 1, 64);
+
+            const derivedHalf1 = scryptResult2.slice(0, 32);
+            const derivedHalf2 = scryptResult2.slice(32, 64);
+
+            const decrypted2 = CryptoHelper.AES_Decrypt_ECB_NoPadding(encryptedPart2, derivedHalf2);
+
+            const encryptedpart1 = WorkerUtils.ArrayConcat(
+                bytes.slice(14, 22),
+                WorkerUtils.ByteArrayXOR(decrypted2.slice(0, 8), scryptResult2.slice(16, 24))
+            );
+
+            const decrypted1 = CryptoHelper.AES_Decrypt_ECB_NoPadding(encryptedpart1, derivedHalf2);
+            const seedb = WorkerUtils.ArrayConcat(
+                WorkerUtils.ByteArrayXOR(decrypted1.slice(0, 16), derivedHalf1.slice(0, 16)),
+                WorkerUtils.ByteArrayXOR(decrypted2.slice(8, 16), derivedHalf1.slice(24, 32))
+            );
+
+            const factorb = CryptoHelper.SHA256(CryptoHelper.SHA256(seedb));
+            const finalPrivateKeyValue = WorkerUtils.ByteArrayToBigint(scryptResult)
+                .mul(WorkerUtils.ByteArrayToBigint(factorb))
+                .mod(EllipticCurve.ecc_n);
+
+            const finalKeypair = EllipticCurve.GetECCKeypair(finalPrivateKeyValue);
+            const finalAddress = AddressUtil.MakeLegacyAddress(finalKeypair);
+            const finalAddressHash = CryptoHelper.SHA256(CryptoHelper.SHA256(finalAddress));
+
+            for (let i = 0; i < 4; ++i)
+            {
+                if (addressHash[i] !== finalAddressHash[i])
+                {
+                    return { type: "err", error: "invalid password" };
+                }
+            }
+
+            const finalPrivateKey = AddressUtil.MakePrivateKey(finalPrivateKeyValue);
+
+            return {
+                type: "ok",
+                result: finalPrivateKey
+            };
+        }
+        else if (<any>bytes[0] === 0x42)
+        {
+            if (bytes[1] !== 0xe0)
+            {
+                return { type: "err", error: "only compressed private keys are supported" };
+            }
+
+            const addressHash = bytes.slice(2, 6);
+            const derivedBytes = <number[]>CryptoHelper.scrypt(password, addressHash, 14, 8, 8, 64);
+            const decrypted = CryptoHelper.AES_Decrypt_ECB_NoPadding(bytes.slice(6, 38), derivedBytes.slice(32));
+            const privateKeyBytes = WorkerUtils.ByteArrayXOR(decrypted, derivedBytes);
+
+            const finalPrivateKeyValue = WorkerUtils.ByteArrayToBigint(privateKeyBytes);
+            const finalKeypair = EllipticCurve.GetECCKeypair(finalPrivateKeyValue);
+            const finalAddress = AddressUtil.MakeLegacyAddress(finalKeypair);
+            const finalAddressHash = CryptoHelper.SHA256(CryptoHelper.SHA256(finalAddress));
+
+            for (let i = 0; i < 4; ++i)
+            {
+                if (addressHash[i] !== finalAddressHash[i])
+                {
+                    return { type: "err", error: "invalid password" };
+                }
+            }
+
+            const finalprivkey = AddressUtil.MakePrivateKey(finalPrivateKeyValue);
+
+            return {
+                type: "ok",
+                result: finalprivkey
+            };
+        }
+
+        return { type: "err", error: "invalid byte at EC multiply flag" };
+    }
+
+    function EncryptPrivateKey(privateKey: string, password: string): Result<string, string>
+    {
+        if (password === "")
+        {
+            return { type: "err", error: "password must not be empty" };
+        }
+
+        const privateKeyDecoded = AddressUtil.PrivateKeyStringToKeyPair(privateKey);
+        if (privateKeyDecoded.type === "err")
+        {
+            return privateKeyDecoded;
+        }
+
+        const privkeyBytes = WorkerUtils.BigintToByteArray(privateKeyDecoded.result.privateKeyValue);
+        while (privkeyBytes.length < 32)
+        {
+            privkeyBytes.push(0);
+        }
+
+        privkeyBytes.reverse();
+
+        const address = AddressUtil.MakeLegacyAddress(privateKeyDecoded.result.keypair);
+
+        const salt = CryptoHelper.SHA256(CryptoHelper.SHA256(address)).slice(0, 4);
+        const derivedBytes = <number[]>CryptoHelper.scrypt(password, salt, 14, 8, 8, 64);
+
+        const firstHalf = WorkerUtils.ByteArrayXOR(privkeyBytes, derivedBytes.slice(0, 32));
+        const secondHalf = derivedBytes.slice(32);
+
+        const finalPrivateKeyWithoutChecksum = WorkerUtils.ArrayConcat(
+            [0x01, 0x42, 0xe0],
+            salt,
+            CryptoHelper.AES_Encrypt_ECB_NoPadding(firstHalf, secondHalf)
+        );
+
+        return {
+            type: "ok",
+            result: WorkerUtils.Base58CheckEncode(finalPrivateKeyWithoutChecksum)
+        }
     }
 
     return {
         GenerateRandomBIP38EncryptionData,
-        GenerateRandomBIP38EncryptedAddress
+        GenerateRandomBIP38EncryptedAddress,
+        DecryptPrivateKey,
+        EncryptPrivateKey
     };
 }
