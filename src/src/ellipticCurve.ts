@@ -20,7 +20,9 @@ function INIT_EllipticCurve()
     function BigintToBitArray(bigint: BN)
     {
         if (bigint.isNeg())
+        {
             return [false];
+        }
 
         const values: boolean[] = [];
         while (bigint.gt(bn_0))
@@ -28,6 +30,7 @@ function INIT_EllipticCurve()
             values.push(bigint.isOdd());
             bigint = bigint.shrn(1);
         }
+
         return values.reverse();
     }
 
@@ -140,6 +143,6 @@ function INIT_EllipticCurve()
         EcAdd,
         EcDouble,
         EccMultiply,
-        ecc_Gx, ecc_Gy, ecc_n
+        ecc_Gx, ecc_Gy, ecc_n, ecc_p, ecc_a
     };
 }

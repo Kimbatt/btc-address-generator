@@ -106,13 +106,10 @@ function INIT_WorkerUtils()
 
     function ArrayConcat<T>(...arrays: T[][])
     {
-        const result: T[] = [];
+        let result: T[] = [];
         for (let array of arrays)
         {
-            for (let element of array)
-            {
-                result.push(element);
-            }
+            result = result.concat(array);
         }
 
         return result;
@@ -191,6 +188,17 @@ function INIT_WorkerUtils()
             ret.push(b1[i] ^ b2[i]);
 
         return ret;
+    }
+
+    function BigintToByteArrayLittleEndian32(bigint: BN)
+    {
+        const array = BigintToByteArray(bigint);
+        while (array.length < 32)
+        {
+            array.push(0);
+        }
+
+        return array.reverse();
     }
 
 
@@ -345,6 +353,7 @@ function INIT_WorkerUtils()
         BigintToByteArray,
         ByteArrayToBigint,
         ByteArrayXOR,
+        BigintToByteArrayLittleEndian32,
         Base58Encode,
         Base58CheckEncode,
         Base58CheckDecode

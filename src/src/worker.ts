@@ -11,8 +11,8 @@ var WorkerInterface: {
     GenerateRandomBIP38EncryptedAddress: (encryptionData: BIP38EncryptionData) => Promise<AddressWithPrivateKey>;
     BIP38EncryptPrivateKey: (privateKey: string, password: string) => Promise<unknown>;
 
-    GenerateMnemonicSeed: (wordCount: 12 | 15 | 18 | 21 | 24) => Promise<unknown>;
-    GetBIP32RootKeyFromSeed: (seed: string, password?: string | undefined) => Promise<unknown>;
+    GenerateMnemonicSeed: (wordCount: 12 | 15 | 18 | 21 | 24) => Promise<string>;
+    GetBIP32RootKeyFromSeed: (seed: string, password?: string | undefined) => Promise<string>;
     DeriveBIP32: (extendedKey: string, derivationPath: string, offset: number, count: number, hardenedAddresses: boolean, changeAddresses: boolean) => Promise<unknown>;
 };
 
@@ -33,6 +33,8 @@ var CreateWorkers = () =>
         { fn: INIT_CryptoHelper, functionName: "INIT_CryptoHelper", variableName: "CryptoHelper" },
         { fn: INIT_AddressUtil, functionName: "INIT_AddressUtil", variableName: "AddressUtil" },
         { fn: INIT_BIP38, functionName: "INIT_BIP38", variableName: "BIP38Util" },
+        { fn: INIT_BIP32, functionName: "INIT_BIP32", variableName: "BIP32Util" },
+        { fn: INIT_BIP39, functionName: "INIT_BIP39", variableName: "BIP39Util" },
     ];
 
     const workersAvailable = typeof Worker !== "undefined";
@@ -228,11 +230,17 @@ var CreateWorkers = () =>
 
         GenerateMnemonicSeed: async (wordCount: 12 | 15 | 18 | 21 | 24) =>
         {
-
+            return await DoWorkerJobWrapper({
+                functionName: "BIP39Util.GenerateSeedPhrase",
+                functionParams: [wordCount]
+            });
         },
         GetBIP32RootKeyFromSeed: async (seed: string, password?: string) =>
         {
-
+            return await DoWorkerJobWrapper({
+                functionName: "BIP39Util.GetBIP32RootKeyFromSeed",
+                functionParams: [seed, password ?? ""]
+            });
         },
         DeriveBIP32: async (extendedKey: string, derivationPath: string, offset: number, count: number, hardenedAddresses: boolean, changeAddresses: boolean) =>
         {
