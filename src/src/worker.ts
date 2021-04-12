@@ -9,11 +9,15 @@ var WorkerInterface: {
     BIP38DecryptPrivateKey: (privateKey: string, password: string) => Promise<Result<string, string>>;
     GenerateRandomBIP38EncryptionData: (password: string, addressType: AddressType) => Promise<Result<BIP38EncryptionData, string>>;
     GenerateRandomBIP38EncryptedAddress: (encryptionData: BIP38EncryptionData) => Promise<AddressWithPrivateKey>;
-    BIP38EncryptPrivateKey: (privateKey: string, password: string) => Promise<unknown>;
+    BIP38EncryptPrivateKey: (privateKey: string, password: string) => Promise<Result<string, string>>;
 
     GenerateMnemonicSeed: (wordCount: 12 | 15 | 18 | 21 | 24) => Promise<string>;
-    GetBIP32RootKeyFromSeed: (seed: string, password?: string | undefined) => Promise<string>;
-    DeriveBIP32: (extendedKey: string, derivationPath: string, offset: number, count: number, hardenedAddresses: boolean, changeAddresses: boolean) => Promise<unknown>;
+    GetBIP32RootKeyFromSeed: (seed: string, password?: string | undefined) => Promise<Result<string, string>>;
+    DeriveBIP32ExtendedKey: (rootKey: string, path: string, derivedKeyPurpose: BIP32Purpose,
+        hardened: boolean, changeAddresses: boolean)
+        => Promise<Result<{ publicKey: string, privateKey: string | null }, string>>;
+    DeriveBIP32Address: (path: string, publicKey: string, privateKey: string | null, index: number, purpose: BIP32Purpose, hardened: boolean)
+        => Promise<Result<{ address: string, privateKey: string | null, addressPath: string }, string>>;
 };
 
 var CreateWorkers = () =>
@@ -242,13 +246,19 @@ var CreateWorkers = () =>
                 functionParams: [seed, password ?? ""]
             });
         },
-        DeriveBIP32: async (extendedKey: string, derivationPath: string, offset: number, count: number, hardenedAddresses: boolean, changeAddresses: boolean) =>
+        DeriveBIP32ExtendedKey: async (rootKey: string, path: string, derivedKeyPurpose: BIP32Purpose, hardened: boolean, changeAddresses: boolean) =>
         {
-            // return {
-            //     extendedPublicKey,
-            //     extendedPrivateKey,
-            //     addressData: { path, address, private key }[]
-            // }
+            return await DoWorkerJobWrapper({
+                functionName: "BIP32Util.DeriveBIP32ExtendedKey",
+                functionParams: [rootKey, path, derivedKeyPurpose, hardened, changeAddresses]
+            });
         },
+        DeriveBIP32Address: async (path: string, publicKey: string, privateKey: string | null, index: number, purpose: BIP32Purpose, hardened: boolean) =>
+        {
+            return await DoWorkerJobWrapper({
+                functionName: "BIP32Util.DeriveBIP32Address",
+                functionParams: [path, publicKey, privateKey, index, purpose, hardened]
+            });
+        }
     };
 };

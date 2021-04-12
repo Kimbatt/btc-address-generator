@@ -1,7 +1,7 @@
 
 declare var BIP32Util: ReturnType<typeof INIT_BIP32>;
 
-type Bip32Purpose = "44" | "49" | "84" | "32";
+type BIP32Purpose = "44" | "49" | "84" | "32";
 
 function INIT_BIP32()
 {
@@ -326,7 +326,7 @@ function INIT_BIP32()
                 {
                     const keypair: CompressedEcKeypair = {
                         x: keyData.slice(1),
-                        isOdd: (keyData[0] & 1) != 0
+                        isOdd: (keyData[0] & 1) !== 0
                     };
 
                     const derivedKey = CKD_Pub({ keypair: keypair, chainCode: chainCode }, childIndex);
@@ -348,6 +348,7 @@ function INIT_BIP32()
                 return chainCodeResult;
             }
 
+            chainCode = chainCodeResult.result;
             ++currentDepth;
         }
 
@@ -384,8 +385,112 @@ function INIT_BIP32()
         return SerializeExtendedKey(toPrivate, currentDepth, fingerprint, lastIndex, chainCode, keyData, type);
     }
 
+    function DeriveBIP32ExtendedKey(rootKey: string, path: string, derivedKeyPurpose: BIP32Purpose, hardened: boolean, changeAddresses: boolean):
+        Result<{ publicKey: string, privateKey: string | null }, string>
+    {
+        const isPrivate = rootKey.substr(1, 3) === "prv";
+        if (derivedKeyPurpose !== "32")
+        {
+            if (isPrivate)
+            {
+                path += (changeAddresses ? "/1" : "/0");
+            }
+            else
+            {
+                path = "m";
+            }
+        }
+        else
+        {
+            if (rootKey[0] === "y")
+            {
+                derivedKeyPurpose = "49";
+            }
+            else if (rootKey[0] === "z")
+            {
+                derivedKeyPurpose = "84";
+            }
+        }
+
+        if (!isPrivate && hardened)
+        {
+            return { type: "err", error: "Hardened addresses can only be derived from extended private keys" };
+        }
+
+        const derivedExtendedPublicKey = DeriveKey(rootKey, path, false, derivedKeyPurpose);
+        if (derivedExtendedPublicKey.type === "err")
+        {
+            return derivedExtendedPublicKey;
+        }
+
+        const derivedExtendedPrivateKey = isPrivate ? DeriveKey(rootKey, path, isPrivate, derivedKeyPurpose) : null;
+        if (derivedExtendedPrivateKey !== null)
+        {
+            if (derivedExtendedPrivateKey.type === "err")
+            {
+                return derivedExtendedPrivateKey;
+            }
+        }
+
+        return {
+            type: "ok",
+            result: {
+                privateKey: derivedExtendedPrivateKey === null ? null : derivedExtendedPrivateKey.result,
+                publicKey: derivedExtendedPublicKey.result
+            }
+        };
+    }
+
+    function DeriveBIP32Address(path: string, publicKey: string, privateKey: string | null, index: number, purpose: BIP32Purpose, hardened: boolean):
+        Result<{ address: string, privateKey: string | null, addressPath: string }, string>
+    {
+        let resultPrivateKey: string | null = null;
+        if (privateKey !== null)
+        {
+            const derivedPrivateKey = DeriveKey(privateKey, "m/" + index + (hardened ? "'" : ""), true, purpose);
+            if (derivedPrivateKey.type === "err")
+            {
+                return derivedPrivateKey;
+            }
+
+            const unextendedPrivateKey = UnextendKey(derivedPrivateKey.result);
+            if (unextendedPrivateKey.type === "err")
+            {
+                return unextendedPrivateKey;
+            }
+
+            resultPrivateKey = unextendedPrivateKey.result;
+        }
+
+        const derivedAddress = DeriveKey(privateKey ?? publicKey, "m/" + index + (hardened ? "'" : ""), false, purpose);
+        if (derivedAddress.type === "err")
+        {
+            return derivedAddress;
+        }
+
+        const unextendedAddress = UnextendKey(derivedAddress.result);
+        if (unextendedAddress.type === "err")
+        {
+            return unextendedAddress;
+        }
+
+        const addressPath = path + (path[path.length - 1] === "/" ? "" : "/") + index + (hardened ? "'" : "");
+
+        return {
+            type: "ok",
+            result: {
+                address: unextendedAddress.result,
+                privateKey: resultPrivateKey,
+                addressPath
+            }
+        };
+    }
+
     return {
         SerializeExtendedKey,
-        GetMasterKeyFromSeed
+        GetMasterKeyFromSeed,
+        DeriveKey,
+        DeriveBIP32ExtendedKey,
+        DeriveBIP32Address
     };
 }

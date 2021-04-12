@@ -197,7 +197,7 @@ function INIT_BIP39()
         };
     }
 
-    function GetXprvFromMnemonic(mnemonic: string, password: string = "", purpose: Bip32Purpose = "44"): Result<string, string>
+    function GetXprvFromMnemonic(mnemonic: string, password: string = "", purpose: BIP32Purpose = "44"): Result<string, string>
     {
         const passwordNormalized = NormalizeStringIfPossibleNFKD("mnemonic" + password);
         if (passwordNormalized.type === "err")
