@@ -33,8 +33,8 @@ window.addEventListener("load", async () =>
     {
         SetDarkMode(IsDarkMode());
 
-        document.getElementById("lightModeButton")!.addEventListener("click", () => SetDarkMode(false));
-        document.getElementById("darkModeButton")!.addEventListener("click", () => SetDarkMode(true));
+        document.getElementById("light-mode-button")!.addEventListener("click", () => SetDarkMode(false));
+        document.getElementById("dark-mode-button")!.addEventListener("click", () => SetDarkMode(true));
     }
 
     // setup testnet links / texts
@@ -42,14 +42,15 @@ window.addEventListener("load", async () =>
         const isTestnet = IsTestnet();
         if (isTestnet)
         {
-            document.getElementById("testnet_text")!.style.display = "";
-            document.getElementById("run_tests_link")!.style.display = "none";
+            document.getElementById("testnet-text")!.style.display = "";
+            document.getElementById("run-tests-link")!.style.display = "none";
         }
 
-        document.getElementById("testnet_link_li")!.style.display = isTestnet ? "none" : "";
-        document.getElementById("mainnet_link_li")!.style.display = isTestnet ? "" : "none";
+        document.getElementById("testnet-link-li")!.style.display = isTestnet ? "none" : "";
+        document.getElementById("mainnet-link-li")!.style.display = isTestnet ? "" : "none";
     }
 
     await ShowRandomnessCanvas();
-    // TODO generate address here
+
+    await generateSingleAddress();
 });

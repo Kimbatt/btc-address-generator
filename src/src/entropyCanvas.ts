@@ -5,9 +5,9 @@ const EntropyCanvas = (() => Lazy(() =>
 
     async function ShowRandomnessCanvas()
     {
-        const randomnessCanvas = <HTMLCanvasElement>document.getElementById("randomness_canvas");
+        const randomnessCanvas = <HTMLCanvasElement>document.getElementById("randomness-canvas");
         const randomnessCanvasCTX = randomnessCanvas.getContext("2d")!;
-        const randomnessText = document.getElementById("randomness_div")!;
+        const randomnessText = document.getElementById("randomness-div")!;
 
         function CanvasResizerFunction()
         {
@@ -41,13 +41,13 @@ const EntropyCanvas = (() => Lazy(() =>
             randomnessText.style.left = (width / 2 - randomnessText.clientWidth / 2) + "px";
             randomnessText.style.top = (height / 2 - canvasHeight / 1.5) + "px";
 
-            const randomnessContainer = document.getElementById("randomness_container")!;
+            const randomnessContainer = document.getElementById("randomness-container")!;
             randomnessContainer.style.width = canvasWidth + "px";
             randomnessContainer.style.left = (width / 2 - canvasWidth / 2) + "px";
             randomnessContainer.style.top = (height / 2 + canvasHeight / 3 + 10) + "px";
         }
 
-        document.getElementById("randomness_overlay2")!.style.display = "table";
+        document.getElementById("randomness-overlay-2")!.style.display = "table";
 
         window.addEventListener("resize", CanvasResizerFunction);
         CanvasResizerFunction();
@@ -95,15 +95,15 @@ const EntropyCanvas = (() => Lazy(() =>
             randomnessCanvas.addEventListener("mousemove", MouseMoved);
 
             // skip button click, set entropy to null
-            document.getElementById("randomness_skip_button")!.addEventListener("click", () => resolve(null));
+            document.getElementById("randomness-skip-button")!.addEventListener("click", () => resolve(null));
         });
 
         if (entropy !== null)
         {
-            WorkerInterface.SetEntropy(entropy);
+            await WorkerInterface.SetEntropy(entropy);
         }
 
-        document.getElementById("randomness_overlay")!.style.display = "none";
+        document.getElementById("randomness-overlay")!.style.display = "none";
         window.removeEventListener("resize", CanvasResizerFunction);
     }
 

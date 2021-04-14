@@ -18,6 +18,9 @@ var WorkerInterface: {
         => Promise<Result<{ publicKey: string, privateKey: string | null }, string>>;
     DeriveBIP32Address: (path: string, publicKey: string, privateKey: string | null, index: number, purpose: BIP32Purpose, hardened: boolean)
         => Promise<Result<{ address: string, privateKey: string | null, addressPath: string }, string>>;
+
+    GenerateQRCode: (data: string, errorCorrectionLevel: QRCodeErrorCorrectionLevel,
+        mode?: "Byte" | "Numeric" | "Alphanumeric" | "Kanji", cellSize?: number, margin?: number) => Promise<string>;
 };
 
 var CreateWorkers = () =>
@@ -39,6 +42,7 @@ var CreateWorkers = () =>
         { fn: INIT_BIP38, functionName: "INIT_BIP38", variableName: "BIP38Util" },
         { fn: INIT_BIP32, functionName: "INIT_BIP32", variableName: "BIP32Util" },
         { fn: INIT_BIP39, functionName: "INIT_BIP39", variableName: "BIP39Util" },
+        { fn: INIT_QR, functionName: "INIT_QR", variableName: "qrcode" },
     ];
 
     const workersAvailable = typeof Worker !== "undefined";
@@ -165,10 +169,22 @@ var CreateWorkers = () =>
 
         ForEveryWorkerWrapper = async (data: any) =>
         {
+            const allPromises: Promise<void>[] = [];
             for (let worker of allWorkers)
             {
-                worker.postMessage(data);
+                allPromises.push(new Promise<void>(resolve =>
+                {
+                    worker.onmessage = message =>
+                    {
+                        worker.onmessage = null;
+                        resolve();
+                    };
+
+                    worker.postMessage(data);
+                }));
             }
+
+            await Promise.all(allPromises);
         };
     }
 
@@ -258,6 +274,15 @@ var CreateWorkers = () =>
             return await DoWorkerJobWrapper({
                 functionName: "BIP32Util.DeriveBIP32Address",
                 functionParams: [path, publicKey, privateKey, index, purpose, hardened]
+            });
+        },
+
+        GenerateQRCode: async (data: string, errorCorrectionLevel: QRCodeErrorCorrectionLevel,
+            mode?: "Byte" | "Numeric" | "Alphanumeric" | "Kanji", cellSize?: number, margin?: number) =>
+        {
+            return await DoWorkerJobWrapper({
+                functionName: "WorkerUtils.GenerateQRCode",
+                functionParams: [data, errorCorrectionLevel, mode, cellSize, margin]
             });
         }
     };

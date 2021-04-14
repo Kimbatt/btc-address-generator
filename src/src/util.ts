@@ -42,10 +42,48 @@ var Util = (() => Lazy(() =>
 
     const isTestnet = HasQueryKey("testnet");
 
+    function AsyncNoParallel<TArgs extends unknown[]>(fn: (...args: TArgs) => Promise<void>)
+    {
+        let running = false;
+        return async (...args: TArgs) =>
+        {
+            if (running)
+            {
+                return;
+            }
+
+            try
+            {
+                running = true;
+                await fn(...args);
+            }
+            finally
+            {
+                running = false;
+            }
+        };
+    }
+
+    async function GenerateAddressQRCode(address: string, addressType: AddressType, errorCorrectionLevel: QRCodeErrorCorrectionLevel,
+        cellSize?: number | undefined, margin?: number | undefined)
+    {
+        const [data, mode] = addressType === "bech32" ? [address.toUpperCase(), "Alphanumeric"] as const : [address, "Byte"] as const;
+        return await WorkerInterface.GenerateQRCode(data, errorCorrectionLevel, mode, cellSize, margin);
+    }
+
+    async function GenerateQRCode(data: string, errorCorrectionLevel: QRCodeErrorCorrectionLevel,
+        mode: "Byte" | "Numeric" | "Alphanumeric" | "Kanji" = "Byte", cellSize?: number | undefined, margin?: number | undefined)
+    {
+        return await WorkerInterface.GenerateQRCode(data, errorCorrectionLevel, mode, cellSize, margin);
+    }
+
     return {
         IsDarkMode: () => isDarkMode,
         SetDarkMode,
-        IsTestnet: () => isTestnet
+        IsTestnet: () => isTestnet,
+        AsyncNoParallel,
+        GenerateAddressQRCode,
+        GenerateQRCode
     };
 }))();
 
@@ -81,8 +119,6 @@ function INIT_WorkerUtils()
             }
             while (value !== 0);
         }
-
-        console.log("entropy set to:", entropy);
     }
 
     let isTestnet = false;
@@ -342,6 +378,14 @@ function INIT_WorkerUtils()
         return { type: "ok", result: bytes };
     }
 
+    function GenerateQRCode(data: string, errorCorrectionLevel: QRCodeErrorCorrectionLevel,
+        mode?: "Byte" | "Numeric" | "Alphanumeric" | "Kanji", cellSize?: number, margin?: number)
+    {
+        const qr = qrcode(0, errorCorrectionLevel);
+        qr.addData(data, mode);
+        qr.make();
+        return qr.createDataURL(cellSize, margin);
+    }
 
     return {
         SetEntropy,
@@ -356,6 +400,9 @@ function INIT_WorkerUtils()
         BigintToByteArrayLittleEndian32,
         Base58Encode,
         Base58CheckEncode,
-        Base58CheckDecode
+        Base58CheckDecode,
+        GenerateQRCode
     };
 }
+
+type QRCodeErrorCorrectionLevel = "H" | "Q" | "M" | "L";
