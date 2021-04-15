@@ -427,28 +427,37 @@ li
                 <div class="title">Address details</div>
                 <div style="margin-bottom: 10px;">Enter a private key to view its details, or enter a bip38 encrypted private key to decrypt it</div>
                 <input id="view-address-privkey-textbox" type="text" style="font-size: 25px; width: 100%; padding: 8px; margin-bottom: 10px;">
-                <button>View details</button>
-                <div id="bip38-decrypt-div" style="display: none; width: 100%;">
+                <button id="view-address-details-button">View details</button>
+                <div id="view-address-bip38-decrypt-div" style="display: none; width: 100%;">
                     <div style="margin-top: 40px; margin-bottom: 10px; font-size: 20px;">Enter the password for this address:</div>
                     <input id="view-address-bip38-password-textbox" type="text" style="font-size: 25px; width: 400px; padding: 8px; margin-bottom: 10px;">
                     <br>
                     <button id="view-address-decrypt-button" style="width: 420px;">Decrypt</button>
                 </div>
             </div>
-            <div id="view-address-div" style="display: table;">
-                <div id="view-address-information" style="font-size: 25px; margin-top: 25px; margin-bottom: 20px;"></div>
-                <div id="view-address-container" style="display: none;">
+            <div id="view-address-message" style="display: none; font-size: 24px; margin-top: 24px; margin-bottom: 20px;"></div>
+            <div id="view-address-div" style="display: none;">
+                <div id="view-address-private-key-details-text" style="font-size: 24px; margin-top: 24px; margin-bottom: 20px;">Details for private key:
+                    <div id="view-address-private-key" style="font-weight: bold; display: inline;"></div>
+                </div>
+                <div id="view-address-container" style="border: 2px solid #bbbbbb;">
                     <div style="display: table; border-bottom: 2px solid #bbbbbb; width: 100%;">
-                        <div id="view-address-segwitaddress" class="address-view"></div>
-                        <div id="view-address-segwitaddress-qr" style="padding: 0px 0px 10px 20px;"></div>
+                        <div class="address-view">Segwit address:
+                            <div id="view-address-segwitaddress" style="display: inline;"></div>
+                        </div>
+                        <img id="view-address-segwitaddress-qr" style="padding: 0px 0px 10px 20px; display: block;">
                     </div>
                     <div style="display: table; border-bottom: 2px solid #bbbbbb; width: 100%;">
-                        <div id="view-address-bech32address" class="address-view"></div>
-                        <div id="view-address-bech32address-qr" style="padding: 0px 0px 10px 20px;"></div>
+                        <div class="address-view">Segwit (bech32) address:
+                            <div id="view-address-bech32address" style="display: inline;"></div>
+                        </div>
+                        <img id="view-address-bech32address-qr" style="padding: 0px 0px 10px 20px; display: block;">
                     </div>
                     <div style="display: table; width: 100%;">
-                        <div id="view-address-legacyaddress" class="address-view"></div>
-                        <div id="view-address-legacyaddress-qr" style="padding: 0px 0px 10px 20px;"></div>
+                        <div class="address-view">Legacy address:
+                            <div id="view-address-legacyaddress" style="display: inline;"></div>
+                        </div>
+                        <img id="view-address-legacyaddress-qr" style="padding: 0px 0px 10px 20px; display: block;">
                     </div>
                 </div>
             </div>
@@ -798,8 +807,9 @@ li
     <script type="text/javascript" src="js/dist/bip38.js"></script>
     <script type="text/javascript" src="js/dist/bip32.js"></script>
     <script type="text/javascript" src="js/dist/bip39.js"></script>
-
     <script type="text/javascript" src="js/dist/page.js"></script>
+
     <script type="text/javascript" src="js/dist/pages/singleAddress.js"></script>
+    <script type="text/javascript" src="js/dist/pages/addressDetails.js"></script>
 </body>
 </html>

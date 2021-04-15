@@ -45,7 +45,9 @@ var CreateWorkers = () =>
         { fn: INIT_QR, functionName: "INIT_QR", variableName: "qrcode" },
     ];
 
-    const workersAvailable = typeof Worker !== "undefined";
+    // creating workers from blob url-s are not supported in internet explorer
+    const isInternetExplorer = (navigator.userAgent.indexOf("MSIE ") !== -1) || (navigator.userAgent.match(/Trident.*rv\:11\./) !== null);
+    const workersAvailable = typeof Worker !== "undefined" && !isInternetExplorer;
 
     let DoWorkerJobWrapper: (data: any) => any;
     let ForEveryWorkerWrapper: (data: any) => any;
@@ -71,7 +73,7 @@ var CreateWorkers = () =>
                 fn = fn[functionPath[i]];
             }
 
-            return await new Promise(resolve => window.setTimeout(() => resolve(fn(...data.functionParams)), 0));
+            return await new Promise(resolve => window.requestAnimationFrame(() => resolve(fn(...data.functionParams))));
         };
     }
     else
