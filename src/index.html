@@ -355,21 +355,21 @@ li
         <div id="button-container" style="display: table-cell; padding-right: 10px; border-right: 2px solid #bbbbbb; width: 250px;">
             <div id="testnet-text" style="display: none; font-size: 40px; font-weight: bold; text-align: center; color: #ff0000;"
                 title="The site is in testnet mode. Testnet addresses are used for testing, so testnet coins have no value.">TESTNET</div>
-            <button id="button-layout-singleaddress" style="width: 250px;">Single address</button>
+            <button id="button-page-single-address" style="width: 250px;">Single address</button>
             <br>
-            <button id="button-layout-details" style="width: 250px;">Address details</button>
+            <button id="button-page-address-details" style="width: 250px;">Address details</button>
             <br>
-            <button id="button-layout-bulk" style="width: 250px;">Bulk Generate</button>
+            <button id="button-page-bulk-generate" style="width: 250px;">Bulk Generate</button>
             <br>
-            <button id="button-layout-paperwallet" style="width: 250px;">Paper wallet</button>
+            <button id="button-page-paper-wallet" style="width: 250px;">Paper wallet</button>
             <br>
-            <button id="button-layout-seed" style="width: 250px;">Mnemonic Seed</button>
+            <button id="button-page-mnemonic-seed" style="width: 250px;">Mnemonic Seed</button>
             <br>
-            <button id="button-layout-info" style="width: 250px;">Information</button>
+            <button id="button-page-information" style="width: 250px;">Information</button>
             <br>
-            <button id="button-layout-beginner" style="width: 250px; margin-top: 50px;">Beginner&apos;s guide</button>
+            <button id="button-page-beginners-guide" style="width: 250px; margin-top: 50px;">Beginner&apos;s guide</button>
             <br>
-            <button id="button-layout-security" style="width: 250px;">Security tips</button>
+            <button id="button-page-security-tips" style="width: 250px;">Security tips</button>
             <div id="warning-text" style="display: none; font-size: 21px; color: #ff0000; margin-top: 30px;">
                 Warning: it seems you're running this generator from a live website.
                 For valuable wallets, it is highly recommended to run the site from an offline computer.
@@ -378,7 +378,7 @@ li
                 <div class="link-style" onclick="document.getElementById('warning-text').style.display='none'">Hide warning</div>
             </div>
         </div>
-        <div id="main-singleaddress" style="display: table; width: 80%; padding-left: 10px;">
+        <div id="page-single-address" style="display: none; width: 80%; padding-left: 10px;">
             <div style="display: table-cell; padding-right: 20px;">
                 <div class="title">Single address</div>
 
@@ -422,7 +422,7 @@ li
                 </div>
             </div>
         </div>
-        <div id="main-details" style="display: none; width: 80%; padding-left: 10px;">
+        <div id="page-address-details" style="display: none; width: 80%; padding-left: 10px;">
             <div style="display: table-row;">
                 <div class="title">Address details</div>
                 <div style="margin-bottom: 10px;">Enter a private key to view its details, or enter a bip38 encrypted private key to decrypt it</div>
@@ -453,7 +453,7 @@ li
                 </div>
             </div>
         </div>
-        <div id="main-bulk" style="display: none; width: 80%; padding-left: 10px;">
+        <div id="page-bulk-generate" style="display: none; width: 80%; padding-left: 10px;">
             <div style="display: table-row; padding-right: 20px;">
                 <div class="title">Bulk Generate</div>
 
@@ -483,7 +483,7 @@ li
             </div>
             <textarea style="display: block; width: 100%; height: 400px; font-family: roboto-mono; font-size: 19px; padding: 8px; margin-top: 15px; border: 2px solid #bbbbbb; resize: none;" id="bulk-addresses" readonly>Press generate to start generating</textarea>
         </div>
-        <div id="main-paperwallet" style="display: none; width: 80%; padding-left: 10px;">
+        <div id="page-paper-wallet" style="display: none; width: 80%; padding-left: 10px;">
             <div class="title">Paper wallet</div>
             <div style="display: table; padding-left: 10px; margin-bottom: 10px;">
                 <div style="padding-bottom: 10px; padding-right: 10px; width: 500px;">
@@ -613,7 +613,7 @@ li
                 <div id="paperwallet-print-area" class="print-visible"></div>
             </div>
         </div>
-        <div id="main-seed" style="display: none; width: 80%; padding-left: 10px;">
+        <div id="page-mnemonic-seed" style="display: none; width: 80%; padding-left: 10px;">
             <div style="display: grid; grid-template-columns: 300px 260px auto;">
                 <div class="title">Mnemonic Seed</div>
                 <button id="seed-generate-page-button" style="width: 250px; height: 48px;" disabled>Seed generator</button>
@@ -711,21 +711,21 @@ li
                 </div>
             </div>
         </div>
-        <div id="main-info" style="display: none; width: 80%; padding-left: 10px;">
+        <div id="page-information" style="display: none; width: 80%; padding-left: 10px;">
             <div class="title">Information</div>
             <ul>
                 <li>P2SH-P2WPKH addresses are referenced as "Segwit" addresses, Bech32-encoded P2WPKH addresses are referenced as "Segwit (bech32)" addresses, and regular P2PKH addresses are referenced as "Legacy" addresses.</li>
                 <li>QR codes of bech32 addresses contain the text capitalized, so the size of the QR codes can be reduced. For more information, see the <a href="https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#Specification">BIP 173 specification (Uppercase/lowercase part)</a>.</li>
                 <li id="testnet-link-li">Testnet version available <a href="?testnet">here.</a></li>
                 <li id="mainnet-link-li" style="display: none;">Mainnet version available <a href="?">here.</a></li>
-                <li>JavaScript libraries used on this site: <a href="https://github.com/indutny/bn.js">BigNumber</a>, <a href="https://github.com/brix/crypto-js">crypto-js</a>, <a href="https://github.com/kazuhikoarase/qrcode-generator">QR code generator</a>, <a href="https://github.com/dchest/scrypt-async-js">Scrypt</a>, <a href="https://github.com/YuzuJS/setImmediate">setImmediate.js</a></li>
+                <li>JavaScript libraries used on this site: <a href="https://github.com/indutny/bn.js">BigNumber</a>, <a href="https://github.com/brix/crypto-js">crypto-js</a>, <a href="https://github.com/kazuhikoarase/qrcode-generator">QR code generator</a>, <a href="https://github.com/dchest/scrypt-async-js">Scrypt</a></li>
                 <li>Source code is available at <a href="https://github.com/Kimbatt/btc-address-generator">Github</a> or by viewing this page's source (it is a single html file)</li>
                 <li id="run-tests-link"><p class="link-style">Click here</p> to run tests</li>
                 <li>This site was made by <a href="https://github.com/Kimbatt">Kimbatt</a></li>
                 <li>If you liked this site, you can donate to: <a href="bitcoin:3Ee3fDqTmERBpxAvV8GgdQUiTparohPaHX">3Ee3fDqTmERBpxAvV8GgdQUiTparohPaHX</a></li>
             </ul>
         </div>
-        <div id="main-beginner" style="display: none; width: 80%; padding-left: 10px;">
+        <div id="page-beginners-guide" style="display: none; width: 80%; padding-left: 10px;">
             <div class="title">Beginner's guide</div>
             <br>
             <div class="title-small">What is Bitcoin?</div>
@@ -743,7 +743,7 @@ li
             <div class="title-small">What is Bip38 encryption?</div>
             <div><a href="https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki">Bip38</a> encryption allows you to protect your paper wallet with a password, so if your paper wallet is stolen, or its private key is exposed, your paper wallet will still be safe. However, if you use bip38 encryption, you must remember the password very well, because if you forget the password, the paper wallet will be as worthless as if you lost the private key. Bip38 was designed to resist brute-force attacks, that's why it's practically impossible to recover the wallet if the password is forgotten. You can unlock a bip38 encrypted wallet on the "Address details" section of this site.</div>
         </div>
-        <div id="main-security" style="display: none; width: 80%; padding-left: 10px;">
+        <div id="page-security-tips" style="display: none; width: 80%; padding-left: 10px;">
             <div class="title">Security tips</div>
             <ul>
                 <li>Paper wallets should be only used if you know exactly how they work. It is easy for inexperienced people to make mistakes, resulting in permanent loss of funds. See the <a href="https://en.bitcoin.it/wiki/Paper_wallet">bitcoin wiki</a> for more details.</li>
@@ -799,6 +799,7 @@ li
     <script type="text/javascript" src="js/dist/bip32.js"></script>
     <script type="text/javascript" src="js/dist/bip39.js"></script>
 
+    <script type="text/javascript" src="js/dist/page.js"></script>
     <script type="text/javascript" src="js/dist/pages/singleAddress.js"></script>
 </body>
 </html>

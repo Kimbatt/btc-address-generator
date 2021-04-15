@@ -50,6 +50,8 @@ window.addEventListener("load", async () =>
         document.getElementById("mainnet-link-li")!.style.display = isTestnet ? "" : "none";
     }
 
+    InitializePage();
+
     await ShowRandomnessCanvas();
 
     await generateSingleAddress();
