@@ -268,6 +268,34 @@ li
     display: none;
 }
 
+.loading-spinner
+{
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    transform-origin: 50% 50%;
+    animation: loading-spin 0.618s linear infinite;
+    vertical-align: middle;
+}
+
+.light .loading-spinner
+{
+    background-image: url("data:image/svg+xml,%3Csvg version='1.1' xmlns='http://www.w3.org/2000/svg' viewbox='0 0 50 50'%3E%3Ccircle cx='25' cy='25' r='20' fill='none' stroke-width='5' stroke-linecap='round' stroke-dasharray='90' stroke='black'%3E%3C/circle%3E%3C/svg%3E");
+}
+
+.dark .loading-spinner
+{
+    background-image: url("data:image/svg+xml,%3Csvg version='1.1' xmlns='http://www.w3.org/2000/svg' viewbox='0 0 50 50'%3E%3Ccircle cx='25' cy='25' r='20' fill='none' stroke-width='5' stroke-linecap='round' stroke-dasharray='90' stroke='white'%3E%3C/circle%3E%3C/svg%3E");
+}
+
+@keyframes loading-spin
+{
+    100%
+    {
+        transform: rotate(360deg);
+    }
+}
+
 @media print
 {
     body *
@@ -437,10 +465,15 @@ li
             </div>
             <div id="view-address-message" style="display: none; font-size: 24px; margin-top: 24px; margin-bottom: 20px;"></div>
             <div id="view-address-div" style="display: none;">
-                <div id="view-address-private-key-details-text" style="font-size: 24px; margin-top: 24px; margin-bottom: 20px;">Details for private key:
+                <div style="font-size: 24px; margin-top: 24px; margin-bottom: 20px;">
+                    <div id="view-address-private-key-details-text" style="display: none;"></div>
                     <div id="view-address-private-key" style="font-weight: bold; display: inline;"></div>
+                    <div id="view-address-decrypted-private-key-details-text" style="display: block; margin-top: 25px;">
+                        <div style="display: inline;">Decrypted private key: </div>
+                        <div id="view-address-decrypted-private-key" style="font-weight: bold; display: inline;"></div>
+                    </div>
                 </div>
-                <div id="view-address-container" style="border: 2px solid #bbbbbb;">
+                <div id="view-address-container" style="display: table; border: 2px solid #bbbbbb;">
                     <div style="display: table; border-bottom: 2px solid #bbbbbb; width: 100%;">
                         <div class="address-view">Segwit address:
                             <div id="view-address-segwitaddress" style="display: inline;"></div>
@@ -461,6 +494,7 @@ li
                     </div>
                 </div>
             </div>
+            <div id="view-address-loading-container" style="display: none; font-size: 30px; padding: 10px;">Working <div class="loading-spinner"></div></div>
         </div>
         <div id="page-bulk-generate" style="display: none; width: 80%; padding-left: 10px;">
             <div style="display: table-row; padding-right: 20px;">

@@ -64,6 +64,25 @@ var Util = (() => Lazy(() =>
         };
     }
 
+    async function WaitForImageLoad(image: HTMLImageElement, src?: string)
+    {
+        if (src !== undefined)
+        {
+            image.src = src;
+        }
+
+        return await new Promise<HTMLImageElement>(resolve =>
+        {
+            function OnLoad()
+            {
+                image.removeEventListener("load", OnLoad);
+                resolve(image);
+            }
+
+            image.addEventListener("load", OnLoad);
+        });
+    }
+
     async function GenerateAddressQRCode(address: string, addressType: AddressType, errorCorrectionLevel: QRCodeErrorCorrectionLevel,
         cellSize?: number | undefined, margin?: number | undefined)
     {
@@ -77,13 +96,47 @@ var Util = (() => Lazy(() =>
         return await WorkerInterface.GenerateQRCode(data, errorCorrectionLevel, mode, cellSize, margin);
     }
 
+    class ShowLoadingHelper
+    {
+        private elem: HTMLElement;
+        private delayBeforeShow: number;
+        private timeoutHandle: number = -1;
+
+        constructor(elem: HTMLElement, delayBeforeShow: number)
+        {
+            this.elem = elem;
+            this.delayBeforeShow = delayBeforeShow;
+        }
+
+        show()
+        {
+            if (this.delayBeforeShow === 0)
+            {
+                this.elem.style.display = "";
+            }
+            else
+            {
+                this.timeoutHandle = setTimeout(() => this.elem.style.display = "", this.delayBeforeShow);
+            }
+        }
+
+        hide()
+        {
+            this.elem.style.display = "none";
+            clearTimeout(this.timeoutHandle);
+            this.timeoutHandle = -1;
+        }
+    }
+
     return {
         IsDarkMode: () => isDarkMode,
         SetDarkMode,
         IsTestnet: () => isTestnet,
         AsyncNoParallel,
         GenerateAddressQRCode,
-        GenerateQRCode
+        GenerateQRCode,
+        WaitForImageLoad,
+        ShowLoadingHelper
     };
 }))();
 

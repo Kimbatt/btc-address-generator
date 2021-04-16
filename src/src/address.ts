@@ -317,6 +317,12 @@ function INIT_AddressUtil()
     {
         if (privateKey.length === 58 && privateKey[0] === "6" && privateKey[1] === "P")
         {
+            const base58Check = WorkerUtils.Base58CheckDecode(privateKey);
+            if (base58Check.type === "err")
+            {
+                return { type: "error", message: base58Check.error };
+            }
+
             return { type: "probablyBIP38" };
         }
 
