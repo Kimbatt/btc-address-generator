@@ -253,7 +253,7 @@ li
     padding: 4px 8px;
 }
 
-#seed-generate-result.wide-spacing
+#seed-generate-result
 {
     word-spacing: 15px;
 }
@@ -411,7 +411,7 @@ li
     <div id="content" style="display: table; width: 100%;">
         <div id="button-container" style="display: table-cell; padding-right: 10px; border-right: 2px solid #bbbbbb; width: 250px;">
             <div id="testnet-text" style="display: none; font-size: 40px; font-weight: bold; text-align: center; color: #ff0000;"
-                title="The site is in testnet mode. Testnet addresses are used for testing, so testnet coins have no value.">TESTNET</div>
+                title="The site is in testnet mode. Testnet addresses are used for testing. Testnet coins have no value.">TESTNET</div>
             <button id="button-page-single-address" style="width: 250px;">Single address</button>
             <br>
             <button id="button-page-address-details" style="width: 250px;">Address details</button>
@@ -728,7 +728,7 @@ li
                     <div style="width: 100%; height: 2px; background-color: #bbbbbb; margin: 10px 0px;"></div>
                     <div>
                         <div style="margin: 10px 0px; font-size: 24px; display: inline-block;">Preset:</div>
-                        <select id="derivation-path-preset" style="font-size: 24px; margin-right: 20px; padding: 2px 4px;">
+                        <select id="seed-details-derivation-path-preset" style="font-size: 24px; margin-right: 20px; padding: 2px 4px;">
                             <option value="44">Legacy</option>
                             <option value="49" selected="">Segwit</option>
                             <option value="84">Bech32</option>
@@ -742,10 +742,10 @@ li
                         <div style="margin: 20px 0px 10px 0px; font-size: 24px; display: inline-block;">Offset:</div>
                         <input id="seed-details-address-offset" type="number" value="0" min="0" max="2147483648" step="1" style="font-size: 24px; margin-right: 20px; width: 160px; padding: 2px 4px;">
                         <div style="margin-top: 10px;">
-                            <label id="seed-details-results-hardened-addresses-checkbox"
+                            <label id="seed-details-results-hardened-addresses-label"
                                 style="font-size: 24px; margin-right: 20px; width: 160px; padding: 2px 4px; white-space: nowrap;"><input type="checkbox"
                                 id="seed-details-hardened-addresses-checkbox"> Calculate hardened addresses?</label>
-                            <label id="seed-details-results-change-addresses-checkbox"
+                            <label id="seed-details-results-change-addresses-label"
                                 style="font-size: 24px; margin-right: 20px; width: 160px; padding: 2px 4px; white-space: nowrap"
                                 ><input type="checkbox" id="seed-details-change-addresses-checkbox"> Calculate change addresses?</label>
                         </div>
@@ -875,5 +875,6 @@ li
     <script type="text/javascript" src="js/dist/pages/singleAddress.js"></script>
     <script type="text/javascript" src="js/dist/pages/addressDetails.js"></script>
     <script type="text/javascript" src="js/dist/pages/bulkGenerate.js"></script>
+    <script type="text/javascript" src="js/dist/pages/mnemonicSeed.js"></script>
 </body>
 </html>

@@ -2,36 +2,6 @@
 (() =>
 {
     const { AsyncNoParallel } = Util();
-/*
-
-        <div id="page-bulk-generate" style="display: none; width: 80%; padding-left: 10px;">
-            <div style="display: table-row; padding-right: 20px;">
-
-                <div style="padding-left: 10px;">
-                    <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Address type:</div>
-
-                    <br>
-                    <div style="display: table;">
-                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" style="margin-bottom: 20px;" id="bip38-enabled-bulk">Bip38 encrypt</label>
-                        <div class="link-style" id="show-bip38-info-button-bulk" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</div>
-                    </div>
-                </div>
-                <div id="bip38-password-box-div-bulk" style="display: none; padding-bottom: 15px; border-bottom: 2px solid #bbbbbb;">
-                    <div style="display: table-cell; padding-right: 10px; font-size: 25px;">Password:</div>
-                    <input id="bip38-password-box-bulk" type="text" style="display: table-cell; font-size: 20px; padding: 5px;">
-                </div>
-                <br>
-                <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Number of addresses to generate (max 1000):</div>
-                <div style="display: table;">
-                    <input id="bulk-count" type="number" value="10" min="1" max="1000" style="display: inline-block; font-size: 25px; width: 100px; padding: 5px;">
-                    <button id="bulk-generate-button" style="display: inline-block; width: 300px; margin-left: 20px;">Generate</button>
-                </div>
-            </div>
-            <textarea style="display: block; width: 100%; height: 400px; font-family: roboto-mono; font-size: 19px; padding: 8px; margin-top: 15px; border: 2px solid #bbbbbb; resize: none;" id="bulk-addresses" readonly>Press generate to start generating</textarea>
-        </div>
-
-*/
-
 
     // address type
     let addressType: AddressType = "bech32";

@@ -386,7 +386,7 @@ function INIT_BIP32()
     }
 
     function DeriveBIP32ExtendedKey(rootKey: string, path: string, derivedKeyPurpose: BIP32Purpose, hardened: boolean, changeAddresses: boolean):
-        Result<{ publicKey: string, privateKey: string | null }, string>
+        Result<{ publicKey: string, privateKey: string | null, path: string }, string>
     {
         const isPrivate = rootKey.substr(1, 3) === "prv";
         if (derivedKeyPurpose !== "32")
@@ -436,7 +436,8 @@ function INIT_BIP32()
             type: "ok",
             result: {
                 privateKey: derivedExtendedPrivateKey === null ? null : derivedExtendedPrivateKey.result,
-                publicKey: derivedExtendedPublicKey.result
+                publicKey: derivedExtendedPublicKey.result,
+                path
             }
         };
     }

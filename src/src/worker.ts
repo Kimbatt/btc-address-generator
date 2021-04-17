@@ -15,12 +15,14 @@ var WorkerInterface: {
     GetBIP32RootKeyFromSeed: (seed: string, password?: string | undefined) => Promise<Result<string, string>>;
     DeriveBIP32ExtendedKey: (rootKey: string, path: string, derivedKeyPurpose: BIP32Purpose,
         hardened: boolean, changeAddresses: boolean)
-        => Promise<Result<{ publicKey: string, privateKey: string | null }, string>>;
+        => Promise<Result<{ publicKey: string, privateKey: string | null, path: string }, string>>;
     DeriveBIP32Address: (path: string, publicKey: string, privateKey: string | null, index: number, purpose: BIP32Purpose, hardened: boolean)
         => Promise<Result<{ address: string, privateKey: string | null, addressPath: string }, string>>;
 
     GenerateQRCode: (data: string, errorCorrectionLevel: QRCodeErrorCorrectionLevel,
         mode?: "Byte" | "Numeric" | "Alphanumeric" | "Kanji", cellSize?: number, margin?: number) => Promise<string>;
+
+    Base58CheckDecode: (data: string) => Promise<Result<number[], string>>;
 };
 
 var CreateWorkers = () =>
@@ -301,6 +303,14 @@ ${WorkerCreatorFunction.toString()}
             return await DoWorkerJobWrapper({
                 functionName: "WorkerUtils.GenerateQRCode",
                 functionParams: [data, errorCorrectionLevel, mode, cellSize, margin]
+            });
+        },
+
+        Base58CheckDecode: async (data: string) =>
+        {
+            return await DoWorkerJobWrapper({
+                functionName: "WorkerUtils.Base58CheckDecode",
+                functionParams: [data]
             });
         }
     };

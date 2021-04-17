@@ -344,13 +344,17 @@ function INIT_WorkerUtils()
 
     function Base58CheckDecode(text: string): Result<number[], string>
     {
-        let newstring = text.split("").reverse().join("");
+        let newstring = text.split("").reverse();
         for (let i = 0; i < text.length; ++i)
         {
             if (text[i] == base58Characters[0])
-                newstring = newstring.substr(0, newstring.length - 1);
+            {
+                newstring.pop();
+            }
             else
+            {
                 break;
+            }
         }
 
         let bigint = bn_0;
@@ -367,7 +371,9 @@ function INIT_WorkerUtils()
 
         const bytes = BigintToByteArray(bigint);
         if (bytes[bytes.length - 1] == 0)
+        {
             bytes.pop();
+        }
 
         bytes.reverse();
 
