@@ -14,12 +14,8 @@ function INIT_CryptoHelper()
         return <WordArray>(new (<any>self).CryptoJS.lib.WordArray.init(bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes), bytes.length));
     }
 
-    function WordArrayToBytes(...wordArrays: WordArray[])
+    function WordArrayCopy<TArr>(target: TArr & { [key: number]: number }, ...wordArrays: WordArray[])
     {
-        let totalCount = 0;
-        wordArrays.forEach(e => totalCount += e.sigBytes);
-
-        const ret = new Array<number>(totalCount);
         let totalIndex = 0;
 
         for (let i = 0; i < wordArrays.length; ++i)
@@ -33,7 +29,7 @@ function INIT_CryptoHelper()
 
             for (let j = 0; j < count; ++j)
             {
-                ret[totalIndex++] = words[index] >> ((3 - offset) << 3) & 0xff;
+                target[totalIndex++] = words[index] >> ((3 - offset) << 3) & 0xff;
 
                 if (++offset === 4)
                 {
@@ -43,13 +39,35 @@ function INIT_CryptoHelper()
             }
         }
 
-        return ret;
+        return target;
+    }
+
+    function WordArrayToNumberArray(...wordArrays: WordArray[])
+    {
+        let totalCount = 0;
+        wordArrays.forEach(e => totalCount += e.sigBytes);
+
+        return WordArrayCopy(new Array<number>(totalCount), ...wordArrays);
+    }
+
+    function WordArrayToUint8Array(...wordArrays: WordArray[])
+    {
+        let totalCount = 0;
+        wordArrays.forEach(e => totalCount += e.sigBytes);
+
+        return WordArrayCopy(new Uint8Array(totalCount), ...wordArrays);
     }
 
     function SHA256(msg: number[] | string | Uint8Array)
     {
         const result = (<any>self).CryptoJS.SHA256(typeof msg === "string" ? msg : BytesToWordArray(msg));
-        return WordArrayToBytes(result);
+        return WordArrayToNumberArray(result);
+    }
+
+    function SHA256Bytes(msg: number[] | string | Uint8Array)
+    {
+        const result: WordArray = (<any>self).CryptoJS.SHA256(typeof msg === "string" ? msg : BytesToWordArray(msg));
+        return <Uint8Array>WordArrayToUint8Array(result);
     }
 
     function SHA256Hex(msg: number[] | string | Uint8Array)
@@ -61,40 +79,40 @@ function INIT_CryptoHelper()
     function RIPEMD160(bytes: number[])
     {
         const result = (<any>self).CryptoJS.RIPEMD160(BytesToWordArray(bytes));
-        return WordArrayToBytes(result);
+        return WordArrayToNumberArray(result);
     }
 
     function HmacSHA512(msg: number[] | string, key: number[] | string)
     {
-        return WordArrayToBytes((<any>self).CryptoJS.HmacSHA512(
+        return WordArrayToNumberArray((<any>self).CryptoJS.HmacSHA512(
             typeof msg === "string" ? msg : BytesToWordArray(msg),
             typeof key === "string" ? key : BytesToWordArray(key)
         ));
     }
 
-    function AES_Encrypt_ECB_NoPadding(msg: number[], password: number[])
+    function AES_Encrypt_ECB_NoPadding(msg: number[] | Uint8Array, password: number[] | Uint8Array)
     {
         const result = (<any>self).CryptoJS.AES.encrypt(BytesToWordArray(msg), BytesToWordArray(password), {
             mode: (<any>self).CryptoJS.mode.ECB,
             padding: (<any>self).CryptoJS.pad.NoPadding
         });
 
-        return WordArrayToBytes(result.ciphertext);
+        return WordArrayToNumberArray(result.ciphertext);
     }
 
-    function AES_Decrypt_ECB_NoPadding(ciphertext: number[], password: number[])
+    function AES_Decrypt_ECB_NoPadding(ciphertext: number[] | Uint8Array, password: number[] | Uint8Array)
     {
         const result = (<any>self).CryptoJS.AES.decrypt({ ciphertext: BytesToWordArray(ciphertext) }, BytesToWordArray(password), {
             mode: (<any>self).CryptoJS.mode.ECB,
             padding: (<any>self).CryptoJS.pad.NoPadding
         });
 
-        return WordArrayToBytes(result);
+        return WordArrayToNumberArray(result);
     }
 
     function PBKDF2(password: number[] | string, salt: number[] | string, iterations: number = 2048, dklen: number = 512/32)
     {
-        return WordArrayToBytes((<any>self).CryptoJS.PBKDF2(
+        return WordArrayToNumberArray((<any>self).CryptoJS.PBKDF2(
             typeof password === "string" ? password : BytesToWordArray(password),
             typeof salt === "string" ? salt : BytesToWordArray(salt), {
                 iterations: iterations,
@@ -105,12 +123,12 @@ function INIT_CryptoHelper()
     }
 
     // https://github.com/dchest/scrypt-async-js
-    function scrypt(password: string | number[], salt: string | number[], logN: number, r: number, p: number, dkLen: number, encoding?: string)
+    function scrypt(password: string | number[] | Uint8Array, salt: string | number[] | Uint8Array, logN: number, r: number, p: number, dkLen: number, encoding?: string)
     {
-        function PBKDF2_HMAC_SHA256_OneIter(password: number[], salt: number[], dkLen: number)
+        function PBKDF2_HMAC_SHA256_OneIter(password: Uint8Array, salt: Uint8Array, dkLen: number)
         {
             if (password.length > 64)
-                password = SHA256(password);
+                password = SHA256Bytes(password);
 
             const innerLen = salt.length + 68;
             const inner = new Array<number>(innerLen);
@@ -156,10 +174,10 @@ function INIT_CryptoHelper()
                 incrementCounter();
                 derivedKey = derivedKey.concat(SHA256(outerKey.concat(SHA256(inner))).slice(0, dkLen));
             }
-            return derivedKey;
+            return new Uint8Array(derivedKey);
         }
 
-        function salsaXOR(tmp: number[], B: number[], bin: number, bout: number)
+        function salsaXOR(tmp: Int32Array, B: Int32Array, bin: number, bout: number)
         {
             const j0  = tmp[0]  ^ B[bin++];
             const j1  = tmp[1]  ^ B[bin++];
@@ -257,19 +275,18 @@ function INIT_CryptoHelper()
             B[bout++] = tmp[15] = (x15 + j15) | 0;
         }
 
-        function blockCopy(dst: number[], di: number, src: number[], si: number, len: number)
+        function blockCopy(dst: Int32Array, di: number, src: Int32Array, si: number, len: number)
         {
-            while (len--)
-                dst[di++] = src[si++];
+            dst.set(src.subarray(si, si + len), di);
         }
 
-        function blockXOR(dst: number[], di: number, src: number[], si: number, len: number)
+        function blockXOR(dst: Int32Array, di: number, src: Int32Array, si: number, len: number)
         {
-            while (len--)
-                dst[di++] ^= src[si++];
+            for (let i = 0; i < len; ++i)
+                dst[di + i] ^= src[si + i];
         }
 
-        function blockMix(tmp: number[], B: number[], bin: number, bout: number, r: number)
+        function blockMix(tmp: Int32Array, B: Int32Array, bin: number, bout: number, r: number)
         {
             blockCopy(tmp, 0, B, bin + (2 * r - 1) * 16, 16);
             for (let i = 0; i < 2 * r; i += 2)
@@ -279,7 +296,7 @@ function INIT_CryptoHelper()
             }
         }
 
-        function integerify(B: number[], bi: number, r: number)
+        function integerify(B: Int32Array, bi: number, r: number)
         {
             return B[bi + (2 * r - 1) * 16];
         }
@@ -321,11 +338,11 @@ function INIT_CryptoHelper()
                     arr.push(0x80 | c & 0x3f);
                 }
             }
-            return arr;
+            return new Uint8Array(arr);
         }
 
         const hexEnc = '0123456789abcdef'.split('');
-        function bytesToHex(p: number[])
+        function bytesToHex(p: number[] | Uint8Array)
         {
             const len = p.length;
             const arr: string[] = [];
@@ -340,7 +357,7 @@ function INIT_CryptoHelper()
         }
 
         const base64Enc = ('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/').split('');
-        function bytesToBase64(p: number[])
+        function bytesToBase64(p: number[] | Uint8Array)
         {
             const len = p.length;
             const arr: string[] = [];
@@ -382,19 +399,24 @@ function INIT_CryptoHelper()
 
         const N = (1 << logN) >>> 0;
 
-        const XY = new Array<number>(64 * r);
-        const V = new Array<number>(32 * N * r);
-        const tmp = new Array<number>(16);
+        const XY = new Int32Array(64 * r);
+        const V = new Int32Array(32 * N * r);
+        const tmp = new Int32Array(16);
 
         if (r * p >= 1 << 30 || r > MAX_UINT / 128 / p || r > MAX_UINT / 256 || N > MAX_UINT / 128 / r)
             throw new Error('scrypt: parameters are too large');
 
         if (typeof password == 'string')
             password = stringToUTF8Bytes(password);
+        else if (!(password instanceof Uint8Array))
+            password = new Uint8Array(password);
+
         if (typeof salt == 'string')
             salt = stringToUTF8Bytes(salt);
+        else if (!(salt instanceof Uint8Array))
+            salt = new Uint8Array(salt);
 
-        const B = PBKDF2_HMAC_SHA256_OneIter(password, salt, p * 128 * r);
+        const B = PBKDF2_HMAC_SHA256_OneIter(password, salt, p * 128 * r); // uint8array
 
         const xi = 0;
         const yi = 32 * r;

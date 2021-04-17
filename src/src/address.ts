@@ -47,8 +47,7 @@ function INIT_AddressUtil()
         privkey.push(...temp);
         privkey.push(WorkerUtils.IsTestnet() ? 0xEF : 0x80);
         privkey.reverse();
-        privkey.push.apply(privkey, CryptoHelper.SHA256(CryptoHelper.SHA256(privkey)).slice(0, 4));
-        return WorkerUtils.Base58Encode(privkey);
+        return WorkerUtils.Base58CheckEncode(privkey);
     }
 
     // make legacy address from public key
@@ -78,11 +77,8 @@ function INIT_AddressUtil()
         const ripemd_result_2 = CryptoHelper.RIPEMD160(sha_result_1);
         const ripemd_extended = [WorkerUtils.IsTestnet() ? 0x6F : 0x00];
         ripemd_extended.push(...ripemd_result_2);
-        const sha_result_3 = CryptoHelper.SHA256(ripemd_extended);
-        const sha_result_4 = CryptoHelper.SHA256(sha_result_3);
-        ripemd_extended.push.apply(ripemd_extended, sha_result_4.slice(0, 4));
 
-        return WorkerUtils.Base58Encode(ripemd_extended);
+        return WorkerUtils.Base58CheckEncode(ripemd_extended);
     }
 
     // make segwit address from public key
@@ -111,9 +107,8 @@ function INIT_AddressUtil()
         const redeemscripthash = [WorkerUtils.IsTestnet() ? 0xC4 : 0x05];
 
         redeemscripthash.push(...CryptoHelper.RIPEMD160(CryptoHelper.SHA256(redeemscript)));
-        redeemscripthash.push.apply(redeemscripthash, CryptoHelper.SHA256(CryptoHelper.SHA256(redeemscripthash)).slice(0, 4));
 
-        return WorkerUtils.Base58Encode(redeemscripthash);
+        return WorkerUtils.Base58CheckEncode(redeemscripthash);
     }
 
     const bech32Chars = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";

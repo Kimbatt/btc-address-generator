@@ -19,7 +19,7 @@ function INIT_BIP38()
         }
 
         const ownersalt = WorkerUtils.Get32SecureRandomBytes().slice(0, 8);
-        const passfactor = <number[]>CryptoHelper.scrypt(password, ownersalt, 14, 8, 8, 32);
+        const passfactor = <Uint8Array>CryptoHelper.scrypt(password, ownersalt, 14, 8, 8, 32);
         const bigint = WorkerUtils.ByteArrayToBigint(passfactor);
         const keypair = EllipticCurve.EccMultiply(EllipticCurve.ecc_Gx, EllipticCurve.ecc_Gy, bigint);
 
@@ -70,24 +70,24 @@ function INIT_BIP38()
 
         const addressHash = CryptoHelper.SHA256(CryptoHelper.SHA256(generatedAddress)).slice(0, 4);
 
-        const salt = WorkerUtils.ArrayConcat(addressHash, encryptionData.ownersalt);
+        const salt = [...addressHash, ...encryptionData.ownersalt];
 
-        const encrypted = <number[]>CryptoHelper.scrypt(encryptionData.passpoint, salt, 10, 1, 1, 64);
+        const encrypted = <Uint8Array>CryptoHelper.scrypt(encryptionData.passpoint, salt, 10, 1, 1, 64);
         const derivedHalf1 = encrypted.slice(0, 32);
         const derivedHalf2 = encrypted.slice(32, 64);
 
         const encryptedpart1 = CryptoHelper.AES_Encrypt_ECB_NoPadding(WorkerUtils.ByteArrayXOR(seedb.slice(0, 16), derivedHalf1.slice(0, 16)), derivedHalf2);
 
-        const block2 = WorkerUtils.ArrayConcat(encryptedpart1.slice(8, 16), seedb.slice(16, 24));
+        const block2 = [...encryptedpart1.slice(8, 16), ...seedb.slice(16, 24)];
         const encryptedpart2 = CryptoHelper.AES_Encrypt_ECB_NoPadding(WorkerUtils.ByteArrayXOR(block2, derivedHalf1.slice(16, 32)), derivedHalf2);
 
-        const finalPrivateKeyWithoutChecksum = WorkerUtils.ArrayConcat(
-            [0x01, 0x43, 0x20],
-            addressHash,
-            encryptionData.ownersalt,
-            encryptedpart1.slice(0, 8),
-            encryptedpart2
-        );
+        const finalPrivateKeyWithoutChecksum = [
+            0x01, 0x43, 0x20,
+            ...addressHash,
+            ...encryptionData.ownersalt,
+            ...encryptedpart1.slice(0, 8),
+            ...encryptedpart2
+        ];
 
         return {
             addressType: encryptionData.addressType,
@@ -128,7 +128,7 @@ function INIT_BIP38()
             }
 
             const ownerSalt = bytes.slice(6, 14);
-            const scryptResult = <number[]>CryptoHelper.scrypt(password, ownerSalt, 14, 8, 8, 32);
+            const scryptResult = <Uint8Array>CryptoHelper.scrypt(password, ownerSalt, 14, 8, 8, 32);
             const bigint = WorkerUtils.ByteArrayToBigint(scryptResult);
             const keypair = EllipticCurve.GetECCKeypair(bigint);
 
@@ -143,23 +143,23 @@ function INIT_BIP38()
             passpoint.reverse();
             const encryptedPart2 = bytes.slice(22, 38);
             const addressHash = bytes.slice(2, 14);
-            const scryptResult2 = <number[]>CryptoHelper.scrypt(passpoint, addressHash, 10, 1, 1, 64);
+            const scryptResult2 = <Uint8Array>CryptoHelper.scrypt(passpoint, addressHash, 10, 1, 1, 64);
 
             const derivedHalf1 = scryptResult2.slice(0, 32);
             const derivedHalf2 = scryptResult2.slice(32, 64);
 
             const decrypted2 = CryptoHelper.AES_Decrypt_ECB_NoPadding(encryptedPart2, derivedHalf2);
 
-            const encryptedpart1 = WorkerUtils.ArrayConcat(
-                bytes.slice(14, 22),
-                WorkerUtils.ByteArrayXOR(decrypted2.slice(0, 8), scryptResult2.slice(16, 24))
-            );
+            const encryptedpart1 = [
+                ...bytes.slice(14, 22),
+                ...WorkerUtils.ByteArrayXOR(decrypted2.slice(0, 8), scryptResult2.slice(16, 24))
+            ];
 
             const decrypted1 = CryptoHelper.AES_Decrypt_ECB_NoPadding(encryptedpart1, derivedHalf2);
-            const seedb = WorkerUtils.ArrayConcat(
-                WorkerUtils.ByteArrayXOR(decrypted1.slice(0, 16), derivedHalf1.slice(0, 16)),
-                WorkerUtils.ByteArrayXOR(decrypted2.slice(8, 16), derivedHalf1.slice(24, 32))
-            );
+            const seedb = [
+                ...WorkerUtils.ByteArrayXOR(decrypted1.slice(0, 16), derivedHalf1.slice(0, 16)),
+                ...WorkerUtils.ByteArrayXOR(decrypted2.slice(8, 16), derivedHalf1.slice(24, 32))
+            ];
 
             const factorb = CryptoHelper.SHA256(CryptoHelper.SHA256(seedb));
             const finalPrivateKeyValue = WorkerUtils.ByteArrayToBigint(scryptResult)
@@ -193,7 +193,7 @@ function INIT_BIP38()
             }
 
             const addressHash = bytes.slice(2, 6);
-            const derivedBytes = <number[]>CryptoHelper.scrypt(password, addressHash, 14, 8, 8, 64);
+            const derivedBytes = <Uint8Array>CryptoHelper.scrypt(password, addressHash, 14, 8, 8, 64);
             const decrypted = CryptoHelper.AES_Decrypt_ECB_NoPadding(bytes.slice(6, 38), derivedBytes.slice(32));
             const privateKeyBytes = WorkerUtils.ByteArrayXOR(decrypted, derivedBytes);
 
@@ -245,16 +245,16 @@ function INIT_BIP38()
         const address = AddressUtil.MakeLegacyAddress(privateKeyDecoded.result.keypair);
 
         const salt = CryptoHelper.SHA256(CryptoHelper.SHA256(address)).slice(0, 4);
-        const derivedBytes = <number[]>CryptoHelper.scrypt(password, salt, 14, 8, 8, 64);
+        const derivedBytes = <Uint8Array>CryptoHelper.scrypt(password, salt, 14, 8, 8, 64);
 
         const firstHalf = WorkerUtils.ByteArrayXOR(privkeyBytes, derivedBytes.slice(0, 32));
         const secondHalf = derivedBytes.slice(32);
 
-        const finalPrivateKeyWithoutChecksum = WorkerUtils.ArrayConcat(
-            [0x01, 0x42, 0xe0],
-            salt,
-            CryptoHelper.AES_Encrypt_ECB_NoPadding(firstHalf, secondHalf)
-        );
+        const finalPrivateKeyWithoutChecksum = [
+            0x01, 0x42, 0xe0,
+            ...salt,
+            ...CryptoHelper.AES_Encrypt_ECB_NoPadding(firstHalf, secondHalf)
+        ];
 
         return {
             type: "ok",

@@ -20,7 +20,7 @@ function INIT_BIP32()
 
     function SerializeECCKeypairCompressed(keypair: EcKeypair)
     {
-        return WorkerUtils.ArrayConcat([0x2 + keypair.y.and(bn_1).toNumber()], WorkerUtils.BigintToByteArrayLittleEndian32(keypair.x));
+        return [0x2 + keypair.y.and(bn_1).toNumber(), ...WorkerUtils.BigintToByteArrayLittleEndian32(keypair.x)];
     }
 
     function ModPow(num: BN, exponent: BN, mod: BN)
@@ -61,11 +61,11 @@ function INIT_BIP32()
         const parentChainCode = parent.chainCode;
 
         const I = isHardened
-            ? CryptoHelper.HmacSHA512(WorkerUtils.ArrayConcat([0x00], parentKey, Uint32ToBytes(index)), parentChainCode)
-            : CryptoHelper.HmacSHA512(WorkerUtils.ArrayConcat(
-                SerializeECCKeypairCompressed(EllipticCurve.GetECCKeypair(parentKeyBigint)),
-                Uint32ToBytes(index)
-            ), parentChainCode);
+            ? CryptoHelper.HmacSHA512([0x00, ...parentKey, ...Uint32ToBytes(index)], parentChainCode)
+            : CryptoHelper.HmacSHA512([
+                ...SerializeECCKeypairCompressed(EllipticCurve.GetECCKeypair(parentKeyBigint)),
+                ...Uint32ToBytes(index)
+            ], parentChainCode);
 
         const IL = I.slice(0, 32);
         const IR = I.slice(32, 64);
@@ -124,7 +124,7 @@ function INIT_BIP32()
         const parentKeyPairBigint = <EcKeypair>{ x: pointX, y: pointY };
         const parentChainCode = parent.chainCode;
 
-        const I = CryptoHelper.HmacSHA512(WorkerUtils.ArrayConcat(SerializeECCKeypairCompressed(parentKeyPairBigint), Uint32ToBytes(index)), parentChainCode);
+        const I = CryptoHelper.HmacSHA512([...SerializeECCKeypairCompressed(parentKeyPairBigint), ...Uint32ToBytes(index)], parentChainCode);
 
         const IL = I.slice(0, 32);
         const IR = I.slice(32, 64);
@@ -206,7 +206,7 @@ function INIT_BIP32()
             return { type: "err", error: "Depth must be 255 at most" };
         }
 
-        const finalResult = WorkerUtils.ArrayConcat(versionBytes, [depth], parentKeyFingerprint, Uint32ToBytes(childIndex), chainCode, keyData);
+        const finalResult = [...versionBytes, depth, ...parentKeyFingerprint, ...Uint32ToBytes(childIndex), ...chainCode, ...keyData];
         return {
             type: "ok",
             result: WorkerUtils.Base58CheckEncode(finalResult)
@@ -316,7 +316,7 @@ function INIT_BIP32()
                 {
                     const privkey = keyData.slice(1);
                     const derivedKey = CKD_Priv({ key: privkey, chainCode: chainCode }, childIndex);
-                    keyData = WorkerUtils.ArrayConcat([0x00], WorkerUtils.BigintToByteArrayLittleEndian32(derivedKey.key));
+                    keyData = [0x00, ...WorkerUtils.BigintToByteArrayLittleEndian32(derivedKey.key)];
                     return {
                         type: "ok",
                         result: derivedKey.chainCode

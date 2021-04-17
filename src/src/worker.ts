@@ -3,7 +3,7 @@ var WorkerInterface: {
     SetEntropy: (entropy: number[]) => Promise<void>;
     SetIsTestnet: (isTestnet: boolean) => Promise<void>;
 
-    GenerateRandomAddress: (addressType: AddressType) => Promise<{ address: string, privateKey: string }>;
+    GenerateRandomAddress: (addressType: AddressType) => Promise<AddressWithPrivateKey>;
     GetPrivateKeyDetails: (privateKey: string) => Promise<GetPrivateKeyDetailsResult>;
 
     BIP38DecryptPrivateKey: (privateKey: string, password: string) => Promise<Result<string, string>>;
@@ -80,12 +80,12 @@ var CreateWorkers = () =>
     {
         const CreateSources = () =>
         {
-            return sources.map(source => "var " + source.functionName + " = " + source.fn.toString() + ";").join("\n\n") + "\n";
+            return sources.map(source => `var ${source.functionName} = ${source.fn.toString()};`).join("\n\n") + "\n";
         };
 
         const InitializeSources = () =>
         {
-            return sources.map(source => ((source.variableName !== undefined) ? "var " + source.variableName + " = " : "") + source.functionName + "();").join("\n");
+            return sources.map(source => `${`${(source.variableName !== undefined) ? `var ${source.variableName} = ` : ""}`}${source.functionName}();`).join("\n");
         };
 
         const WorkerCreatorFunction = () =>
@@ -104,7 +104,23 @@ var CreateWorkers = () =>
             });
         };
 
-        const blobContents = [CreateSources() + "\n\n\n" + InitializeSources() + "\n\n\n(", WorkerCreatorFunction.toString(), ")();\n" ];
+        const blobContents = [`
+
+// typescript array spread transformation
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
+
+${CreateSources()}
+
+${InitializeSources()}
+
+(
+${WorkerCreatorFunction.toString()}
+)();`
+        ];
         const blob = new Blob(blobContents, { type: "application/javascript"});
         const blobUrl = URL.createObjectURL(blob);
 

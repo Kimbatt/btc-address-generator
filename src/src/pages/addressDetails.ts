@@ -47,7 +47,7 @@
             messageDiv.style.display = "";
             privateKeyInfoContainer.style.display = "none";
             privateKeyDetailsTextDiv.style.display = "none";
-            messageDiv.textContent = "Invalid private key (" + result.message + ")";
+            messageDiv.textContent = `Invalid private key (${result.message})`;
             loading.hide();
             return;
         }
@@ -106,13 +106,14 @@
     async function DecryptPrivateKey()
     {
         loading.show();
+        messageDiv.style.display = "none";
 
         const encryptedPrivateKey = privateKeyInput.value.trim();
         const decrypted = await WorkerInterface.BIP38DecryptPrivateKey(encryptedPrivateKey, bip38passwordInput.value);
         if (decrypted.type === "err")
         {
             messageDiv.style.display = "";
-            messageDiv.textContent = "Cannot decrypt address (" + decrypted.error + ")";
+            messageDiv.textContent = `Cannot decrypt address (${decrypted.error})`;
             loading.hide();
             return;
         }

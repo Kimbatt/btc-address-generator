@@ -377,6 +377,35 @@ li
                 window.setTimeout(callback, fps);
             }
         }
+
+        if (typeof Uint8Array.prototype.slice === "undefined")
+        {
+            Object.defineProperty(Uint8Array.prototype, "slice",
+            {
+                value: function (start, end)
+                {
+                    var o = Object(this);
+                    var lenVal = o.length;
+                    var len = lenVal >>> 0;
+                    var relativeStart = start >> 0;
+                    var k = (relativeStart < 0) ? Math.max(len + relativeStart, 0) : Math.min(relativeStart, len);
+                    var relativeEnd = (end === undefined) ? len : (end >> 0);
+                    var final = (relativeEnd < 0) ? Math.max(len + relativeEnd, 0) : Math.min(relativeEnd, len);
+                    var count = final - k;
+                    var c = o.constructor;
+                    var a = new c(count);
+                    var n = 0;
+                    while (k < final)
+                    {
+                        var kValue = o[k];
+                        a[n] = kValue;
+                        ++k;
+                        ++n;
+                    }
+                    return a;
+                }
+            });
+        }
     </script>
 
     <div id="content" style="display: table; width: 100%;">
@@ -510,7 +539,7 @@ li
                     <br>
                     <div style="display: table;">
                         <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" style="margin-bottom: 20px;" id="bip38-enabled-bulk">Bip38 encrypt</label>
-                        <div class="link-style" id="show-bip38-info-button-bulk" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</div>
+                        <div class="link-style" id="show-bip38-info-link-bulk" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</div>
                     </div>
                 </div>
                 <div id="bip38-password-box-div-bulk" style="display: none; padding-bottom: 15px; border-bottom: 2px solid #bbbbbb;">
@@ -518,9 +547,9 @@ li
                     <input id="bip38-password-box-bulk" type="text" style="display: table-cell; font-size: 20px; padding: 5px;">
                 </div>
                 <br>
-                <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Number of addresses to generate (max 1000):</div>
+                <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Number of addresses to generate (max 10,000):</div>
                 <div style="display: table;">
-                    <input id="bulk-count" type="number" value="10" style="display: inline-block; font-size: 25px; width: 100px; padding: 5px;">
+                    <input id="bulk-count" type="number" value="10" step="1" min="1" max="10000" style="display: inline-block; font-size: 25px; width: 100px; padding: 5px;">
                     <button id="bulk-generate-button" style="display: inline-block; width: 300px; margin-left: 20px;">Generate</button>
                 </div>
             </div>
@@ -845,5 +874,6 @@ li
 
     <script type="text/javascript" src="js/dist/pages/singleAddress.js"></script>
     <script type="text/javascript" src="js/dist/pages/addressDetails.js"></script>
+    <script type="text/javascript" src="js/dist/pages/bulkGenerate.js"></script>
 </body>
 </html>

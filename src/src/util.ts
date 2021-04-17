@@ -193,17 +193,6 @@ function INIT_WorkerUtils()
         }
     }
 
-    function ArrayConcat<T>(...arrays: T[][])
-    {
-        let result: T[] = [];
-        for (let array of arrays)
-        {
-            result = result.concat(array);
-        }
-
-        return result;
-    }
-
     function Get32SecureRandomBytes()
     {
         if (entropy !== null)
@@ -244,7 +233,7 @@ function INIT_WorkerUtils()
         return ret;
     }
 
-    function ByteArrayToBigint(bytes: number[])
+    function ByteArrayToBigint(bytes: number[] | Uint8Array)
     {
         let bigint = new BN(0);
         for (let i = 0; i < bytes.length; ++i)
@@ -270,7 +259,7 @@ function INIT_WorkerUtils()
         return values.reverse();
     }
 
-    function ByteArrayXOR(b1: number[], b2: number[])
+    function ByteArrayXOR(b1: number[] | Uint8Array, b2: number[] | Uint8Array)
     {
         const ret: number[] = [];
         for (let i = 0; i < b1.length; ++i)
@@ -311,7 +300,7 @@ function INIT_WorkerUtils()
     }
 
     const bn_58 = new BN(58);
-    function Base58Encode(bytes: number[])
+    function Base58CheckEncode(bytes: number[] | Uint8Array)
     {
         let leading_zeroes = 0;
         while (bytes[leading_zeroes] === 0)
@@ -320,44 +309,10 @@ function INIT_WorkerUtils()
             ++leading_zeroes;
         }
 
-        let bigint = new BN(0);
-        // convert bytes to bigint
-        for (let i = 0; i < bytes.length; ++i)
-        {
-            bigint = bigint.shln(8);
-            bigint = bigint.or(new BN(bytes[i]));
-        }
-
-        bytes.reverse();
-
-        const ret: string[] = [];
-        while (bigint.gt(bn_0))
-        {
-            // get base58 character
-            const remainder = bigint.mod(bn_58);
-            bigint = bigint.div(bn_58);
-            ret.push(base58Characters[remainder.toNumber()]);
-        }
-
-        for (let i = 0; i < leading_zeroes; ++i)
-        {
-            // add padding if necessary
-            ret.push(base58Characters[0]);
-        }
-
-        return ret.reverse().join("");
-    }
-
-    function Base58CheckEncode(bytes: number[])
-    {
-        let leading_zeroes = 0;
-        while (bytes[leading_zeroes] === 0)
-        {
-            // count leading zeroes
-            ++leading_zeroes;
-        }
-
-        bytes.push.apply(bytes, CryptoHelper.SHA256(CryptoHelper.SHA256(bytes)).slice(0, 4));
+        // note: typescript doesn't allow using the spread operator
+        // on Uint8Arrays, but in javascript it works fine
+        // so here the bytes are casted to number[] for this reason
+        bytes = [...(<number[]>bytes), ...CryptoHelper.SHA256(CryptoHelper.SHA256(bytes)).slice(0, 4)];
 
         let bigint = new BN(0);
         // convert bytes to bigint
@@ -444,14 +399,12 @@ function INIT_WorkerUtils()
         SetEntropy,
         SetIsTestnet,
         IsTestnet,
-        ArrayConcat,
         Get32SecureRandomBytes,
         BigintToBitArray,
         BigintToByteArray,
         ByteArrayToBigint,
         ByteArrayXOR,
         BigintToByteArrayLittleEndian32,
-        Base58Encode,
         Base58CheckEncode,
         Base58CheckDecode,
         GenerateQRCode

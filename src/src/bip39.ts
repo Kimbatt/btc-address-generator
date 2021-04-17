@@ -210,7 +210,7 @@ function INIT_BIP39()
 
         const seed = CryptoHelper.PBKDF2(mnemonicBytes, passwordBytes, 2048, 512/32);
         const masterKey = BIP32Util.GetMasterKeyFromSeed(seed);
-        const masterPrivKey = WorkerUtils.ArrayConcat([0], WorkerUtils.BigintToByteArrayLittleEndian32(masterKey.key));
+        const masterPrivKey = [0, ...WorkerUtils.BigintToByteArrayLittleEndian32(masterKey.key)];
         const masterChainCode = masterKey.chainCode;
         return BIP32Util.SerializeExtendedKey(true, 0, [0, 0, 0, 0], 0, masterChainCode, masterPrivKey, purpose);
     }
