@@ -164,7 +164,7 @@ var InitializePage = (() => Lazy(() =>
             {
                 console.log(printArea[0]);
             }
-            document.getElementById(printArea[0])!.classList.remove(printArea[1]);
+            document.getElementById(printArea[0])!.classList.add(printArea[1]);
         }
 
         currentPage = newPage;

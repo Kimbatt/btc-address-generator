@@ -398,7 +398,7 @@ function INIT_WorkerUtils()
         const qr = qrcode(0, errorCorrectionLevel);
         qr.addData(data, mode);
         qr.make();
-        return qr.createDataURL(cellSize, margin);
+        return "data:image/svg+xml," + encodeURI(qr.createSvgTag(cellSize, margin));
     }
 
     return {

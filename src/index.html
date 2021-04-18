@@ -422,9 +422,9 @@ li
             <br>
             <button id="button-page-mnemonic-seed" style="width: 250px;">Mnemonic Seed</button>
             <br>
-            <button id="button-page-information" style="width: 250px;">Information</button>
+            <button id="button-page-information" style="width: 250px; margin-top: 50px;">Information</button>
             <br>
-            <button id="button-page-beginners-guide" style="width: 250px; margin-top: 50px;">Beginner&apos;s guide</button>
+            <button id="button-page-beginners-guide" style="width: 250px;">Beginner&apos;s guide</button>
             <br>
             <button id="button-page-security-tips" style="width: 250px;">Security tips</button>
             <div id="warning-text" style="display: none; font-size: 21px; color: #ff0000; margin-top: 30px;">
@@ -575,7 +575,7 @@ li
                     <br>
                     <div style="display: table; padding-top: 10px;">
                         <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" style="margin-bottom: 20px;" id="bip38-enabled-paper">Bip38 encrypt</label>
-                        <div class="link-style" id="show-bip38-info-button-paper" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</div>
+                        <div class="link-style" id="show-bip38-info-link-paper" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</div>
                     </div>
                     <div id="bip38-password-box-div-paper" style="display: none; padding-bottom: 15px;">
                     <div style="display: table-cell; padding-right: 10px; font-size: 25px;">Password:</div>
@@ -586,8 +586,8 @@ li
                     <button onclick="window.print()">Print</button>
                 </div>
                 <div style="display: table-cell; padding-left: 10px; border-left: 2px solid #bbbbbb;">
-                    <div style="font-weight: bold; font-size: 20px;">Count (max 20):</div>
-                    <input id="paperwallet-generate-count" type="number" value="4" style="font-size: 25px; padding: 5px; width: 100%;">
+                    <div style="font-weight: bold; font-size: 20px;">Count (max 100):</div>
+                    <input id="paperwallet-generate-count" type="number" value="4" min="1" max="100" step="1" style="font-size: 25px; padding: 5px; width: 100%;">
                     <br>
                     <br>
                     <div style="font-weight: bold; font-size: 20px;">Vertical gap between wallets (in pixels):</div>
@@ -614,7 +614,7 @@ li
                     <div style="display: table; padding-top: 10px; width: 500px;">
                         <div style="display: table-cell; font-weight: bold; font-size: 20px; width: 100px;">Style:</div>
                         <select id="paperwallet-style-selector" style="display: table-cell; font-size: 25px; padding: 5px; width: 400px; margin-left: 20px; margin-bottom: 10px; right: 0px;">
-                            <option value="design0">Simple</option>
+                            <!-- <option value="design0">Simple</option>
                             <option value="design6">bitaddress.org</option>
                             <option value="design9">bitcoinpaperwallet.com</option>
                             <option value="design1">bitcoinpaperwallet.com (black and white)</option>
@@ -624,7 +624,7 @@ li
                             <option value="design5">Design by Mark &amp; Barbara Messer</option>
                             <option value="design7">Design by Timbo925 (grey)</option>
                             <option value="design8">Design by 75RTUGA</option>
-                            <option value="custom">Your custom image</option>
+                            <option value="custom">Your custom image</option> -->
                         </select>
                     </div>
                     <div id="paperwallet-source-link" style="margin-bottom: 10px;"></div>
@@ -761,9 +761,7 @@ li
                                     >Address</div><div style="display: inline-block; width: 500px; padding: 4px 8px;">Private key</div>
                             </div>
                             <div style="font-size: 16px; font-family: roboto-mono;" id="seed-details-results-addresses-table">
-                                <div class="seed-details-results-address-row">
-                                    <div>m/84'/0'/0'/0/0</div><div>bc1qvd5fc02tkf7fdxhyjpfnnar2ndenayyahz49am</div><div>L2zFiwnGCQPnBYEwRBphNAck5XJ79BWYV1FGNzULTFSTchm66Mt5</div>
-                                </div>
+                                <div class="seed-details-results-address-row"></div>
                             </div>
                         </div>
                         <div style="margin: 20px 0px;">
@@ -875,6 +873,7 @@ li
     <script type="text/javascript" src="js/dist/pages/singleAddress.js"></script>
     <script type="text/javascript" src="js/dist/pages/addressDetails.js"></script>
     <script type="text/javascript" src="js/dist/pages/bulkGenerate.js"></script>
+    <script type="text/javascript" src="js/dist/pages/paperWallet.js"></script>
     <script type="text/javascript" src="js/dist/pages/mnemonicSeed.js"></script>
 </body>
 </html>

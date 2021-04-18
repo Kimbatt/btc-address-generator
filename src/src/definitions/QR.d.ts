@@ -11,6 +11,7 @@ declare class qrcode
     createImgTag(cellSize?: number, margin?: number, alt?: string): string;
     renderTo2dContext(context: CanvasRenderingContext2D, cellSize?: number): void;
     getModuleCount(): number;
+    isDark(row: number, col: number): boolean;
 }
 
 declare function INIT_QR(): typeof qrcode;
