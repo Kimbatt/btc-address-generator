@@ -85,13 +85,7 @@
     const hardenedAddressesLabel = document.getElementById("seed-details-results-hardened-addresses-label")!;
     const hardenedAddressesCheckbox = <HTMLInputElement>document.getElementById("seed-details-hardened-addresses-checkbox");
     const seedResultsAddressesContainerDiv = document.getElementById("seed-details-results-addresses-container")!;
-
-    function ShowError(text: string)
-    {
-        seedDetailsErrorText.textContent = text;
-        seedDetailsErrorText.style.display = "";
-        seedResultsContainerDiv.style.display = "none";
-    }
+    const calculateAddressesErrorTextDiv = document.getElementById("seed-details-addresses-error-text")!;
 
     async function ViewSeedDetails()
     {
@@ -99,6 +93,14 @@
         const password = seedPasswordInput.value;
         changeAddressesLabel.style.display = "";
         hardenedAddressesLabel.style.display = "";
+        calculateAddressesErrorTextDiv.style.display = "none";
+
+        function ShowError(text: string)
+        {
+            seedDetailsErrorText.textContent = text;
+            seedDetailsErrorText.style.display = "";
+            seedResultsContainerDiv.style.display = "none";
+        }
 
         if (seed === "")
         {
@@ -210,9 +212,18 @@
     const calculateProgressDiv = document.getElementById("seed-details-address-calculate-progress")!;
     async function CalculateAddresses()
     {
+        calculateAddressesErrorTextDiv.style.display = "none";
+
         const rootKey = rootKeyTextArea.value;
         let path = seedDerivationPathInput.value;
         const generateHardenedAddresses = hardenedAddressesCheckbox.checked;
+
+        function ShowError(text: string)
+        {
+            calculateAddressesErrorTextDiv.textContent = text;
+            calculateAddressesErrorTextDiv.style.display = "";
+            seedResultsAddressesContainerDiv.style.display = "none";
+        }
 
         let count = Number(addressCountInput.value) | 0;
         if (isNaN(count) || count < 1)
@@ -238,17 +249,6 @@
         let derivedKeyPurpose = <BIP32Purpose>seedDerivationPathPresetSelector.value;
         const isPrivate = rootKey.substr(1, 3) === "prv";
         const generateChangeAddresses = changeAddressesCheckbox.checked;
-        if (derivedKeyPurpose === "32")
-        {
-            if (rootKey[0] === "y")
-            {
-                derivedKeyPurpose = "49";
-            }
-            else if (rootKey[0] === "z")
-            {
-                derivedKeyPurpose = "84";
-            }
-        }
 
         if (!isPrivate && generateHardenedAddresses)
         {
@@ -274,6 +274,7 @@
         }
 
         path = derived.result.path;
+        derivedKeyPurpose = derived.result.purpose;
         extendedPublicKeyTextArea.value = derived.result.publicKey;
         extendedPrivateKeyTextArea.value = derived.result.privateKey ?? "???";
 

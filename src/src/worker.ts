@@ -15,7 +15,7 @@ var WorkerInterface: {
     GetBIP32RootKeyFromSeed: (seed: string, password?: string | undefined) => Promise<Result<string, string>>;
     DeriveBIP32ExtendedKey: (rootKey: string, path: string, derivedKeyPurpose: BIP32Purpose,
         hardened: boolean, changeAddresses: boolean)
-        => Promise<Result<{ publicKey: string, privateKey: string | null, path: string }, string>>;
+        => Promise<Result<{ publicKey: string, privateKey: string | null, path: string, purpose: BIP32Purpose }, string>>;
     DeriveBIP32Address: (path: string, publicKey: string, privateKey: string | null, index: number, purpose: BIP32Purpose, hardened: boolean)
         => Promise<Result<{ address: string, privateKey: string | null, addressPath: string }, string>>;
 
