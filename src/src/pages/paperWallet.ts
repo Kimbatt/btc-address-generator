@@ -8,18 +8,20 @@ interface PaperWalletElementTransform
     rotation?: number;
 }
 
+type PaperWalletTextElement = PaperWalletElementTransform & {
+    fontFamily?: string;
+    bold?: boolean;
+    italic?: boolean;
+    maxLineLength?: number;
+};
+
 const enum PaperWalletElementAnchor
 {
     TopLeft, TopRight, BottomLeft, BottomRight
 }
 
-interface PaperWalletCustomTextElement
-{
+type PaperWalletCustomTextElement = PaperWalletTextElement & {
     text: string;
-    fontFamily?: string;
-    bold?: boolean;
-    italic?: boolean;
-    transform: PaperWalletElementTransform;
 }
 
 interface PaperWalletDesign
@@ -29,76 +31,71 @@ interface PaperWalletDesign
     height: number;
     addressQRCodes: PaperWalletElementTransform[];
     privateKeyQRCodes: PaperWalletElementTransform[];
-    addressTexts: PaperWalletElementTransform[];
-    privateKeyTexts: PaperWalletElementTransform[];
+    addressTexts: PaperWalletTextElement[];
+    privateKeyTexts: PaperWalletTextElement[];
     customTexts?: PaperWalletCustomTextElement[];
-
-    preProcess?(design: PaperWalletDesign, isBip38: boolean): void;
 }
 
-function GetPaperWalletDesigns(): { [key: string]: PaperWalletDesign }
+const PaperWalletDesignNames = ["Simple"] as const;
+type PaperWalletDesignName = typeof PaperWalletDesignNames[number];
+
+function GetPaperWalletDesigns(designName: PaperWalletDesignName, isBIP38: boolean): PaperWalletDesign
 {
-    return {
-        "Simple": {
-            width: 1000,
-            height: 200,
-            addressQRCodes: [{
-                posX: 10,
-                posY: 10,
-                size: 100
-            }],
-            privateKeyQRCodes: [{
-                anchor: PaperWalletElementAnchor.BottomRight,
-                posX: 10,
-                posY: 10,
-                size: 100
-            }],
-            addressTexts: [{
-                posX: 120,
-                posY: 50,
-                size: 18
-            }],
-            privateKeyTexts: [{
-                anchor: PaperWalletElementAnchor.BottomRight,
-                posX: 120,
-                posY: 10,
-                size: 18
-            }],
-            customTexts: [
-                {
-                    text: "Address:",
-                    fontFamily: "Verdana",
-                    bold: true,
-                    transform: {
+    switch (designName)
+    {
+        case "Simple":
+            return {
+                width: 1000,
+                height: 200,
+                addressQRCodes: [{
+                    posX: 10,
+                    posY: 10,
+                    size: 100
+                }],
+                privateKeyQRCodes: [{
+                    anchor: PaperWalletElementAnchor.BottomRight,
+                    posX: 10,
+                    posY: 10,
+                    size: 100
+                }],
+                addressTexts: [{
+                    posX: 120,
+                    posY: 50,
+                    size: 18
+                }],
+                privateKeyTexts: [{
+                    anchor: PaperWalletElementAnchor.BottomRight,
+                    posX: isBIP38 ? 430 : 120,
+                    posY: 10,
+                    size: 18
+                }],
+                customTexts: [
+                    {
+                        text: "Address:",
+                        fontFamily: "Verdana",
+                        bold: true,
+
                         posX: 120,
                         posY: 15,
                         size: 25
-                    }
-                },
-                {
-                    text: "Private key:",
-                    fontFamily: "Verdana",
-                    bold: true,
-                    transform: {
+                    }, {
+                        text: isBIP38 ? "Encrypted private key:" : "Private key:",
+                        fontFamily: "Verdana",
+                        bold: true,
+
                         anchor: PaperWalletElementAnchor.BottomRight,
                         posX: 514,
                         posY: 40,
                         size: 25
                     }
-                }
-            ],
-            preProcess: (design, isBip38) =>
-            {
-                if (!isBip38)
-                {
-                    return;
-                }
-
-                design.customTexts![1].text = "Encrypted private key:";
-                design.privateKeyTexts[0]!.posX = 430;
-            }
-        }
+                ]
+            };
     };
+}
+
+const enum PaperWalletGenerationType
+{
+    RandomNew, UseExisting, FromSeed
 }
 
 (() =>
@@ -132,6 +129,25 @@ function GetPaperWalletDesigns(): { [key: string]: PaperWalletDesign }
     qrErrorCorrectionLevelQRadioButton.addEventListener("change", () => qrErrorCorrectionLevelQRadioButton.checked && SetQRErrorCorrectionLevel("Q"));
     qrErrorCorrectionLevelMRadioButton.addEventListener("change", () => qrErrorCorrectionLevelMRadioButton.checked && SetQRErrorCorrectionLevel("M"));
     qrErrorCorrectionLevelLRadioButton.addEventListener("change", () => qrErrorCorrectionLevelLRadioButton.checked && SetQRErrorCorrectionLevel("L"));
+
+    // generation type
+    let generationType = PaperWalletGenerationType.RandomNew;
+    const generationTypeRandomNewRadioButton = <HTMLInputElement>document.getElementById("paper-radio-generation-type-random-new");
+    const generationTypeUseExistingRadioButton = <HTMLInputElement>document.getElementById("paper-radio-generation-type-use-existing");
+    const generationTypeFromSeedRadioButton = <HTMLInputElement>document.getElementById("paper-radio-generation-type-from-seed");
+    const generationUseExistingDiv = document.getElementById("paper-div-generate-use-existing")!;
+    const generationFromSeedDiv = document.getElementById("paper-div-generate-from-seed")!;
+
+    function SetGenerationType(type: PaperWalletGenerationType)
+    {
+        generationType = type;
+        generationUseExistingDiv.style.display = type === PaperWalletGenerationType.UseExisting ? "" : "none";
+        generationFromSeedDiv.style.display = type === PaperWalletGenerationType.FromSeed ? "" : "none";
+    }
+
+    generationTypeRandomNewRadioButton.addEventListener("change", () => generationTypeRandomNewRadioButton.checked && SetGenerationType(PaperWalletGenerationType.RandomNew));
+    generationTypeUseExistingRadioButton.addEventListener("change", () => generationTypeUseExistingRadioButton.checked && SetGenerationType(PaperWalletGenerationType.UseExisting));
+    generationTypeFromSeedRadioButton.addEventListener("change", () => generationTypeFromSeedRadioButton.checked && SetGenerationType(PaperWalletGenerationType.FromSeed));
 
     // bip38
     const bip38Checkbox = <HTMLInputElement>document.getElementById("bip38-enabled-paper");
@@ -216,40 +232,67 @@ function GetPaperWalletDesigns(): { [key: string]: PaperWalletDesign }
             container.appendChild(CreateQRImage(addressQR, transform));
         }
 
-        function CreateText(text: string, fontFamily: string, transform: PaperWalletElementTransform)
+        function SplitTextIntoLines(text: string, maxLineLength: number)
+        {
+            if (maxLineLength <= 0)
+            {
+                return [text];
+            }
+
+            const lines: string[] = [];
+            for (let i = 0; i < text.length; i += maxLineLength)
+            {
+                lines.push(text.substr(i, maxLineLength));
+            }
+
+            return lines;
+        }
+
+        function CreateText(text: string, properties: PaperWalletTextElement)
         {
             const textDiv = document.createElement("div");
-            textDiv.textContent = text;
+            textDiv.textContent = (() =>
+            {
+                if (properties.maxLineLength)
+                {
+                    textDiv.style.whiteSpace = "pre-line";
+                    return SplitTextIntoLines(text, properties.maxLineLength).join("\n");
+                }
+                else
+                {
+                    return text;
+                }
+            })();
             textDiv.style.position = "absolute";
-            textDiv.style.fontSize = transform.size + "px";
-            textDiv.style.fontFamily = fontFamily;
+            textDiv.style.fontSize = properties.size + "px";
+            textDiv.style.fontFamily = properties.fontFamily ?? "roboto-mono";
 
-            const [horizontal, vertical] = AnchorToCSS(transform.anchor);
-            textDiv.style[horizontal] = transform.posX + "px";
-            textDiv.style[vertical] = transform.posY + "px";
+            const [horizontal, vertical] = AnchorToCSS(properties.anchor);
+            textDiv.style[horizontal] = properties.posX + "px";
+            textDiv.style[vertical] = properties.posY + "px";
 
-            if (transform.rotation !== undefined)
+            if (properties.rotation !== undefined)
             {
                 textDiv.style.transformOrigin = "0% 0%";
-                textDiv.style.transform = `rotate(${transform.rotation}deg)`;
+                textDiv.style.transform = `rotate(${properties.rotation}deg)`;
             }
 
             return textDiv;
         }
 
-        for (let textTransform of design.privateKeyTexts)
+        for (let textElement of design.privateKeyTexts)
         {
-            container.appendChild(CreateText(privateKey, "roboto-mono", textTransform));
+            container.appendChild(CreateText(privateKey, textElement));
         }
 
-        for (let textTransform of design.addressTexts)
+        for (let textElement of design.addressTexts)
         {
-            container.appendChild(CreateText(address, "roboto-mono", textTransform));
+            container.appendChild(CreateText(address, textElement));
         }
 
         for (let customText of design.customTexts ?? [])
         {
-            const textDiv = CreateText(customText.text, customText.fontFamily ?? "roboto-mono", customText.transform);
+            const textDiv = CreateText(customText.text, customText);
             if (customText.bold)
             {
                 textDiv.style.fontWeight = "bold";
@@ -271,6 +314,13 @@ function GetPaperWalletDesigns(): { [key: string]: PaperWalletDesign }
     {
         progressTextDiv.textContent = error;
     }
+
+    const useExistingPrivateKeysTextArea = <HTMLTextAreaElement>document.getElementById("paper-use-existing-textarea");
+
+    const generateFromSeedSeedTextArea = <HTMLTextAreaElement>document.getElementById("paper-from-seed-textarea");
+    const generateFromSeedOffsetInput = <HTMLInputElement>document.getElementById("paper-from-seed-offset");
+    const generateFromSeedHardenedCheckbox = <HTMLInputElement>document.getElementById("paper-from-seed-hardened-checkbox");
+    const generateFromSeedChangeAddressesCheckbox = <HTMLInputElement>document.getElementById("paper-from-seed-change-addresses-checkbox");
 
     const generatedPaperWalletsContainer = document.getElementById("paperwallet-print-area")!;
     async function GeneratePaperWallets()
@@ -294,6 +344,39 @@ function GetPaperWalletDesigns(): { [key: string]: PaperWalletDesign }
             return;
         }
 
+        const currentAddressType = addressType;
+        const currentQRErrorCorrectionLevel = qrErrorCorrectionLevel;
+
+        // TODO
+        let design = GetPaperWalletDesigns("Simple", /* isBIP38 */ false);
+
+        const results: Promise<Result<HTMLElement, string>>[] = [];
+        switch (generationType)
+        {
+            case PaperWalletGenerationType.RandomNew:
+                for (let i = 0; i < count; ++i)
+                {
+                    results.push((async () =>
+                    {
+                        const { address, privateKey } = await WorkerInterface.GenerateRandomAddress(addressType);
+                        const div = await CreatePaperWalletDiv(design, address, privateKey, currentQRErrorCorrectionLevel, currentAddressType);
+                        UpdateProgress();
+
+                        return <Result<HTMLElement, string>>{
+                            type: "ok",
+                            result: div
+                        };
+                    })());
+                }
+                break;
+            case PaperWalletGenerationType.UseExisting:
+                ShowError("Not implemented yet");
+                return;
+            case PaperWalletGenerationType.FromSeed:
+                ShowError("Not implemented yet");
+                return;
+        }
+
         let currentCount = 0;
         function UpdateProgress()
         {
@@ -302,29 +385,7 @@ function GetPaperWalletDesigns(): { [key: string]: PaperWalletDesign }
 
         UpdateProgress();
 
-        const currentAddressType = addressType;
-        const currentQRErrorCorrectionLevel = qrErrorCorrectionLevel;
-
-        // TODO
-        let design = GetPaperWalletDesigns()["Simple"];
-        if (design.preProcess !== undefined)
-        {
-            design.preProcess(design, /* isBIP38 */ false);
-        }
-
-        const allPromises = new Array<Promise<HTMLElement>>(count);
-        for (let i = 0; i < count; ++i)
-        {
-            allPromises[i] = (async () =>
-            {
-                const { address, privateKey } = await WorkerInterface.GenerateRandomAddress(addressType)
-                const div = await CreatePaperWalletDiv(design, address, privateKey, currentQRErrorCorrectionLevel, currentAddressType);
-                UpdateProgress();
-                return div;
-            })();
-        }
-
-        const paperWalletDivs = await Promise.all(allPromises);
+        const paperWalletDivs = await Promise.all(results);
         progressTextDiv.style.display = "none";
 
         while (generatedPaperWalletsContainer.lastChild)
@@ -332,9 +393,9 @@ function GetPaperWalletDesigns(): { [key: string]: PaperWalletDesign }
             generatedPaperWalletsContainer.removeChild(generatedPaperWalletsContainer.lastChild);
         }
 
-        for (let div of paperWalletDivs)
+        for (let divResult of paperWalletDivs)
         {
-            generatedPaperWalletsContainer.appendChild(div);
+            divResult.type === "ok" && generatedPaperWalletsContainer.appendChild(divResult.result);
         }
     }
 

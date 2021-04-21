@@ -67,6 +67,11 @@ button:enabled:hover
     background-color: #54adff;
 }
 
+input[type="text"], input[type="number"]
+{
+    font-family: "roboto-mono";
+}
+
 .dark input
 {
     background: #323639;
@@ -79,6 +84,11 @@ button:enabled:hover
     background: white;
     color: black;
     border: 1px solid #a0a3a1;
+}
+
+textarea
+{
+    font-family: "roboto-mono";
 }
 
 .dark textarea
@@ -496,28 +506,28 @@ li
             <div id="view-address-div" style="display: none;">
                 <div style="font-size: 24px; margin-top: 24px; margin-bottom: 20px;">
                     <div id="view-address-private-key-details-text" style="display: none;"></div>
-                    <div id="view-address-private-key" style="font-weight: bold; display: inline;"></div>
+                    <div id="view-address-private-key" style="font-family: roboto-mono; font-weight: bold; display: inline;"></div>
                     <div id="view-address-decrypted-private-key-details-text" style="display: block; margin-top: 25px;">
                         <div style="display: inline;">Decrypted private key: </div>
-                        <div id="view-address-decrypted-private-key" style="font-weight: bold; display: inline;"></div>
+                        <div id="view-address-decrypted-private-key" style="font-family: roboto-mono; font-weight: bold; display: inline;"></div>
                     </div>
                 </div>
                 <div id="view-address-container" style="display: table; border: 2px solid #bbbbbb;">
                     <div style="display: table; border-bottom: 2px solid #bbbbbb; width: 100%;">
                         <div class="address-view">Segwit address:
-                            <div id="view-address-segwitaddress" style="display: inline;"></div>
+                            <div id="view-address-segwitaddress" style="font-family: roboto-mono; font-weight: bold; display: inline;"></div>
                         </div>
                         <img id="view-address-segwitaddress-qr" style="padding: 0px 0px 10px 20px; display: block;">
                     </div>
                     <div style="display: table; border-bottom: 2px solid #bbbbbb; width: 100%;">
                         <div class="address-view">Segwit (bech32) address:
-                            <div id="view-address-bech32address" style="display: inline;"></div>
+                            <div id="view-address-bech32address" style="font-family: roboto-mono; font-weight: bold; display: inline;"></div>
                         </div>
                         <img id="view-address-bech32address-qr" style="padding: 0px 0px 10px 20px; display: block;">
                     </div>
                     <div style="display: table; width: 100%;">
                         <div class="address-view">Legacy address:
-                            <div id="view-address-legacyaddress" style="display: inline;"></div>
+                            <div id="view-address-legacyaddress" style="font-family: roboto-mono; font-weight: bold; display: inline;"></div>
                         </div>
                         <img id="view-address-legacyaddress-qr" style="padding: 0px 0px 10px 20px; display: block;">
                     </div>
@@ -572,63 +582,61 @@ li
                         <label style="white-space: nowrap;"><input id="paper-radio-qr-errorcorrectionlevel-m" type="radio" name="qr-error-correction-level-paper">Medium</label>
                         <label style="white-space: nowrap;"><input id="paper-radio-qr-errorcorrectionlevel-l" type="radio" name="qr-error-correction-level-paper">Low</label>
                     </div>
-                    <br>
+                    <div style="font-weight: bold; font-size: 20px; margin-top: 20px;">Count (max 100):</div>
+                    <input id="paperwallet-generate-count" type="number" value="4" min="1" max="100" step="1" style="font-size: 25px; padding: 5px; width: calc(100% - 24px);">
+                    <div style="font-weight: bold; font-size: 20px; margin-top: 20px;">Vertical gap between wallets (in pixels):</div>
+                    <input id="paperwallet-vertical-gap" type="number" value="0" style="font-size: 25px; padding: 5px; width: calc(100% - 24px);">
+                    <div style="font-weight: bold; font-size: 20px; width: 100px; margin-top: 20px;">Style:</div>
+                    <select id="paperwallet-style-selector" style="display: table-cell; font-size: 25px; padding: 5px; width: calc(100% - 24px);">
+                        <!-- <option value="design0">Simple</option>
+                        <option value="design6">bitaddress.org</option>
+                        <option value="design9">bitcoinpaperwallet.com</option>
+                        <option value="design1">bitcoinpaperwallet.com (black and white)</option>
+                        <option value="design2">Dorian Satoshi Nakamoto</option>
+                        <option value="design3">walletgenerator.net</option>
+                        <option value="design4">Bitcoin currency note</option>
+                        <option value="design5">Design by Mark &amp; Barbara Messer</option>
+                        <option value="design7">Design by Timbo925 (grey)</option>
+                        <option value="design8">Design by 75RTUGA</option>
+                        <option value="custom">Your custom image</option> -->
+                    </select>
+                    <div id="paperwallet-source-link" style="margin-bottom: 10px;"></div>
+                </div>
+                <div style="display: table-cell; padding-left: 10px; border-left: 2px solid #bbbbbb;">
+
+                    <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px; margin-top: 20px;">Generation type:</div>
+                    <div style="border-left: 2px solid #bbbbbb; margin-left: 8px; padding-left: 4px;">
+                        <label style="white-space: nowrap; display: block; margin: 4px 0px;"><input id="paper-radio-generation-type-random-new" type="radio" name="generation-type-paper" checked>Generate random wallets</label>
+                        <label style="white-space: nowrap; display: block; margin: 4px 0px;"><input id="paper-radio-generation-type-use-existing" type="radio" name="generation-type-paper">Use existing private keys</label>
+                        <label style="white-space: nowrap; display: block; margin: 4px 0px;"><input id="paper-radio-generation-type-from-seed" type="radio" name="generation-type-paper">Generate from mnemonic seed</label>
+                    </div>
+                    <div id="paper-div-generate-use-existing" style="display: none; margin-bottom: 12px;">
+                        <textarea id="paper-use-existing-textarea" style="width: 500px; height: 150px; resize: none; margin-top: 10px;" placeholder="Enter your private keys here, separated by spaces or newlines"></textarea>
+                    </div>
+                    <div id="paper-div-generate-from-seed" style="display: none; margin-bottom: 12px;">
+                        <textarea id="paper-from-seed-textarea" style="width: 500px; height: 75px; resize: none; margin-top: 10px;" placeholder="Enter your seed here"></textarea>
+                        <br>
+                        <div style="margin: 20px 0px 10px 0px; font-size: 16px; display: inline-block;">Offset:</div>
+                        <input id="paper-from-seed-offset" type="number" value="0" min="0" max="2147483648" step="1"
+                            style="font-size: 16px; width: 100px; padding: 2px 4px; margin-right: 8px;">
+                        <label style="font-size: 16px; width: 160px; padding: 2px 4px; white-space: nowrap;"
+                            ><input type="checkbox" id="paper-from-seed-hardened-checkbox"> Hardened?</label>
+                        <label style="font-size: 16px; width: 160px; padding: 2px 4px; white-space: nowrap"
+                            ><input type="checkbox" id="paper-from-seed-change-addresses-checkbox"> Change addresses?</label>
+                    </div>
                     <div style="display: table; padding-top: 10px;">
                         <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" style="margin-bottom: 20px;" id="bip38-enabled-paper">Bip38 encrypt</label>
                         <div class="link-style" id="show-bip38-info-link-paper" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</div>
                     </div>
                     <div id="bip38-password-box-div-paper" style="display: none; padding-bottom: 15px;">
-                    <div style="display: table-cell; padding-right: 10px; font-size: 25px;">Password:</div>
-                    <input id="bip38-password-box-paper" type="text" style="display: table-cell; font-size: 20px; padding: 5px;">
-                </div>
-                    <button style="margin-top: 20px;" id="paperwallet-generate-button">Generate paper wallets</button>
-                    <br>
-                    <button onclick="window.print()">Print</button>
-                </div>
-                <div style="display: table-cell; padding-left: 10px; border-left: 2px solid #bbbbbb;">
-                    <div style="font-weight: bold; font-size: 20px;">Count (max 100):</div>
-                    <input id="paperwallet-generate-count" type="number" value="4" min="1" max="100" step="1" style="font-size: 25px; padding: 5px; width: 100%;">
-                    <br>
-                    <br>
-                    <div style="font-weight: bold; font-size: 20px;">Vertical gap between wallets (in pixels):</div>
-                    <input id="paperwallet-vertical-gap" type="number" value="0" style="font-size: 25px; padding: 5px; width: 100%;">
-                    <br>
-                    <br>
-                    <div id="paper-custom-privkeys-bip38" style="display: none;">
-                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" id="use-custom-privkeys-bip38-paper">Use your own private keys</label>
-                        <div id="paper-custom-privkeys-bip38-container" style="display: none;">
-                            <div style="width: 480px; padding: 5px;">You can encrypt existing private keys to use them with paper wallets. Paste the private keys below, separated with spaces or new lines.<br><br>Click on "Generate paper wallets" to make the paper wallets.</div>
-                            <div id="paper-custom-privkey-bip38-error" style="padding: 5px; font-weight: bold;"></div>
-                            <textarea id="paper-custom-privkeys-bip38-textarea" style="width: 100%; height: 150px; resize: none; margin-top: 10px;" placeholder="Paste the private keys here..."></textarea>
-                        </div>
+                        <div style="display: table-cell; padding-right: 10px; font-size: 25px;">Password:</div>
+                        <input id="bip38-password-box-paper" type="text" style="display: table-cell; font-size: 20px; padding: 5px;">
                     </div>
-                    <div id="paper-custom-addresses-no-bip38">
-                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" id="use-custom-addresses-paper">Use your own addresses</label>
-                        <div id="paper-custom-addresses-container" style="display: none;">
-                            <div style="width: 480px; padding: 5px;">If you have already generated addresses / private keys, you can paste them here to use them in paper wallets.<br><strong>Make sure that the addresses and private keys are correct!</strong><br><br>Use the following format: separate the address and the private key with a space character, and separate each pair with commas: address1 privkey1, address2 privkey2, etc...<br><br>Click on "Generate paper wallets" to make the paper wallets.</div>
-                            <div id="paper-custom-address-error" style="padding: 5px; font-weight: bold;"></div>
-                            <textarea id="paper-custom-addresses" style="width: 100%; height: 150px; resize: none; margin-top: 10px;" placeholder="Enter the addresses and private keys here..."></textarea>
-                        </div>
-                    </div>
-                    <br>
-                    <div style="display: table; padding-top: 10px; width: 500px;">
-                        <div style="display: table-cell; font-weight: bold; font-size: 20px; width: 100px;">Style:</div>
-                        <select id="paperwallet-style-selector" style="display: table-cell; font-size: 25px; padding: 5px; width: 400px; margin-left: 20px; margin-bottom: 10px; right: 0px;">
-                            <!-- <option value="design0">Simple</option>
-                            <option value="design6">bitaddress.org</option>
-                            <option value="design9">bitcoinpaperwallet.com</option>
-                            <option value="design1">bitcoinpaperwallet.com (black and white)</option>
-                            <option value="design2">Dorian Satoshi Nakamoto</option>
-                            <option value="design3">walletgenerator.net</option>
-                            <option value="design4">Bitcoin currency note</option>
-                            <option value="design5">Design by Mark &amp; Barbara Messer</option>
-                            <option value="design7">Design by Timbo925 (grey)</option>
-                            <option value="design8">Design by 75RTUGA</option>
-                            <option value="custom">Your custom image</option> -->
-                        </select>
-                    </div>
-                    <div id="paperwallet-source-link" style="margin-bottom: 10px;"></div>
                 </div>
+            </div>
+            <div style="width: 600px;">
+                <button style="margin-top: 20px;" id="paperwallet-generate-button">Generate paper wallets</button>
+                <button onclick="window.print()">Print</button>
             </div>
             <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px; line-height: 30px;">Adjust the print scale if necessary!</div>
             <div id="paperwallet-generate-progress-text" style="font-weight: bold; font-size: 20px; padding-bottom: 10px; line-height: 30px;"></div>
