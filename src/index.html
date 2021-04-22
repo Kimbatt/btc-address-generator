@@ -603,8 +603,8 @@ li
                     <div id="paperwallet-source-link" style="margin-bottom: 10px;"></div>
                 </div>
                 <div style="display: inline-block; vertical-align: top; padding-left: 10px;">
-                    <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px; margin-top: 20px;">Generation type:</div>
-                    <div style="border-left: 2px solid #bbbbbb; margin-left: 8px; padding-left: 4px;">
+                    <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Generation type:</div>
+                    <div style="display: table; border-left: 2px solid #bbbbbb; margin-left: 8px; padding-left: 4px;">
                         <label style="white-space: nowrap; display: block; margin: 4px 0px;"><input id="paper-radio-generation-type-random-new" type="radio" name="generation-type-paper" checked>Generate random wallets</label>
                         <label style="white-space: nowrap; display: block; margin: 4px 0px;"><input id="paper-radio-generation-type-use-existing" type="radio" name="generation-type-paper">Use existing private keys</label>
                         <label style="white-space: nowrap; display: block; margin: 4px 0px;"><input id="paper-radio-generation-type-from-seed" type="radio" name="generation-type-paper">Generate from mnemonic seed</label>
@@ -614,6 +614,8 @@ li
                     </div>
                     <div id="paper-div-generate-from-seed" style="display: none; margin-bottom: 12px;">
                         <textarea id="paper-from-seed-textarea" style="width: 500px; height: 75px; resize: none; margin-top: 10px;" placeholder="Enter your seed here"></textarea>
+                        <br>
+                        <input id="paper-from-seed-password" type="text" placeholder="Password (optional)" style="font-size: 16px; margin-top: 10px; padding: 2px 4px; width: 500px;">
                         <br>
                         <div style="margin: 20px 0px 10px 0px; font-size: 16px; display: inline-block;">Offset:</div>
                         <input id="paper-from-seed-offset" type="number" value="0" min="0" max="2147483648" step="1"
@@ -638,7 +640,13 @@ li
                 <button onclick="window.print()">Print</button>
             </div>
             <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px; line-height: 30px;">Adjust the print scale if necessary!</div>
-            <div id="paperwallet-generate-progress-text" style="white-space: pre-line; font-weight: bold; font-size: 20px; padding-bottom: 10px; line-height: 30px;"></div>
+            <div id="paperwallet-generate-progress-container" style="display: none; margin-bottom: 12px;">
+                <div class="loading-spinner"></div>
+                <div id="paperwallet-generate-progress-text"
+                    style="display: inline-block; margin-left: 8px; white-space: pre-line; font-weight: bold; font-size: 20px; padding-bottom: 10px; line-height: 30px;"></div>
+                </div>
+            <div id="paperwallet-generate-progress-error"
+                style="display: none; margin-left: 8px; white-space: pre-line; font-weight: bold; font-size: 20px; padding-bottom: 10px; line-height: 30px; color: red;"></div>
             <div id="paperwallet-custom-parameters" style="display: none; border-bottom: 2px solid #bbbbbb; padding-bottom: 20px; margin-bottom: 20px;">
                 <div style="display: table-cell; padding-right: 40px; white-space: nowrap;">
                     <input id="paperwallet-file-chooser" type="file" accept="image/*"> &lt;- Background image

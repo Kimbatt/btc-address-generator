@@ -100,7 +100,7 @@ const enum PaperWalletGenerationType
 
 (() =>
 {
-    const { AsyncNoParallel, GenerateAddressQRCode, GenerateQRCode } = Util();
+    const { AsyncNoParallel, GenerateAddressQRCode, GenerateQRCode, ShowLoadingHelper } = Util();
 
     // address type
     let addressType: AddressType = "bech32";
@@ -310,14 +310,26 @@ const enum PaperWalletGenerationType
     }
 
     const progressTextDiv = document.getElementById("paperwallet-generate-progress-text")!;
+    const loading = new ShowLoadingHelper(document.getElementById("paperwallet-generate-progress-container")!, 100);
+
+    const errorMessageDiv = document.getElementById("paperwallet-generate-progress-error")!;
+
     function ShowMessage(message: string)
     {
         progressTextDiv.textContent = message;
     }
 
+    function ShowError(message: string)
+    {
+        loading.hide();
+        errorMessageDiv.style.display = "";
+        errorMessageDiv.textContent = message;
+    }
+
     const useExistingPrivateKeysTextArea = <HTMLTextAreaElement>document.getElementById("paper-use-existing-textarea");
 
     const generateFromSeedSeedTextArea = <HTMLTextAreaElement>document.getElementById("paper-from-seed-textarea");
+    const generateFromSeedSeedPassword = <HTMLInputElement>document.getElementById("paper-from-seed-password");
     const generateFromSeedOffsetInput = <HTMLInputElement>document.getElementById("paper-from-seed-offset");
     const generateFromSeedHardenedCheckbox = <HTMLInputElement>document.getElementById("paper-from-seed-hardened-checkbox");
     const generateFromSeedChangeAddressesCheckbox = <HTMLInputElement>document.getElementById("paper-from-seed-change-addresses-checkbox");
@@ -325,22 +337,23 @@ const enum PaperWalletGenerationType
     const generatedPaperWalletsContainer = document.getElementById("paperwallet-print-area")!;
     async function GeneratePaperWallets()
     {
-        progressTextDiv.style.display = "";
+        loading.show();
+        errorMessageDiv.style.display = "none";
 
         let count = Number(generateCountInput.value) | 0;
         if (isNaN(count))
         {
-            ShowMessage("Enter a number for count");
+            ShowError("Enter a number for count");
             return;
         }
         else if (count < 1)
         {
-            ShowMessage("Count must be greater than zero");
+            ShowError("Count must be greater than zero");
             return;
         }
         else if (count > 100)
         {
-            ShowMessage("Count must be 100 at most");
+            ShowError("Count must be 100 at most");
             return;
         }
 
@@ -350,10 +363,17 @@ const enum PaperWalletGenerationType
         let currentCount = 0;
         function UpdateProgress()
         {
-            ShowMessage(`Generating: ${currentCount++}/${count}`);
+            progressTextDiv.textContent = `Generating: ${currentCount++}/${count}`;
         }
 
         const isBIP38 = bip38Checkbox.checked;
+        const bip38Password = bip38PasswordInput.value;
+        if (isBIP38 && bip38Password === "")
+        {
+            ShowError("BIP38 password must not be empty");
+            return;
+        }
+
         const design = GetPaperWalletDesigns("Simple", isBIP38);
 
         async function CreateDivFromAddressAndPrivateKey(address: string, privateKey: string)
@@ -361,7 +381,8 @@ const enum PaperWalletGenerationType
             return await CreatePaperWalletDiv(design, address, privateKey, currentQRErrorCorrectionLevel, currentAddressType);
         }
 
-        const results: Promise<Result<HTMLElement, [string, string]>>[] = [];
+        type PaperWalletGenerateResult = Result<HTMLElement, [string, string]>;
+        const results: Promise<PaperWalletGenerateResult>[] = [];
         switch (generationType)
         {
             case PaperWalletGenerationType.RandomNew:
@@ -374,7 +395,7 @@ const enum PaperWalletGenerationType
                     const encryptionData = await WorkerInterface.GenerateRandomBIP38EncryptionData(bip38Password, currentAddressType);
                     if (encryptionData.type === "err")
                     {
-                        ShowMessage(encryptionData.error);
+                        ShowError(encryptionData.error);
                         return;
                     }
 
@@ -386,9 +407,9 @@ const enum PaperWalletGenerationType
                         {
                             const { address, privateKey } = await WorkerInterface.GenerateRandomBIP38EncryptedAddress(encryptionData.result);
                             const div = await CreateDivFromAddressAndPrivateKey(address, privateKey);
-                            UpdateProgress();
 
-                            return <Result<HTMLElement, [string, string]>>{
+                            UpdateProgress();
+                            return <PaperWalletGenerateResult>{
                                 type: "ok",
                                 result: div
                             };
@@ -405,9 +426,9 @@ const enum PaperWalletGenerationType
                         {
                             const { address, privateKey } = await WorkerInterface.GenerateRandomAddress(addressType);
                             const div = await CreateDivFromAddressAndPrivateKey(address, privateKey);
-                            UpdateProgress();
 
-                            return <Result<HTMLElement, [string, string]>>{
+                            UpdateProgress();
+                            return <PaperWalletGenerateResult>{
                                 type: "ok",
                                 result: div
                             };
@@ -432,14 +453,7 @@ const enum PaperWalletGenerationType
 
                 if (maybeValidPrivateKeys.length === 0)
                 {
-                    ShowMessage("No valid private keys were entered");
-                    return;
-                }
-
-                const bip38Password = bip38PasswordInput.value;
-                if (isBIP38 && bip38Password === "")
-                {
-                    ShowMessage("Password must not be empty");
+                    ShowError("No valid private keys were entered");
                     return;
                 }
 
@@ -453,7 +467,8 @@ const enum PaperWalletGenerationType
                         const decodeResult = await WorkerInterface.GetPrivateKeyDetails(privateKey);
                         if (decodeResult.type !== "ok")
                         {
-                            return <Result<HTMLElement, [string, string]>>{ type: "err", error: ["Invalid private key", privateKey] };
+                            UpdateProgress();
+                            return <PaperWalletGenerateResult>{ type: "err", error: ["Invalid private key", privateKey] };
                         }
 
                         const resultPrivateKey = await (async (): Promise<Result<string, string>> =>
@@ -477,7 +492,7 @@ const enum PaperWalletGenerationType
                         if (resultPrivateKey.type === "err")
                         {
                             UpdateProgress();
-                            return <Result<HTMLElement, [string, string]>>{
+                            return <PaperWalletGenerateResult>{
                                 type: "err",
                                 error: [resultPrivateKey.error, privateKey]
                             };
@@ -497,9 +512,9 @@ const enum PaperWalletGenerationType
                         })();
 
                         const div = await CreateDivFromAddressAndPrivateKey(address, resultPrivateKey.result);
-                        UpdateProgress();
 
-                        return <Result<HTMLElement, [string, string]>>{
+                        UpdateProgress();
+                        return <PaperWalletGenerateResult>{
                             type: "ok",
                             result: div
                         };
@@ -510,8 +525,98 @@ const enum PaperWalletGenerationType
             }
             case PaperWalletGenerationType.FromSeed:
             {
-                ShowMessage("Not implemented yet");
-                return;
+                const seed = generateFromSeedSeedTextArea.value;
+                const seedPassword = generateFromSeedSeedPassword.value;
+                const offset = Number(generateFromSeedOffsetInput.value) | 0;
+                if (isNaN(offset))
+                {
+                    ShowError("Offset must be a number");
+                    return;
+                }
+                if (offset < 0)
+                {
+                    ShowError("Offset must not be negative");
+                    return;
+                }
+
+                const startIndex = offset;
+                const endIndex = startIndex + count
+                if (endIndex > 0x80000000)
+                {
+                    ShowError("Offset + Count must be 2147483648 at most");
+                    return;
+                }
+
+                const hardened = generateFromSeedHardenedCheckbox.checked;
+                const changeAddresses = generateFromSeedChangeAddressesCheckbox.checked;
+
+                UpdateProgress();
+                const rootKeyResult = await WorkerInterface.GetBIP32RootKeyFromSeed(seed, seedPassword);
+                if (rootKeyResult.type === "err")
+                {
+                    ShowError("Invalid seed: " + rootKeyResult.error);
+                    return;
+                }
+
+                const rootKey = rootKeyResult.result;
+
+                const purpose: BIP32Purpose = currentAddressType === "legacy" ? "44" : currentAddressType === "segwit" ? "49" : "84";
+                const basePath = `m/${purpose}'/0'/0'`;
+
+                for (let i = startIndex; i < endIndex; ++i)
+                {
+                    results.push((async () =>
+                    {
+                        const derivedResult = await WorkerInterface.DeriveBIP32ExtendedKey(rootKey, basePath, purpose, hardened, changeAddresses);
+                        if (derivedResult.type === "err")
+                        {
+                            UpdateProgress();
+                            return <PaperWalletGenerateResult>{
+                                type: "err",
+                                error: [derivedResult.error, "index " + i]
+                            };
+                        }
+
+                        const addressResult = await WorkerInterface.DeriveBIP32Address(derivedResult.result.path,
+                            derivedResult.result.publicKey, derivedResult.result.privateKey, i, purpose, hardened);
+                        if (addressResult.type === "err")
+                        {
+                            UpdateProgress();
+                            return <PaperWalletGenerateResult>{
+                                type: "err",
+                                error: [addressResult.error, "index " + i]
+                            };
+                        }
+
+                        const address = addressResult.result.address;
+                        let privateKey = addressResult.result.privateKey!;
+
+                        if (isBIP38)
+                        {
+                            const encryptionResult = await WorkerInterface.BIP38EncryptPrivateKey(privateKey, bip38Password);
+                            if (encryptionResult.type === "err")
+                            {
+                                UpdateProgress();
+                                return <PaperWalletGenerateResult>{
+                                    type: "err",
+                                    error: [encryptionResult.error, "index " + i]
+                                };
+                            }
+
+                            privateKey = encryptionResult.result;
+                        }
+
+                        const div = await CreateDivFromAddressAndPrivateKey(address, privateKey);
+                        UpdateProgress();
+
+                        return <PaperWalletGenerateResult>{
+                            type: "ok",
+                            result: div
+                        };
+                    })());
+                }
+
+                break;
             }
         }
 
@@ -537,19 +642,19 @@ const enum PaperWalletGenerationType
 
         if (errorMessages.length !== 0)
         {
-            ShowMessage("Some of the private keys were invalid, so the corresponding wallets were not generated: \n" +
+            ShowError("Some of the private keys were invalid, so the corresponding wallets were not generated: \n" +
                 errorMessages.map(err =>
                 {
                     const errorMessage = err[0];
                     const privateKey = err[1];
 
-                    return `${errorMessage} (when processing private key "${privateKey}")`;
+                    return `${errorMessage} (processing private key "${privateKey}")`;
                 }).join("\n")
             );
         }
         else
         {
-            progressTextDiv.style.display = "none";
+            loading.hide();
         }
     }
 

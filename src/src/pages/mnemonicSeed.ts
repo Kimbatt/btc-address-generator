@@ -286,29 +286,27 @@
         const allPromises: Promise<{ address: string, privateKey: string, addressPath: string }>[] = [];
         for (let i = startIndex; i < endIndex; ++i)
         {
-            allPromises.push(
-                WorkerInterface.DeriveBIP32Address(path, derived.result.publicKey, derived.result.privateKey, i, derivedKeyPurpose, generateHardenedAddresses)
-                .then(result =>
+            allPromises.push((async () =>
+            {
+                const result = await WorkerInterface.DeriveBIP32Address(path, derived.result.publicKey, derived.result.privateKey, i, derivedKeyPurpose, generateHardenedAddresses);
+                UpdateProgress();
+                if (result.type === "err")
                 {
-                    UpdateProgress();
-                    if (result.type === "err")
-                    {
-                        return {
-                            address: "Error calculating address",
-                            privateKey: "Error calculating private key",
-                            addressPath: "Error calculating path"
-                        };
-                    }
-                    else
-                    {
-                        return {
-                            address: result.result.address,
-                            privateKey: result.result.privateKey ?? "???",
-                            addressPath: result.result.addressPath
-                        };
-                    }
-                })
-            );
+                    return {
+                        address: "Error calculating address",
+                        privateKey: "Error calculating private key",
+                        addressPath: "Error calculating path"
+                    };
+                }
+                else
+                {
+                    return {
+                        address: result.result.address,
+                        privateKey: result.result.privateKey ?? "???",
+                        addressPath: result.result.addressPath
+                    };
+                }
+            })());
         }
 
         function CreateRow(path: string, address: string, privkey: string)
