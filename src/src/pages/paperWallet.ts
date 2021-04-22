@@ -65,7 +65,7 @@ function GetPaperWalletDesigns(designName: PaperWalletDesignName, isBIP38: boole
                 }],
                 privateKeyTexts: [{
                     anchor: PaperWalletElementAnchor.BottomRight,
-                    posX: isBIP38 ? 430 : 120,
+                    posX: 120,
                     posY: 10,
                     size: 18
                 }],
@@ -84,7 +84,7 @@ function GetPaperWalletDesigns(designName: PaperWalletDesignName, isBIP38: boole
                         bold: true,
 
                         anchor: PaperWalletElementAnchor.BottomRight,
-                        posX: 514,
+                        posX: isBIP38 ? 431 : 514,
                         posY: 40,
                         size: 25
                     }
@@ -310,9 +310,9 @@ const enum PaperWalletGenerationType
     }
 
     const progressTextDiv = document.getElementById("paperwallet-generate-progress-text")!;
-    function ShowError(error: string)
+    function ShowMessage(message: string)
     {
-        progressTextDiv.textContent = error;
+        progressTextDiv.textContent = message;
     }
 
     const useExistingPrivateKeysTextArea = <HTMLTextAreaElement>document.getElementById("paper-use-existing-textarea");
@@ -327,75 +327,229 @@ const enum PaperWalletGenerationType
     {
         progressTextDiv.style.display = "";
 
-        const count = Number(generateCountInput.value) | 0;
+        let count = Number(generateCountInput.value) | 0;
         if (isNaN(count))
         {
-            ShowError("Enter a number for count");
+            ShowMessage("Enter a number for count");
             return;
         }
         else if (count < 1)
         {
-            ShowError("Count must be greater than zero");
+            ShowMessage("Count must be greater than zero");
             return;
         }
         else if (count > 100)
         {
-            ShowError("Count must be 100 at most");
+            ShowMessage("Count must be 100 at most");
             return;
         }
 
         const currentAddressType = addressType;
         const currentQRErrorCorrectionLevel = qrErrorCorrectionLevel;
 
-        // TODO
-        let design = GetPaperWalletDesigns("Simple", /* isBIP38 */ false);
+        let currentCount = 0;
+        function UpdateProgress()
+        {
+            ShowMessage(`Generating: ${currentCount++}/${count}`);
+        }
 
-        const results: Promise<Result<HTMLElement, string>>[] = [];
+        const isBIP38 = bip38Checkbox.checked;
+        const design = GetPaperWalletDesigns("Simple", isBIP38);
+
+        async function CreateDivFromAddressAndPrivateKey(address: string, privateKey: string)
+        {
+            return await CreatePaperWalletDiv(design, address, privateKey, currentQRErrorCorrectionLevel, currentAddressType);
+        }
+
+        const results: Promise<Result<HTMLElement, [string, string]>>[] = [];
         switch (generationType)
         {
             case PaperWalletGenerationType.RandomNew:
-                for (let i = 0; i < count; ++i)
+            {
+                if (isBIP38)
+                {
+                    const bip38Password = bip38PasswordInput.value;
+
+                    ShowMessage("Generating initial values");
+                    const encryptionData = await WorkerInterface.GenerateRandomBIP38EncryptionData(bip38Password, currentAddressType);
+                    if (encryptionData.type === "err")
+                    {
+                        ShowMessage(encryptionData.error);
+                        return;
+                    }
+
+                    UpdateProgress();
+
+                    for (let i = 0; i < count; ++i)
+                    {
+                        results.push((async () =>
+                        {
+                            const { address, privateKey } = await WorkerInterface.GenerateRandomBIP38EncryptedAddress(encryptionData.result);
+                            const div = await CreateDivFromAddressAndPrivateKey(address, privateKey);
+                            UpdateProgress();
+
+                            return <Result<HTMLElement, [string, string]>>{
+                                type: "ok",
+                                result: div
+                            };
+                        })());
+                    }
+                }
+                else
+                {
+                    UpdateProgress();
+
+                    for (let i = 0; i < count; ++i)
+                    {
+                        results.push((async () =>
+                        {
+                            const { address, privateKey } = await WorkerInterface.GenerateRandomAddress(addressType);
+                            const div = await CreateDivFromAddressAndPrivateKey(address, privateKey);
+                            UpdateProgress();
+
+                            return <Result<HTMLElement, [string, string]>>{
+                                type: "ok",
+                                result: div
+                            };
+                        })());
+                    }
+                }
+                break;
+            }
+            case PaperWalletGenerationType.UseExisting:
+            {
+                const privateKeys = useExistingPrivateKeysTextArea.value.split(/\s+/g);
+                const maybeValidPrivateKeys: string[] = [];
+                for (let i = 0; i < privateKeys.length; ++i)
+                {
+                    const current = privateKeys[i];
+                    const match = current.match(/[a-km-zA-HJ-NP-Z1-9]+/g);
+                    if (match)
+                    {
+                        maybeValidPrivateKeys.push(match[0]);
+                    }
+                }
+
+                if (maybeValidPrivateKeys.length === 0)
+                {
+                    ShowMessage("No valid private keys were entered");
+                    return;
+                }
+
+                const bip38Password = bip38PasswordInput.value;
+                if (isBIP38 && bip38Password === "")
+                {
+                    ShowMessage("Password must not be empty");
+                    return;
+                }
+
+                count = maybeValidPrivateKeys.length;
+                UpdateProgress();
+
+                for (let privateKey of maybeValidPrivateKeys)
                 {
                     results.push((async () =>
                     {
-                        const { address, privateKey } = await WorkerInterface.GenerateRandomAddress(addressType);
-                        const div = await CreatePaperWalletDiv(design, address, privateKey, currentQRErrorCorrectionLevel, currentAddressType);
+                        const decodeResult = await WorkerInterface.GetPrivateKeyDetails(privateKey);
+                        if (decodeResult.type !== "ok")
+                        {
+                            return <Result<HTMLElement, [string, string]>>{ type: "err", error: ["Invalid private key", privateKey] };
+                        }
+
+                        const resultPrivateKey = await (async (): Promise<Result<string, string>> =>
+                        {
+                            if (isBIP38)
+                            {
+                                const encryptionResult = await WorkerInterface.BIP38EncryptPrivateKey(privateKey, bip38Password);
+                                if (encryptionResult.type === "err")
+                                {
+                                    return encryptionResult;
+                                }
+
+                                return { type: "ok", result: encryptionResult.result };
+                            }
+                            else
+                            {
+                                return { type: "ok", result: privateKey };
+                            }
+                        })();
+
+                        if (resultPrivateKey.type === "err")
+                        {
+                            UpdateProgress();
+                            return <Result<HTMLElement, [string, string]>>{
+                                type: "err",
+                                error: [resultPrivateKey.error, privateKey]
+                            };
+                        }
+
+                        const address = ((): string =>
+                        {
+                            switch (currentAddressType)
+                            {
+                                case "legacy":
+                                    return decodeResult.legacyAddress;
+                                case "segwit":
+                                    return decodeResult.segwitAddress;
+                                case "bech32":
+                                    return decodeResult.bech32Address;
+                            }
+                        })();
+
+                        const div = await CreateDivFromAddressAndPrivateKey(address, resultPrivateKey.result);
                         UpdateProgress();
 
-                        return <Result<HTMLElement, string>>{
+                        return <Result<HTMLElement, [string, string]>>{
                             type: "ok",
                             result: div
                         };
                     })());
                 }
+
                 break;
-            case PaperWalletGenerationType.UseExisting:
-                ShowError("Not implemented yet");
-                return;
+            }
             case PaperWalletGenerationType.FromSeed:
-                ShowError("Not implemented yet");
+            {
+                ShowMessage("Not implemented yet");
                 return;
+            }
         }
-
-        let currentCount = 0;
-        function UpdateProgress()
-        {
-            progressTextDiv.textContent = `Generating: ${currentCount++}/${count}`;
-        }
-
-        UpdateProgress();
 
         const paperWalletDivs = await Promise.all(results);
-        progressTextDiv.style.display = "none";
 
         while (generatedPaperWalletsContainer.lastChild)
         {
             generatedPaperWalletsContainer.removeChild(generatedPaperWalletsContainer.lastChild);
         }
 
+        const errorMessages: [string, string][] = [];
         for (let divResult of paperWalletDivs)
         {
-            divResult.type === "ok" && generatedPaperWalletsContainer.appendChild(divResult.result);
+            if (divResult.type === "ok")
+            {
+                generatedPaperWalletsContainer.appendChild(divResult.result);
+            }
+            else
+            {
+                errorMessages.push(divResult.error)
+            }
+        }
+
+        if (errorMessages.length !== 0)
+        {
+            ShowMessage("Some of the private keys were invalid, so the corresponding wallets were not generated: \n" +
+                errorMessages.map(err =>
+                {
+                    const errorMessage = err[0];
+                    const privateKey = err[1];
+
+                    return `${errorMessage} (when processing private key "${privateKey}")`;
+                }).join("\n")
+            );
+        }
+        else
+        {
+            progressTextDiv.style.display = "none";
         }
     }
 

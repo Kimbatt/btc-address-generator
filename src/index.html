@@ -14,13 +14,13 @@ body
 
 body.dark
 {
-    background: #121212;
+    background-color: #121212;
     color: #e0e0e0;
 }
 
 body.light
 {
-    background: white;
+    background-color: white;
     color: black;
 }
 
@@ -567,8 +567,8 @@ li
         </div>
         <div id="page-paper-wallet" style="display: none; width: 80%; padding-left: 10px;">
             <div class="title">Paper wallet</div>
-            <div style="display: table; padding-left: 10px; margin-bottom: 10px;">
-                <div style="padding-bottom: 10px; padding-right: 10px; width: 500px;">
+            <div style="white-space: nowrap; padding-left: 10px; margin-bottom: 10px;">
+                <div style="display: inline-block; border-right: 2px solid #bbbbbb; padding: 0px 10px 10px 0px; width: 400px;">
                     <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Address type:</div>
                     <div>
                         <label style="white-space: nowrap;"><input id="paper-radio-type-segwit" type="radio" name="address-type-paper">Segwit</label>
@@ -602,8 +602,7 @@ li
                     </select>
                     <div id="paperwallet-source-link" style="margin-bottom: 10px;"></div>
                 </div>
-                <div style="display: table-cell; padding-left: 10px; border-left: 2px solid #bbbbbb;">
-
+                <div style="display: inline-block; vertical-align: top; padding-left: 10px;">
                     <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px; margin-top: 20px;">Generation type:</div>
                     <div style="border-left: 2px solid #bbbbbb; margin-left: 8px; padding-left: 4px;">
                         <label style="white-space: nowrap; display: block; margin: 4px 0px;"><input id="paper-radio-generation-type-random-new" type="radio" name="generation-type-paper" checked>Generate random wallets</label>
@@ -639,7 +638,7 @@ li
                 <button onclick="window.print()">Print</button>
             </div>
             <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px; line-height: 30px;">Adjust the print scale if necessary!</div>
-            <div id="paperwallet-generate-progress-text" style="font-weight: bold; font-size: 20px; padding-bottom: 10px; line-height: 30px;"></div>
+            <div id="paperwallet-generate-progress-text" style="white-space: pre-line; font-weight: bold; font-size: 20px; padding-bottom: 10px; line-height: 30px;"></div>
             <div id="paperwallet-custom-parameters" style="display: none; border-bottom: 2px solid #bbbbbb; padding-bottom: 20px; margin-bottom: 20px;">
                 <div style="display: table-cell; padding-right: 40px; white-space: nowrap;">
                     <input id="paperwallet-file-chooser" type="file" accept="image/*"> &lt;- Background image
