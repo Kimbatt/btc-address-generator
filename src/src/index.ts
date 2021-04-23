@@ -6,7 +6,8 @@ window.addEventListener("load", async () =>
     const {
         IsDarkMode,
         SetDarkMode,
-        IsTestnet
+        IsTestnet,
+        AsyncNoParallel
     } = Util();
 
     const { ShowRandomnessCanvas } = EntropyCanvas();
@@ -50,9 +51,44 @@ window.addEventListener("load", async () =>
         document.getElementById("mainnet-link-li")!.style.display = isTestnet ? "" : "none";
     }
 
+    // tests
+    {
+        const RunTests = InitTests();
+
+        const testOverlay = document.getElementById("tests-overlay")!;
+        const testRunningDiv = document.getElementById("tests-running-container")!;
+        const testDoneDiv = document.getElementById("tests-done-container")!;
+        const testResultTextDiv = document.getElementById("tests-result")!;
+        const testResultCloseButton = <HTMLButtonElement>document.getElementById("tests-result-close-button");
+
+        document.getElementById("run-tests-link")!.addEventListener("click", AsyncNoParallel(async () =>
+        {
+            testOverlay.style.display = "flex";
+            testRunningDiv.style.display = "flex";
+            testDoneDiv.style.display = "none";
+
+            const failedTestMessages = await RunTests();
+
+            testRunningDiv.style.display = "none";
+            testDoneDiv.style.display = "flex";
+
+            if (failedTestMessages.length === 0)
+            {
+                testResultTextDiv.textContent = "All tests OK!";
+            }
+            else
+            {
+                failedTestMessages.forEach(console.error);
+                testResultTextDiv.textContent = `${failedTestMessages.length} test${failedTestMessages.length === 1 ? "" : "s"} failed! Please report this issue! Check the developer console for details.`;
+            }
+        }));
+
+        testResultCloseButton.addEventListener("click", () => testOverlay.style.display = "none");
+    }
+
     InitializePage();
 
-    const generateSingleAddress = InitSingleAddressPage();
+    const GenerateSingleAddress = InitSingleAddressPage();
     InitAddressDetailsPage();
     InitBulkGeneratePage();
     InitPaperWalletPage();
@@ -62,5 +98,5 @@ window.addEventListener("load", async () =>
 
     await ShowRandomnessCanvas();
 
-    await generateSingleAddress();
+    await GenerateSingleAddress();
 });
