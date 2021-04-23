@@ -54,6 +54,7 @@ var PaperWalletDesignNames = {
     "Design by Mark & Barbara Messer": "https://i.pinimg.com/originals/a3/89/89/a38989778a3e113a657016f5fab1803b.png",
     "Design by Timbo925 (grey)": "https://github.com/Timbo925/walletprinter/blob/d8ae0eab0c5ef09b0ade59009d544ae5f78b12f8/img/wallet_designs/timbo-grey.svg",
     "Design by 75RTUGA": "https://github.com/nieldlr/walletprinter/blob/master/img/wallet_designs/75RTUGA.jpg",
+    "Your custom design": null
 } as const;
 
 type PaperWalletDesignName = keyof typeof PaperWalletDesignNames;
@@ -414,5 +415,7 @@ function GetPaperWalletDesign(designName: PaperWalletDesignName, isBIP38: boolea
                 ],
                 privateKeyTexts: []
             };
+        case "Your custom design":
+            return GetCustomPaperWalletDesign();
     };
 }

@@ -7,6 +7,11 @@
 
 <style>
 
+:root
+{
+    --paperwallet-vertical-gap: 0px;
+}
+
 body
 {
     font-family: "Trebuchet MS", Helvetica, sans-serif;
@@ -218,6 +223,11 @@ li
 .dark .highlighted
 {
     background-color: #404040;
+}
+
+#paperwallet-print-area > *:not(:last-child)
+{
+    margin-bottom: var(--paperwallet-vertical-gap);
 }
 
 .light #seed-details-results-addresses-table-header, .light #seed-details-results-addresses-table-header *,
@@ -585,21 +595,10 @@ li
                     <div style="font-weight: bold; font-size: 20px; margin-top: 20px;">Count (max 100):</div>
                     <input id="paperwallet-generate-count" type="number" value="4" min="1" max="100" step="1" style="font-size: 25px; padding: 5px; width: calc(100% - 24px);">
                     <div style="font-weight: bold; font-size: 20px; margin-top: 20px;">Vertical gap between wallets (in pixels):</div>
-                    <input id="paperwallet-vertical-gap" type="number" value="0" style="font-size: 25px; padding: 5px; width: calc(100% - 24px);">
+                    <input type="number" value="0" min="0" max="1000" style="font-size: 25px; padding: 5px; width: calc(100% - 24px);"
+                        oninput="document.documentElement.style.setProperty('--paperwallet-vertical-gap', this.value + 'px')">
                     <div style="font-weight: bold; font-size: 20px; width: 100px; margin-top: 20px;">Style:</div>
-                    <select id="paperwallet-style-selector" style="display: table-cell; font-size: 25px; padding: 5px; width: calc(100% - 24px);">
-                        <!-- <option value="design0">Simple</option>
-                        <option value="design6">bitaddress.org</option>
-                        <option value="design9">bitcoinpaperwallet.com</option>
-                        <option value="design1">bitcoinpaperwallet.com (black and white)</option>
-                        <option value="design2">Dorian Satoshi Nakamoto</option>
-                        <option value="design3">walletgenerator.net</option>
-                        <option value="design4">Bitcoin currency note</option>
-                        <option value="design5">Design by Mark &amp; Barbara Messer</option>
-                        <option value="design7">Design by Timbo925 (grey)</option>
-                        <option value="design8">Design by 75RTUGA</option>
-                        <option value="custom">Your custom image</option> -->
-                    </select>
+                    <select id="paperwallet-style-selector" style="display: table-cell; font-size: 25px; padding: 5px; width: calc(100% - 24px);"></select>
                     <a id="paperwallet-source-link" style="display: none; margin: 10px; font-size: 24px;">Design source</a>
                 </div>
                 <div style="display: inline-block; vertical-align: top; padding-left: 10px;">
@@ -635,6 +634,14 @@ li
                     </div>
                 </div>
             </div>
+            <div id="paperwallet-custom-container" style="display: none; white-space: nowrap; border-bottom: 2px solid #bbbbbb; padding-bottom: 20px; margin-bottom: 20px;">
+                <div id="paperwallet-custom-parameters" style="display: inline-block; width: 500px;"></div>
+                <div style="display: inline-block; vertical-align: top;">
+                    <div style="font-size: 25px;">Preview:</div>
+                    <br>
+                    <div id="paperwallet-preview-div" style="width: 700px; height: 400px; border: 2px solid black; font-size: 30px; background-color: white; position: relative;"></div>
+                </div>
+            </div>
             <div style="width: 600px;">
                 <button style="margin-top: 20px;" id="paperwallet-generate-button">Generate paper wallets</button>
                 <button onclick="window.print()">Print</button>
@@ -647,55 +654,6 @@ li
                 </div>
             <div id="paperwallet-generate-progress-error"
                 style="display: none; margin-left: 8px; white-space: pre-line; font-weight: bold; font-size: 20px; padding-bottom: 10px; line-height: 30px; color: red;"></div>
-            <div id="paperwallet-custom-parameters" style="display: none; border-bottom: 2px solid #bbbbbb; padding-bottom: 20px; margin-bottom: 20px;">
-                <div style="display: table-cell; padding-right: 40px; white-space: nowrap;">
-                    <input id="paperwallet-file-chooser" type="file" accept="image/*"> &lt;- Background image
-                    <br>
-                    <br>
-                    <input id="paperwallet-custom-background-scale" type="number" value="100" class="paperwallet-custom-params"> Background image preview scale (percent)
-                    <br>
-                    <input id="paperwallet-custom-address-posx" type="number" value="170" class="paperwallet-custom-params"> Address position x (left)
-                    <br>
-                    <input id="paperwallet-custom-address-posy" type="number" value="10" class="paperwallet-custom-params"> Address position y (top)
-                    <br>
-                    <input id="paperwallet-custom-address-size" type="number" value="20" class="paperwallet-custom-params"> Address font size
-                    <br>
-                    <input id="paperwallet-custom-address-length" type="number" value="0" class="paperwallet-custom-params"> Address letters per line (0: no line breaks)
-                    <br>
-                    <input id="paperwallet-custom-address-rotation" type="number" value="0" class="paperwallet-custom-params"> Address rotation (degrees)
-                    <br>
-                    <input id="paperwallet-custom-address-qr-posx" type="number" value="10" class="paperwallet-custom-params"> Address QR code position x (left)
-                    <br>
-                    <input id="paperwallet-custom-address-qr-posy" type="number" value="10" class="paperwallet-custom-params"> Address QR code position y (top)
-                    <br>
-                    <input id="paperwallet-custom-address-qr-size" type="number" value="150" class="paperwallet-custom-params"> Address QR code size
-                    <br>
-                    <input id="paperwallet-custom-address-qr-rotation" type="number" value="0" class="paperwallet-custom-params"> Address QR rotation (degrees)
-                    <br>
-                    <input id="paperwallet-custom-privkey-posx" type="number" value="170" class="paperwallet-custom-params"> Private key position x (left)
-                    <br>
-                    <input id="paperwallet-custom-privkey-posy" type="number" value="180" class="paperwallet-custom-params"> Private key position y (top)
-                    <br>
-                    <input id="paperwallet-custom-privkey-size" type="number" value="20" class="paperwallet-custom-params"> Private key font size
-                    <br>
-                    <input id="paperwallet-custom-privkey-length" type="number" value="0" class="paperwallet-custom-params"> Private key letters per line (0: no line breaks)
-                    <br>
-                    <input id="paperwallet-custom-privkey-rotation" type="number" value="0" class="paperwallet-custom-params"> Private key rotation (degrees)
-                    <br>
-                    <input id="paperwallet-custom-privkey-qr-posx" type="number" value="10" class="paperwallet-custom-params"> Private key QR code position x (left)
-                    <br>
-                    <input id="paperwallet-custom-privkey-qr-posy" type="number" value="170" class="paperwallet-custom-params"> Private key QR code position y (top)
-                    <br>
-                    <input id="paperwallet-custom-privkey-qr-size" type="number" value="150" class="paperwallet-custom-params"> Private key QR code size
-                    <br>
-                    <input id="paperwallet-custom-privkey-qr-rotation" type="number" value="0" class="paperwallet-custom-params"> Private key QR rotation (degrees)
-                </div>
-                <div style="display: table-cell;">
-                    <div style="font-size: 25px;">Preview:</div>
-                    <br>
-                    <div id="paperwallet-preview-div" style="width: 700px; height: 400px; border: 2px solid black; font-size: 30px; background-color: #d0d0d0;">Choose a background image first!</div>
-                </div>
-            </div>
             <div id="paperwallet-canvas-print-container" style="width: 100%;">
                 <div id="paperwallet-print-area" class="print-visible"></div>
             </div>
@@ -885,13 +843,14 @@ li
     <script type="text/javascript" src="js/dist/bip39.js"></script>
     <script type="text/javascript" src="js/dist/page.js"></script>
 
-    <script type="text/javascript" src="js/dist/pages/misc/paperWalletDesign.js"></script>
-
     <script type="text/javascript" src="js/dist/pages/singleAddress.js"></script>
     <script type="text/javascript" src="js/dist/pages/addressDetails.js"></script>
     <script type="text/javascript" src="js/dist/pages/bulkGenerate.js"></script>
     <script type="text/javascript" src="js/dist/pages/paperWallet.js"></script>
     <script type="text/javascript" src="js/dist/pages/mnemonicSeed.js"></script>
+
+    <script type="text/javascript" src="js/dist/pages/misc/paperWalletDesign.js"></script>
+    <script type="text/javascript" src="js/dist/pages/misc/customPaperWalletDesign.js"></script>
 
 </body>
 </html>

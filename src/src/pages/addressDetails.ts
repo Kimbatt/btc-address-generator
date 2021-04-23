@@ -1,5 +1,5 @@
 
-(() =>
+function InitAddressDetailsPage()
 {
     const { AsyncNoParallel, GenerateAddressQRCode, WaitForImageLoad, ShowLoadingHelper } = Util();
 
@@ -124,4 +124,4 @@
     const DecryptPrivateKeyFunction = AsyncNoParallel(DecryptPrivateKey);
     bip38decryptButton.addEventListener("click", DecryptPrivateKeyFunction);
     bip38passwordInput.addEventListener("keyup", ev => ev.key === "Enter" && DecryptPrivateKeyFunction());
-})();
+}

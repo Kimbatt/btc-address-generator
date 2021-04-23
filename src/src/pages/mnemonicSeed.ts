@@ -1,5 +1,5 @@
 
-(() =>
+function InitMnemonicSeedPage()
 {
     const { AsyncNoParallel } = Util();
 
@@ -354,4 +354,4 @@
     }
 
     toggleExtendedKeysButton.addEventListener("click", ToggleExtendedKeys);
-})();
+}

@@ -1,5 +1,5 @@
 
-var generateSingleAddress = (() =>
+function InitSingleAddressPage()
 {
     const { AsyncNoParallel, GenerateAddressQRCode, GenerateQRCode } = Util();
 
@@ -68,4 +68,4 @@ var generateSingleAddress = (() =>
 
     generateButton.addEventListener("click", Generate);
     return Generate;
-})();
+}

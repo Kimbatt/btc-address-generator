@@ -1,5 +1,5 @@
 
-(() =>
+function InitBulkGeneratePage()
 {
     const { AsyncNoParallel } = Util();
 
@@ -115,4 +115,4 @@
     }
 
     bulkGenerateButton.addEventListener("click", AsyncNoParallel(BulkGenerate));
-})();
+}

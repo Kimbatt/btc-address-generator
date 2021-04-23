@@ -4,7 +4,7 @@ const enum PaperWalletGenerationType
     RandomNew, UseExisting, FromSeed
 }
 
-(() =>
+function InitPaperWalletPage()
 {
     const { AsyncNoParallel, GenerateAddressQRCode, GenerateQRCode, ShowLoadingHelper } = Util();
 
@@ -80,6 +80,7 @@ const enum PaperWalletGenerationType
     }
 
     const paperWalletSourceLink = <HTMLAnchorElement>document.getElementById("paperwallet-source-link");
+    const paperWalletCustomControlsContainer = document.getElementById("paperwallet-custom-container")!;
     styleSelector.addEventListener("change", () =>
     {
         selectedStyle = <PaperWalletDesignName>styleSelector.value;
@@ -94,6 +95,8 @@ const enum PaperWalletGenerationType
             paperWalletSourceLink.style.display = "none";
             paperWalletSourceLink.href = "";
         }
+
+        paperWalletCustomControlsContainer.style.display = selectedStyle === "Your custom design" ? "" : "none";
     });
 
     async function CreatePaperWalletDiv(design: PaperWalletDesign, address: string, privateKey: string,
@@ -614,4 +617,4 @@ const enum PaperWalletGenerationType
     }
 
     generateButton.addEventListener("click", AsyncNoParallel(GeneratePaperWallets));
-})();
+}

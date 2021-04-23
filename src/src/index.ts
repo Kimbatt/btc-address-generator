@@ -52,6 +52,14 @@ window.addEventListener("load", async () =>
 
     InitializePage();
 
+    const generateSingleAddress = InitSingleAddressPage();
+    InitAddressDetailsPage();
+    InitBulkGeneratePage();
+    InitPaperWalletPage();
+    InitMnemonicSeedPage();
+
+    GetCustomPaperWalletDesign = InitCustomPaperWalletDesign();
+
     await ShowRandomnessCanvas();
 
     await generateSingleAddress();

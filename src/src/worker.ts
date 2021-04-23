@@ -190,11 +190,12 @@ ${WorkerCreatorFunction.toString()}
         ForEveryWorkerWrapper = async (data: any) =>
         {
             const allPromises: Promise<void>[] = [];
+            availableWorkers.length = 0;
             for (let worker of allWorkers)
             {
                 allPromises.push(new Promise<void>(resolve =>
                 {
-                    worker.onmessage = message =>
+                    worker.onmessage = () =>
                     {
                         worker.onmessage = null;
                         resolve();
@@ -205,6 +206,11 @@ ${WorkerCreatorFunction.toString()}
             }
 
             await Promise.all(allPromises);
+
+            for (let worker of allWorkers)
+            {
+                NotifyWorkerBecameAvailable(worker);
+            }
         };
     }
 
