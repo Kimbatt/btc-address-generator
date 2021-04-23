@@ -1,98 +1,4 @@
 
-interface PaperWalletElementTransform
-{
-    anchor?: PaperWalletElementAnchor;
-    size: number;
-    posX: number;
-    posY: number;
-    rotation?: number;
-}
-
-type PaperWalletTextElement = PaperWalletElementTransform & {
-    fontFamily?: string;
-    bold?: boolean;
-    italic?: boolean;
-    maxLineLength?: number;
-};
-
-const enum PaperWalletElementAnchor
-{
-    TopLeft, TopRight, BottomLeft, BottomRight
-}
-
-type PaperWalletCustomTextElement = PaperWalletTextElement & {
-    text: string;
-}
-
-interface PaperWalletDesign
-{
-    backgroundImageSrc?: string;
-    width: number;
-    height: number;
-    addressQRCodes: PaperWalletElementTransform[];
-    privateKeyQRCodes: PaperWalletElementTransform[];
-    addressTexts: PaperWalletTextElement[];
-    privateKeyTexts: PaperWalletTextElement[];
-    customTexts?: PaperWalletCustomTextElement[];
-}
-
-const PaperWalletDesignNames = ["Simple"] as const;
-type PaperWalletDesignName = typeof PaperWalletDesignNames[number];
-
-function GetPaperWalletDesigns(designName: PaperWalletDesignName, isBIP38: boolean): PaperWalletDesign
-{
-    switch (designName)
-    {
-        case "Simple":
-            return {
-                width: 1000,
-                height: 200,
-                addressQRCodes: [{
-                    posX: 10,
-                    posY: 10,
-                    size: 100
-                }],
-                privateKeyQRCodes: [{
-                    anchor: PaperWalletElementAnchor.BottomRight,
-                    posX: 10,
-                    posY: 10,
-                    size: 100
-                }],
-                addressTexts: [{
-                    posX: 120,
-                    posY: 50,
-                    size: 18
-                }],
-                privateKeyTexts: [{
-                    anchor: PaperWalletElementAnchor.BottomRight,
-                    posX: 120,
-                    posY: 10,
-                    size: 18
-                }],
-                customTexts: [
-                    {
-                        text: "Address:",
-                        fontFamily: "Verdana",
-                        bold: true,
-
-                        posX: 120,
-                        posY: 15,
-                        size: 25
-                    }, {
-                        text: isBIP38 ? "Encrypted private key:" : "Private key:",
-                        fontFamily: "Verdana",
-                        bold: true,
-
-                        anchor: PaperWalletElementAnchor.BottomRight,
-                        posX: isBIP38 ? 431 : 514,
-                        posY: 40,
-                        size: 25
-                    }
-                ]
-            };
-    };
-}
-
 const enum PaperWalletGenerationType
 {
     RandomNew, UseExisting, FromSeed
@@ -162,7 +68,33 @@ const enum PaperWalletGenerationType
     // generate related elements
     const generateButton = <HTMLButtonElement>document.getElementById("paperwallet-generate-button");
     const generateCountInput = <HTMLInputElement>document.getElementById("paperwallet-generate-count");
+
     const styleSelector = <HTMLSelectElement>document.getElementById("paperwallet-style-selector");
+    let selectedStyle: PaperWalletDesignName = "Simple";
+    for (let paperWalletDesignName in PaperWalletDesignNames)
+    {
+        const option = document.createElement("option");
+        option.text = paperWalletDesignName;
+        option.value = paperWalletDesignName;
+        styleSelector.appendChild(option);
+    }
+
+    const paperWalletSourceLink = <HTMLAnchorElement>document.getElementById("paperwallet-source-link");
+    styleSelector.addEventListener("change", () =>
+    {
+        selectedStyle = <PaperWalletDesignName>styleSelector.value;
+        const source = PaperWalletDesignNames[selectedStyle];
+        if (source)
+        {
+            paperWalletSourceLink.style.display = "block";
+            paperWalletSourceLink.href = source;
+        }
+        else
+        {
+            paperWalletSourceLink.style.display = "none";
+            paperWalletSourceLink.href = "";
+        }
+    });
 
     async function CreatePaperWalletDiv(design: PaperWalletDesign, address: string, privateKey: string,
         qrCodeErrorCorrectionLevel: QRCodeErrorCorrectionLevel, addressType: AddressType)
@@ -180,6 +112,16 @@ const enum PaperWalletGenerationType
         container.style.border = "2px solid black";
         container.style.width = design.width + "px";
         container.style.height = design.height + "px";
+
+        if (design.backgroundImageSrc)
+        {
+            const backgroundImage = new Image();
+            backgroundImage.style.position = "relative";
+            backgroundImage.style.width = container.style.width;
+            backgroundImage.style.height = container.style.height;
+            backgroundImage.src = design.backgroundImageSrc;
+            container.appendChild(backgroundImage);
+        }
 
         function AnchorToCSS(anchor: PaperWalletElementAnchor | undefined)
         {
@@ -211,12 +153,17 @@ const enum PaperWalletGenerationType
             img.style.position = "absolute";
             const [horizontal, vertical] = AnchorToCSS(transform.anchor);
 
-            img.style[horizontal] = transform.posX + "px";
-            img.style[vertical] = transform.posY + "px";
+            img.style[horizontal] = transform.position.x + "px";
+            img.style[vertical] = transform.position.y + "px";
 
             if (transform.rotation !== undefined)
             {
                 img.style.transform = `rotate(${transform.rotation}deg)`;
+            }
+
+            if (transform.rotationPivot !== undefined)
+            {
+                img.style.transformOrigin = `${transform.rotationPivot.x}% ${transform.rotationPivot.y}%`;
             }
 
             return img;
@@ -253,6 +200,11 @@ const enum PaperWalletGenerationType
             const textDiv = document.createElement("div");
             textDiv.textContent = (() =>
             {
+                if (properties.maxLength !== undefined)
+                {
+                    text = text.substr(0, properties.maxLength);
+                }
+
                 if (properties.maxLineLength)
                 {
                     textDiv.style.whiteSpace = "pre-line";
@@ -267,14 +219,28 @@ const enum PaperWalletGenerationType
             textDiv.style.fontSize = properties.size + "px";
             textDiv.style.fontFamily = properties.fontFamily ?? "roboto-mono";
 
+            if (properties.bold)
+            {
+                textDiv.style.fontWeight = "bold";
+            }
+
+            if (properties.italic)
+            {
+                textDiv.style.fontStyle = "italic";
+            }
+
             const [horizontal, vertical] = AnchorToCSS(properties.anchor);
-            textDiv.style[horizontal] = properties.posX + "px";
-            textDiv.style[vertical] = properties.posY + "px";
+            textDiv.style[horizontal] = properties.position.x + "px";
+            textDiv.style[vertical] = properties.position.y + "px";
 
             if (properties.rotation !== undefined)
             {
-                textDiv.style.transformOrigin = "0% 0%";
                 textDiv.style.transform = `rotate(${properties.rotation}deg)`;
+            }
+
+            if (properties.rotationPivot !== undefined)
+            {
+                textDiv.style.transformOrigin = `${properties.rotationPivot.x}% ${properties.rotationPivot.y}%`;
             }
 
             return textDiv;
@@ -292,18 +258,7 @@ const enum PaperWalletGenerationType
 
         for (let customText of design.customTexts ?? [])
         {
-            const textDiv = CreateText(customText.text, customText);
-            if (customText.bold)
-            {
-                textDiv.style.fontWeight = "bold";
-            }
-
-            if (customText.italic)
-            {
-                textDiv.style.fontStyle = "italic";
-            }
-
-            container.appendChild(textDiv);
+            container.appendChild(CreateText(customText.text, customText));
         }
 
         return container;
@@ -374,7 +329,7 @@ const enum PaperWalletGenerationType
             return;
         }
 
-        const design = GetPaperWalletDesigns("Simple", isBIP38);
+        const design = GetPaperWalletDesign(selectedStyle, isBIP38);
 
         async function CreateDivFromAddressAndPrivateKey(address: string, privateKey: string)
         {
