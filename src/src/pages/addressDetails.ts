@@ -3,7 +3,7 @@ function InitAddressDetailsPage()
 {
     const { AsyncNoParallel, GenerateAddressQRCode, WaitForImageLoad, ShowLoadingHelper } = Util();
 
-    const privateKeyInput = <HTMLInputElement>document.getElementById("view-address-privkey-textbox");
+    const privateKeyInput = <HTMLInputElement>document.getElementById("view-address-private-key-textbox");
     const privateKeyInfoContainer = document.getElementById("view-address-div")!;
     const viewAddressDetailsButton = <HTMLButtonElement>document.getElementById("view-address-details-button");
     const messageDiv = document.getElementById("view-address-message")!;

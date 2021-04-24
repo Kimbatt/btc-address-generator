@@ -27,7 +27,7 @@ window.addEventListener("load", async () =>
     // show warning if not running from a local file
     if (window.location.protocol !== "file:")
     {
-        document.getElementById("warning_text")!.style.display = "";
+        document.getElementById("warning-text")!.style.display = "";
     }
 
     // dark mode events

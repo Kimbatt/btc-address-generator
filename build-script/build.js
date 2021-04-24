@@ -42,7 +42,7 @@ htmlFileContents = htmlFileContents.replace(/(\r\n\s*){3,}/g, "\r\n");
 startIndex = 0;
 while (true)
 {
-    const currentMatch = htmlFileContents.substring(startIndex).match(/src: url\((.+?)\) format\(\'woff\'\);/);
+    const currentMatch = htmlFileContents.substring(startIndex).match(/src: url\((.+?)\) format\(\"woff\"\);/);
     if (!currentMatch)
         break;
 

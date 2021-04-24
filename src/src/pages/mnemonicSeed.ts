@@ -205,7 +205,7 @@ function InitMnemonicSeedPage()
 
     const calculateAddressesButton = <HTMLButtonElement>document.getElementById("seed-details-address-calculate-button");
     const extendedPublicKeyTextArea = <HTMLTextAreaElement>document.getElementById("seed-details-results-extended-pubkey")!;
-    const extendedPrivateKeyTextArea = <HTMLTextAreaElement>document.getElementById("seed-details-results-extended-privkey")!;
+    const extendedPrivateKeyTextArea = <HTMLTextAreaElement>document.getElementById("seed-details-results-extended-private-key")!;
     const addressCountInput = <HTMLInputElement>document.getElementById("seed-details-address-count");
     const addressOffsetInput = <HTMLInputElement>document.getElementById("seed-details-address-offset");
     const addressesResultTable = document.getElementById("seed-details-results-addresses-table")!;
@@ -309,7 +309,7 @@ function InitMnemonicSeedPage()
             })());
         }
 
-        function CreateRow(path: string, address: string, privkey: string)
+        function CreateRow(path: string, address: string, privateKey: string)
         {
             const row = document.createElement("div");
             row.className = "seed-details-results-address-row";
@@ -320,12 +320,12 @@ function InitMnemonicSeedPage()
             const addressDiv = document.createElement("div");
             addressDiv.textContent = address;
 
-            const privkeyDiv = document.createElement("div");
-            privkeyDiv.textContent = privkey;
+            const privateKeyDiv = document.createElement("div");
+            privateKeyDiv.textContent = privateKey;
 
             row.appendChild(pathDiv);
             row.appendChild(addressDiv);
-            row.appendChild(privkeyDiv);
+            row.appendChild(privateKeyDiv);
 
             addressesResultTable.appendChild(row);
         }

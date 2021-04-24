@@ -35,8 +35,8 @@ function INIT_AddressUtil()
     // Creates base58 encoded private key in string format from bigint
     function MakePrivateKey(bigint: BN)
     {
-        const privkey: number[] = [];
-        privkey.push(0x01);
+        const privateKey: number[] = [];
+        privateKey.push(0x01);
 
         const temp = WorkerUtils.BigintToByteArray(bigint);
         while (temp.length < 32)
@@ -44,10 +44,10 @@ function INIT_AddressUtil()
            temp.push(0);
         }
 
-        privkey.push(...temp);
-        privkey.push(WorkerUtils.IsTestnet() ? 0xEF : 0x80);
-        privkey.reverse();
-        return WorkerUtils.Base58CheckEncode(privkey);
+        privateKey.push(...temp);
+        privateKey.push(WorkerUtils.IsTestnet() ? 0xEF : 0x80);
+        privateKey.reverse();
+        return WorkerUtils.Base58CheckEncode(privateKey);
     }
 
     // make legacy address from public key

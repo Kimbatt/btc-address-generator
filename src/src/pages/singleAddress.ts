@@ -34,8 +34,8 @@ function InitSingleAddressPage()
     // address generation
     const generateButton = <HTMLButtonElement>document.getElementById("singleaddress-generate-address-button");
 
-    const privateKeyTextDiv = document.getElementById("single-address-privkey")!
-    const privateKeyQRImage = <HTMLImageElement>document.getElementById("single-address-privkey-qr");
+    const privateKeyTextDiv = document.getElementById("single-address-private-key")!
+    const privateKeyQRImage = <HTMLImageElement>document.getElementById("single-address-private-key-qr");
 
     const addressTextDiv = document.getElementById("single-address-address")!;
     const addressQRImage = <HTMLImageElement>document.getElementById("single-address-qr");

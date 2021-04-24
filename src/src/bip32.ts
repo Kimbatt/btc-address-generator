@@ -47,13 +47,13 @@ function INIT_BIP32()
         chainCode: number[];
     }
 
-    interface DerivedPrivKey
+    interface DerivedPrivateKey
     {
         key: BN;
         chainCode: number[];
     }
 
-    function CKD_Priv(parent: KeyData, index: number): DerivedPrivKey
+    function CKD_Priv(parent: KeyData, index: number): DerivedPrivateKey
     {
         const isHardened = (index & 0x80000000) !== 0;
         const parentKey = parent.key;
@@ -314,8 +314,8 @@ function INIT_BIP32()
             {
                 if (fromPrivate)
                 {
-                    const privkey = keyData.slice(1);
-                    const derivedKey = CKD_Priv({ key: privkey, chainCode: chainCode }, childIndex);
+                    const privateKey = keyData.slice(1);
+                    const derivedKey = CKD_Priv({ key: privateKey, chainCode: chainCode }, childIndex);
                     keyData = [0x00, ...WorkerUtils.BigintToByteArrayLittleEndian32(derivedKey.key)];
                     return {
                         type: "ok",

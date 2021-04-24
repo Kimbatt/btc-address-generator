@@ -1,9 +1,11 @@
-
-declare var BIP39Util: ReturnType<typeof INIT_BIP39>;
-
-function INIT_BIP39()
-{
-    const BIP39Wordlist: { [key: string]: number } = {
+"use strict";
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
+function INIT_BIP39() {
+    var BIP39Wordlist = {
         "abandon": 0, "ability": 1, "able": 2, "about": 3, "above": 4, "absent": 5, "absorb": 6, "abstract": 7, "absurd": 8, "abuse": 9, "access": 10, "accident": 11, "account": 12, "accuse": 13, "achieve": 14, "acid": 15, "acoustic": 16, "acquire": 17, "across": 18, "act": 19, "action": 20, "actor": 21, "actress": 22, "actual": 23, "adapt": 24, "add": 25, "addict": 26, "address": 27, "adjust": 28, "admit": 29, "adult": 30, "advance": 31, "advice": 32, "aerobic": 33, "affair": 34, "afford": 35, "afraid": 36, "again": 37, "age": 38, "agent": 39, "agree": 40, "ahead": 41, "aim": 42, "air": 43, "airport": 44, "aisle": 45, "alarm": 46, "album": 47, "alcohol": 48, "alert": 49, "alien": 50, "all": 51, "alley": 52, "allow": 53, "almost": 54, "alone": 55, "alpha": 56, "already": 57, "also": 58, "alter": 59, "always": 60, "amateur": 61, "amazing": 62, "among": 63, "amount": 64, "amused": 65, "analyst": 66, "anchor": 67, "ancient": 68, "anger": 69, "angle": 70, "angry": 71, "animal": 72, "ankle": 73, "announce": 74, "annual": 75, "another": 76, "answer": 77, "antenna": 78, "antique": 79, "anxiety": 80, "any": 81, "apart": 82, "apology": 83, "appear": 84, "apple": 85, "approve": 86, "april": 87, "arch": 88, "arctic": 89, "area": 90, "arena": 91, "argue": 92, "arm": 93, "armed": 94, "armor": 95, "army": 96, "around": 97, "arrange": 98, "arrest": 99, "arrive": 100, "arrow": 101, "art": 102, "artefact": 103, "artist": 104, "artwork": 105, "ask": 106, "aspect": 107, "assault": 108, "asset": 109, "assist": 110, "assume": 111, "asthma": 112, "athlete": 113, "atom": 114, "attack": 115, "attend": 116, "attitude": 117, "attract": 118, "auction": 119, "audit": 120, "august": 121, "aunt": 122, "author": 123, "auto": 124, "autumn": 125, "average": 126, "avocado": 127,
         "avoid": 128, "awake": 129, "aware": 130, "away": 131, "awesome": 132, "awful": 133, "awkward": 134, "axis": 135, "baby": 136, "bachelor": 137, "bacon": 138, "badge": 139, "bag": 140, "balance": 141, "balcony": 142, "ball": 143, "bamboo": 144, "banana": 145, "banner": 146, "bar": 147, "barely": 148, "bargain": 149, "barrel": 150, "base": 151, "basic": 152, "basket": 153, "battle": 154, "beach": 155, "bean": 156, "beauty": 157, "because": 158, "become": 159, "beef": 160, "before": 161, "begin": 162, "behave": 163, "behind": 164, "believe": 165, "below": 166, "belt": 167, "bench": 168, "benefit": 169, "best": 170, "betray": 171, "better": 172, "between": 173, "beyond": 174, "bicycle": 175, "bid": 176, "bike": 177, "bind": 178, "biology": 179, "bird": 180, "birth": 181, "bitter": 182, "black": 183, "blade": 184, "blame": 185, "blanket": 186, "blast": 187, "bleak": 188, "bless": 189, "blind": 190, "blood": 191, "blossom": 192, "blouse": 193, "blue": 194, "blur": 195, "blush": 196, "board": 197, "boat": 198, "body": 199, "boil": 200, "bomb": 201, "bone": 202, "bonus": 203, "book": 204, "boost": 205, "border": 206, "boring": 207, "borrow": 208, "boss": 209, "bottom": 210, "bounce": 211, "box": 212, "boy": 213, "bracket": 214, "brain": 215, "brand": 216, "brass": 217, "brave": 218, "bread": 219, "breeze": 220, "brick": 221, "bridge": 222, "brief": 223, "bright": 224, "bring": 225, "brisk": 226, "broccoli": 227, "broken": 228, "bronze": 229, "broom": 230, "brother": 231, "brown": 232, "brush": 233, "bubble": 234, "buddy": 235, "budget": 236, "buffalo": 237, "build": 238, "bulb": 239, "bulk": 240, "bullet": 241, "bundle": 242, "bunker": 243, "burden": 244, "burger": 245, "burst": 246, "bus": 247, "business": 248, "busy": 249, "butter": 250, "buyer": 251, "buzz": 252, "cabbage": 253, "cabin": 254, "cable": 255,
         "cactus": 256, "cage": 257, "cake": 258, "call": 259, "calm": 260, "camera": 261, "camp": 262, "can": 263, "canal": 264, "cancel": 265, "candy": 266, "cannon": 267, "canoe": 268, "canvas": 269, "canyon": 270, "capable": 271, "capital": 272, "captain": 273, "car": 274, "carbon": 275, "card": 276, "cargo": 277, "carpet": 278, "carry": 279, "cart": 280, "case": 281, "cash": 282, "casino": 283, "castle": 284, "casual": 285, "cat": 286, "catalog": 287, "catch": 288, "category": 289, "cattle": 290, "caught": 291, "cause": 292, "caution": 293, "cave": 294, "ceiling": 295, "celery": 296, "cement": 297, "census": 298, "century": 299, "cereal": 300, "certain": 301, "chair": 302, "chalk": 303, "champion": 304, "change": 305, "chaos": 306, "chapter": 307, "charge": 308, "chase": 309, "chat": 310, "cheap": 311, "check": 312, "cheese": 313, "chef": 314, "cherry": 315, "chest": 316, "chicken": 317, "chief": 318, "child": 319, "chimney": 320, "choice": 321, "choose": 322, "chronic": 323, "chuckle": 324, "chunk": 325, "churn": 326, "cigar": 327, "cinnamon": 328, "circle": 329, "citizen": 330, "city": 331, "civil": 332, "claim": 333, "clap": 334, "clarify": 335, "claw": 336, "clay": 337, "clean": 338, "clerk": 339, "clever": 340, "click": 341, "client": 342, "cliff": 343, "climb": 344, "clinic": 345, "clip": 346, "clock": 347, "clog": 348, "close": 349, "cloth": 350, "cloud": 351, "clown": 352, "club": 353, "clump": 354, "cluster": 355, "clutch": 356, "coach": 357, "coast": 358, "coconut": 359, "code": 360, "coffee": 361, "coil": 362, "coin": 363, "collect": 364, "color": 365, "column": 366, "combine": 367, "come": 368, "comfort": 369, "comic": 370, "common": 371, "company": 372, "concert": 373, "conduct": 374, "confirm": 375, "congress": 376, "connect": 377, "consider": 378, "control": 379, "convince": 380, "cook": 381, "cool": 382, "copper": 383,
@@ -20,31 +22,24 @@ function INIT_BIP39()
         "source": 1664, "south": 1665, "space": 1666, "spare": 1667, "spatial": 1668, "spawn": 1669, "speak": 1670, "special": 1671, "speed": 1672, "spell": 1673, "spend": 1674, "sphere": 1675, "spice": 1676, "spider": 1677, "spike": 1678, "spin": 1679, "spirit": 1680, "split": 1681, "spoil": 1682, "sponsor": 1683, "spoon": 1684, "sport": 1685, "spot": 1686, "spray": 1687, "spread": 1688, "spring": 1689, "spy": 1690, "square": 1691, "squeeze": 1692, "squirrel": 1693, "stable": 1694, "stadium": 1695, "staff": 1696, "stage": 1697, "stairs": 1698, "stamp": 1699, "stand": 1700, "start": 1701, "state": 1702, "stay": 1703, "steak": 1704, "steel": 1705, "stem": 1706, "step": 1707, "stereo": 1708, "stick": 1709, "still": 1710, "sting": 1711, "stock": 1712, "stomach": 1713, "stone": 1714, "stool": 1715, "story": 1716, "stove": 1717, "strategy": 1718, "street": 1719, "strike": 1720, "strong": 1721, "struggle": 1722, "student": 1723, "stuff": 1724, "stumble": 1725, "style": 1726, "subject": 1727, "submit": 1728, "subway": 1729, "success": 1730, "such": 1731, "sudden": 1732, "suffer": 1733, "sugar": 1734, "suggest": 1735, "suit": 1736, "summer": 1737, "sun": 1738, "sunny": 1739, "sunset": 1740, "super": 1741, "supply": 1742, "supreme": 1743, "sure": 1744, "surface": 1745, "surge": 1746, "surprise": 1747, "surround": 1748, "survey": 1749, "suspect": 1750, "sustain": 1751, "swallow": 1752, "swamp": 1753, "swap": 1754, "swarm": 1755, "swear": 1756, "sweet": 1757, "swift": 1758, "swim": 1759, "swing": 1760, "switch": 1761, "sword": 1762, "symbol": 1763, "symptom": 1764, "syrup": 1765, "system": 1766, "table": 1767, "tackle": 1768, "tag": 1769, "tail": 1770, "talent": 1771, "talk": 1772, "tank": 1773, "tape": 1774, "target": 1775, "task": 1776, "taste": 1777, "tattoo": 1778, "taxi": 1779, "teach": 1780, "team": 1781, "tell": 1782, "ten": 1783, "tenant": 1784, "tennis": 1785, "tent": 1786, "term": 1787, "test": 1788, "text": 1789, "thank": 1790, "that": 1791,
         "theme": 1792, "then": 1793, "theory": 1794, "there": 1795, "they": 1796, "thing": 1797, "this": 1798, "thought": 1799, "three": 1800, "thrive": 1801, "throw": 1802, "thumb": 1803, "thunder": 1804, "ticket": 1805, "tide": 1806, "tiger": 1807, "tilt": 1808, "timber": 1809, "time": 1810, "tiny": 1811, "tip": 1812, "tired": 1813, "tissue": 1814, "title": 1815, "toast": 1816, "tobacco": 1817, "today": 1818, "toddler": 1819, "toe": 1820, "together": 1821, "toilet": 1822, "token": 1823, "tomato": 1824, "tomorrow": 1825, "tone": 1826, "tongue": 1827, "tonight": 1828, "tool": 1829, "tooth": 1830, "top": 1831, "topic": 1832, "topple": 1833, "torch": 1834, "tornado": 1835, "tortoise": 1836, "toss": 1837, "total": 1838, "tourist": 1839, "toward": 1840, "tower": 1841, "town": 1842, "toy": 1843, "track": 1844, "trade": 1845, "traffic": 1846, "tragic": 1847, "train": 1848, "transfer": 1849, "trap": 1850, "trash": 1851, "travel": 1852, "tray": 1853, "treat": 1854, "tree": 1855, "trend": 1856, "trial": 1857, "tribe": 1858, "trick": 1859, "trigger": 1860, "trim": 1861, "trip": 1862, "trophy": 1863, "trouble": 1864, "truck": 1865, "true": 1866, "truly": 1867, "trumpet": 1868, "trust": 1869, "truth": 1870, "try": 1871, "tube": 1872, "tuition": 1873, "tumble": 1874, "tuna": 1875, "tunnel": 1876, "turkey": 1877, "turn": 1878, "turtle": 1879, "twelve": 1880, "twenty": 1881, "twice": 1882, "twin": 1883, "twist": 1884, "two": 1885, "type": 1886, "typical": 1887, "ugly": 1888, "umbrella": 1889, "unable": 1890, "unaware": 1891, "uncle": 1892, "uncover": 1893, "under": 1894, "undo": 1895, "unfair": 1896, "unfold": 1897, "unhappy": 1898, "uniform": 1899, "unique": 1900, "unit": 1901, "universe": 1902, "unknown": 1903, "unlock": 1904, "until": 1905, "unusual": 1906, "unveil": 1907, "update": 1908, "upgrade": 1909, "uphold": 1910, "upon": 1911, "upper": 1912, "upset": 1913, "urban": 1914, "urge": 1915, "usage": 1916, "use": 1917, "used": 1918, "useful": 1919,
         "useless": 1920, "usual": 1921, "utility": 1922, "vacant": 1923, "vacuum": 1924, "vague": 1925, "valid": 1926, "valley": 1927, "valve": 1928, "van": 1929, "vanish": 1930, "vapor": 1931, "various": 1932, "vast": 1933, "vault": 1934, "vehicle": 1935, "velvet": 1936, "vendor": 1937, "venture": 1938, "venue": 1939, "verb": 1940, "verify": 1941, "version": 1942, "very": 1943, "vessel": 1944, "veteran": 1945, "viable": 1946, "vibrant": 1947, "vicious": 1948, "victory": 1949, "video": 1950, "view": 1951, "village": 1952, "vintage": 1953, "violin": 1954, "virtual": 1955, "virus": 1956, "visa": 1957, "visit": 1958, "visual": 1959, "vital": 1960, "vivid": 1961, "vocal": 1962, "voice": 1963, "void": 1964, "volcano": 1965, "volume": 1966, "vote": 1967, "voyage": 1968, "wage": 1969, "wagon": 1970, "wait": 1971, "walk": 1972, "wall": 1973, "walnut": 1974, "want": 1975, "warfare": 1976, "warm": 1977, "warrior": 1978, "wash": 1979, "wasp": 1980, "waste": 1981, "water": 1982, "wave": 1983, "way": 1984, "wealth": 1985, "weapon": 1986, "wear": 1987, "weasel": 1988, "weather": 1989, "web": 1990, "wedding": 1991, "weekend": 1992, "weird": 1993, "welcome": 1994, "west": 1995, "wet": 1996, "whale": 1997, "what": 1998, "wheat": 1999, "wheel": 2000, "when": 2001, "where": 2002, "whip": 2003, "whisper": 2004, "wide": 2005, "width": 2006, "wife": 2007, "wild": 2008, "will": 2009, "win": 2010, "window": 2011, "wine": 2012, "wing": 2013, "wink": 2014, "winner": 2015, "winter": 2016, "wire": 2017, "wisdom": 2018, "wise": 2019, "wish": 2020, "witness": 2021, "wolf": 2022, "woman": 2023, "wonder": 2024, "wood": 2025, "wool": 2026, "word": 2027, "work": 2028, "world": 2029, "worry": 2030, "worth": 2031, "wrap": 2032, "wreck": 2033, "wrestle": 2034, "wrist": 2035, "write": 2036, "wrong": 2037, "yard": 2038, "year": 2039, "yellow": 2040, "you": 2041, "young": 2042, "youth": 2043, "zebra": 2044, "zero": 2045, "zone": 2046, "zoo": 2047
-    } as const;
-
-    const BIP39Words = Object.keys(BIP39Wordlist);
-
-    function Utf8StringToBytes(text: string): number[]
-    {
-        const ret: number[] = [];
-        for (let i = 0; i < text.length; ++i)
-        {
-            let charcode = text.charCodeAt(i);
+    };
+    var BIP39Words = Object.keys(BIP39Wordlist);
+    function Utf8StringToBytes(text) {
+        var ret = [];
+        for (var i = 0; i < text.length; ++i) {
+            var charcode = text.charCodeAt(i);
             if (charcode < 0x80)
                 ret.push(charcode);
-            else if (charcode < 0x800)
-            {
+            else if (charcode < 0x800) {
                 ret.push(0xc0 | (charcode >> 6));
                 ret.push(0x80 | (charcode & 0x3f));
             }
-            else if (charcode < 0xd800 || charcode >= 0xe000)
-            {
+            else if (charcode < 0xd800 || charcode >= 0xe000) {
                 ret.push(0xe0 | (charcode >> 12));
                 ret.push(0x80 | ((charcode >> 6) & 0x3f));
                 ret.push(0x80 | (charcode & 0x3f));
             }
-            else
-            {
+            else {
                 ++i;
                 charcode = 0x10000 + (((charcode & 0x3ff) << 10) | (text.charCodeAt(i) & 0x3ff));
                 ret.push(0xf0 | (charcode >> 18));
@@ -53,182 +48,128 @@ function INIT_BIP39()
                 ret.push(0x80 | (charcode & 0x3f));
             }
         }
-
         return ret;
     }
-
-    function PadStart(str: string, minLength: number, padChar: string)
-    {
-        if (padChar.length !== 1)
-        {
+    function PadStart(str, minLength, padChar) {
+        if (padChar.length !== 1) {
             throw new Error("Pad character must be 1 character long");
         }
-
-        while (str.length < minLength)
-        {
+        while (str.length < minLength) {
             str = padChar + str;
         }
-
         return str;
     }
-
-    function GenerateSeedPhrase(wordCount: 12 | 15 | 18 | 21 | 24)
-    {
-        const byteCount = ((wordCount / 3) | 0) * 4;
-        let randomBytes: number[] = [];
-        for (let i = 0; i < byteCount; i += 32)
-        {
+    function GenerateSeedPhrase(wordCount) {
+        var byteCount = ((wordCount / 3) | 0) * 4;
+        var randomBytes = [];
+        for (var i = 0; i < byteCount; i += 32) {
             randomBytes = randomBytes.concat(WorkerUtils.Get32SecureRandomBytes());
         }
-
-        while (randomBytes.length > byteCount)
-        {
+        while (randomBytes.length > byteCount) {
             randomBytes.pop();
         }
-
-        const checksumByte = CryptoHelper.SHA256(randomBytes)[0];
-        const checksumLength = byteCount / 4; // in bits
-
-        let bits = "";
-        for (let i = 0; i < randomBytes.length; ++i)
-        {
+        var checksumByte = CryptoHelper.SHA256(randomBytes)[0];
+        var checksumLength = byteCount / 4; // in bits
+        var bits = "";
+        for (var i = 0; i < randomBytes.length; ++i) {
             bits += PadStart(randomBytes[i].toString(2), 8, "0");
         }
-
         bits += PadStart(((checksumByte >> (8 - checksumLength)) & ((1 << checksumLength) - 1)).toString(2), checksumLength, "0");
-
-        const words = [];
-        for (let i = 0; i < bits.length; i += 11)
-        {
-            const index = parseInt(bits.substr(i, 11), 2);
+        var words = [];
+        for (var i = 0; i < bits.length; i += 11) {
+            var index = parseInt(bits.substr(i, 11), 2);
             words.push(BIP39Words[index]);
         }
-
         return words.join(" ");
     }
-
-    function VerifyMnemonic(mnemonic: string): Result<true, string>
-    {
-        if (mnemonic.trim() === "")
-        {
+    function VerifyMnemonic(mnemonic) {
+        if (mnemonic.trim() === "") {
             return { type: "err", error: "mnemonic seed is empty" };
         }
-
-        const words = mnemonic.match(/\S+/g);
-        if (words === null)
-        {
+        var words = mnemonic.match(/\S+/g);
+        if (words === null) {
             return { type: "err", error: "mnemonic seed contains invalid characters" };
         }
-
-        const wordCount = words.length;
-        if (wordCount !== 12 && wordCount !== 15 && wordCount !== 18 && wordCount !== 21 && wordCount !== 24)
-        {
+        var wordCount = words.length;
+        if (wordCount !== 12 && wordCount !== 15 && wordCount !== 18 && wordCount !== 21 && wordCount !== 24) {
             return { type: "err", error: "invalid word count" };
         }
-
-        let bitString = "";
-        for (let word of words)
-        {
-            const index = BIP39Wordlist[word];
-            if (index === undefined)
-            {
+        var bitString = "";
+        for (var _i = 0, words_1 = words; _i < words_1.length; _i++) {
+            var word = words_1[_i];
+            var index = BIP39Wordlist[word];
+            if (index === undefined) {
                 return { type: "err", error: "'" + word + "' is not in wordlist" };
             }
-
             bitString += PadStart(index.toString(2), 11, "0");
         }
-
-        const checksumLength = wordCount / 3;
-        const bitCount = bitString.length - checksumLength;
-        const seedBits = bitString.substr(0, bitCount);
-        const checksumBits = bitString.substr(bitCount);
-        const seedBytes = [];
-
-        for (let i = 0; i < bitCount; i += 8)
-        {
+        var checksumLength = wordCount / 3;
+        var bitCount = bitString.length - checksumLength;
+        var seedBits = bitString.substr(0, bitCount);
+        var checksumBits = bitString.substr(bitCount);
+        var seedBytes = [];
+        for (var i = 0; i < bitCount; i += 8) {
             seedBytes.push(parseInt(seedBits.substr(i, 8), 2));
         }
-
-        const actualChecksumByte = CryptoHelper.SHA256(seedBytes)[0];
-        const actualChecksumBits = PadStart(actualChecksumByte.toString(2), 8, "0").substr(0, checksumLength);
-
-        if (checksumBits !== actualChecksumBits)
-        {
+        var actualChecksumByte = CryptoHelper.SHA256(seedBytes)[0];
+        var actualChecksumBits = PadStart(actualChecksumByte.toString(2), 8, "0").substr(0, checksumLength);
+        if (checksumBits !== actualChecksumBits) {
             return { type: "err", error: "invalid checksum" };
         }
-
         return {
             type: "ok",
             result: true
         };
     }
-
-    function NormalizeMnemonic(mnemonic: string)
-    {
-        const words = mnemonic.trim().toLowerCase().match(/[a-z]+/g);
-        if (words === null)
-        {
+    function NormalizeMnemonic(mnemonic) {
+        var words = mnemonic.trim().toLowerCase().match(/[a-z]+/g);
+        if (words === null) {
             return "";
         }
-
         return words.join(" ");
     }
-
-    function NormalizeStringIfPossibleNFKD(str: string): Result<string, string>
-    {
-        if ((<any>String.prototype).normalize)
-        {
+    function NormalizeStringIfPossibleNFKD(str) {
+        if (String.prototype.normalize) {
             return {
                 type: "ok",
-                result: <string>(<any>str).normalize("NFKD")
+                result: str.normalize("NFKD")
             };
         }
-
         // older browser, string.normalize is not available
-        if (/[^\x20-\x7e]/.test(str))
-        {
+        if (/[^\x20-\x7e]/.test(str)) {
             // might contain non-normalized characters
             return { type: "err", error: "password might contain non-normalized characters. Either use a modern browser (which can normalize the password), or use a password with english characters only." };
         }
-
         return {
             type: "ok",
             result: str
         };
     }
-
-    function GetXprvFromMnemonic(mnemonic: string, password: string = "", purpose: BIP32Purpose = "44"): Result<string, string>
-    {
-        const passwordNormalized = NormalizeStringIfPossibleNFKD("mnemonic" + password);
-        if (passwordNormalized.type === "err")
-        {
+    function GetXprvFromMnemonic(mnemonic, password, purpose) {
+        if (password === void 0) { password = ""; }
+        if (purpose === void 0) { purpose = "44"; }
+        var passwordNormalized = NormalizeStringIfPossibleNFKD("mnemonic" + password);
+        if (passwordNormalized.type === "err") {
             return passwordNormalized;
         }
-
-        const mnemonicBytes = Utf8StringToBytes(mnemonic);
-        const passwordBytes = Utf8StringToBytes(passwordNormalized.result);
-
-        const seed = CryptoHelper.PBKDF2(mnemonicBytes, passwordBytes, 2048, 512/32);
-        const masterKey = BIP32Util.GetMasterKeyFromSeed(seed);
-        const masterPrivateKey = [0, ...WorkerUtils.BigintToByteArrayLittleEndian32(masterKey.key)];
-        const masterChainCode = masterKey.chainCode;
+        var mnemonicBytes = Utf8StringToBytes(mnemonic);
+        var passwordBytes = Utf8StringToBytes(passwordNormalized.result);
+        var seed = CryptoHelper.PBKDF2(mnemonicBytes, passwordBytes, 2048, 512 / 32);
+        var masterKey = BIP32Util.GetMasterKeyFromSeed(seed);
+        var masterPrivateKey = __spreadArray([0], WorkerUtils.BigintToByteArrayLittleEndian32(masterKey.key));
+        var masterChainCode = masterKey.chainCode;
         return BIP32Util.SerializeExtendedKey(true, 0, [0, 0, 0, 0], 0, masterChainCode, masterPrivateKey, purpose);
     }
-
-    function GetBIP32RootKeyFromSeed(seed: string, password: string): Result<string, string>
-    {
+    function GetBIP32RootKeyFromSeed(seed, password) {
         seed = NormalizeMnemonic(seed);
-        const result = VerifyMnemonic(seed);
-        if (result.type === "err")
-        {
+        var result = VerifyMnemonic(seed);
+        if (result.type === "err") {
             return result;
         }
-
         return GetXprvFromMnemonic(seed, password);
     }
-
     return {
-        GenerateSeedPhrase,
-        GetBIP32RootKeyFromSeed
+        GenerateSeedPhrase: GenerateSeedPhrase,
+        GetBIP32RootKeyFromSeed: GetBIP32RootKeyFromSeed
     };
 }

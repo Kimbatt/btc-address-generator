@@ -210,11 +210,11 @@ function INIT_BIP38()
                 }
             }
 
-            const finalprivkey = AddressUtil.MakePrivateKey(finalPrivateKeyValue);
+            const finalPrivateKey = AddressUtil.MakePrivateKey(finalPrivateKeyValue);
 
             return {
                 type: "ok",
-                result: finalprivkey
+                result: finalPrivateKey
             };
         }
 
@@ -234,20 +234,20 @@ function INIT_BIP38()
             return privateKeyDecoded;
         }
 
-        const privkeyBytes = WorkerUtils.BigintToByteArray(privateKeyDecoded.result.privateKeyValue);
-        while (privkeyBytes.length < 32)
+        const privateKeyBytes = WorkerUtils.BigintToByteArray(privateKeyDecoded.result.privateKeyValue);
+        while (privateKeyBytes.length < 32)
         {
-            privkeyBytes.push(0);
+            privateKeyBytes.push(0);
         }
 
-        privkeyBytes.reverse();
+        privateKeyBytes.reverse();
 
         const address = AddressUtil.MakeLegacyAddress(privateKeyDecoded.result.keypair);
 
         const salt = CryptoHelper.SHA256(CryptoHelper.SHA256(address)).slice(0, 4);
         const derivedBytes = <Uint8Array>CryptoHelper.scrypt(password, salt, 14, 8, 8, 64);
 
-        const firstHalf = WorkerUtils.ByteArrayXOR(privkeyBytes, derivedBytes.slice(0, 32));
+        const firstHalf = WorkerUtils.ByteArrayXOR(privateKeyBytes, derivedBytes.slice(0, 32));
         const secondHalf = derivedBytes.slice(32);
 
         const finalPrivateKeyWithoutChecksum = [
