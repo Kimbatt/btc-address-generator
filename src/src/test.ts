@@ -40,12 +40,20 @@ function InitTests()
         extendedPrivkey: string;
     }
 
-    async function RunAllTests(): Promise<string[]>
+    async function RunAllTests(onProgress: (current: number, total: number) => void): Promise<string[]>
     {
         if (IsTestnet())
         {
             alert("No tests are implemented for testnet!");
             return [];
+        }
+
+        const totalNumTests = 42;
+        let numCompletedTests = 0;
+
+        function UpdateProgress()
+        {
+            onProgress(numCompletedTests++, totalNumTests);
         }
 
         const failedTestMessages: string[] = [];
@@ -201,6 +209,8 @@ function InitTests()
                 {
                     Assert(false, "Unexpected error: " + e.message);
                 }
+
+                UpdateProgress();
             })()));
         }
 
@@ -334,6 +344,8 @@ function InitTests()
                 }
 
                 await TestEncrypt(testCase.decryptedPrivateKey, testCase.password);
+
+                UpdateProgress();
             })()));
         }
 
@@ -412,6 +424,8 @@ function InitTests()
                 {
                     Assert(false, "Unexpected error: " + e.message);
                 }
+
+                UpdateProgress();
             })()));
         }
 
@@ -536,13 +550,19 @@ function InitTests()
                 {
                     Assert(false, "Unexpected error: " + e.message);
                 }
+
+                UpdateProgress();
             })()));
         }
 
-        await TestAddressesAndPrivkeys();
-        await TestBip38();
-        await TestBip39();
-        await TestBip32();
+        UpdateProgress();
+
+        await Promise.all([
+            TestAddressesAndPrivkeys(),
+            TestBip38(),
+            TestBip39(),
+            TestBip32()
+        ]);
 
         return failedTestMessages;
     }

@@ -66,8 +66,33 @@ var CreateWorkers = () =>
             }
         });
 
-        ForEveryWorkerWrapper = DoWorkerJobWrapper = async (data: any) =>
+        let working = false;
+        const waitingPromises: (() => void)[] = [];
+
+        const NotifyWorkFinished = () =>
         {
+            const nextTask = waitingPromises.pop();
+            if (nextTask !== undefined)
+            {
+                nextTask();
+            }
+            else
+            {
+                working = false;
+            }
+        };
+
+        const Work = async (data: any) =>
+        {
+            if (working)
+            {
+                await new Promise<void>(resolve => waitingPromises.push(resolve));
+            }
+            else
+            {
+                working = true;
+            }
+
             const functionPath = data.functionName.split(".");
             let fn = (<any>self)[functionPath[0]];
             for (let i = 1; i < functionPath.length; ++i)
@@ -75,7 +100,15 @@ var CreateWorkers = () =>
                 fn = fn[functionPath[i]];
             }
 
-            return await new Promise(resolve => window.requestAnimationFrame(() => resolve(fn(...data.functionParams))));
+            await new Promise(window.requestAnimationFrame);
+            const result = fn(...data.functionParams);
+            NotifyWorkFinished();
+            return result;
+        };
+
+        ForEveryWorkerWrapper = DoWorkerJobWrapper = async (data: any) =>
+        {
+            return await Work(data);
         };
     }
     else

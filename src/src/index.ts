@@ -57,6 +57,7 @@ window.addEventListener("load", async () =>
 
         const testOverlay = document.getElementById("tests-overlay")!;
         const testRunningDiv = document.getElementById("tests-running-container")!;
+        const testRunningProgress = document.getElementById("tests-running-progress")!;
         const testDoneDiv = document.getElementById("tests-done-container")!;
         const testResultTextDiv = document.getElementById("tests-result")!;
         const testResultCloseButton = <HTMLButtonElement>document.getElementById("tests-result-close-button");
@@ -67,7 +68,10 @@ window.addEventListener("load", async () =>
             testRunningDiv.style.display = "flex";
             testDoneDiv.style.display = "none";
 
-            const failedTestMessages = await RunTests();
+            const failedTestMessages = await RunTests((current, total) =>
+            {
+                testRunningProgress.textContent = `${current}/${total}`;
+            });
 
             testRunningDiv.style.display = "none";
             testDoneDiv.style.display = "flex";
@@ -78,8 +82,8 @@ window.addEventListener("load", async () =>
             }
             else
             {
-                failedTestMessages.forEach(console.error);
                 testResultTextDiv.textContent = `${failedTestMessages.length} test${failedTestMessages.length === 1 ? "" : "s"} failed! Please report this issue! Check the developer console for details.`;
+                failedTestMessages.forEach(console.error);
             }
         }));
 

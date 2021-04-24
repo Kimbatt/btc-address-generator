@@ -316,6 +316,18 @@ li
     }
 }
 
+.light #tests-window
+{
+    background-color: white;
+    border: 2px solid black;
+}
+
+.dark #tests-window
+{
+    background-color: black;
+    border: 2px solid white;
+}
+
 @media print
 {
     body *
@@ -761,7 +773,7 @@ li
                 <li>QR codes of bech32 addresses contain the text capitalized, so the size of the QR codes can be reduced. For more information, see the <a href="https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#Specification">BIP 173 specification (Uppercase/lowercase part)</a>.</li>
                 <li id="testnet-link-li">Testnet version available <a href="?testnet">here.</a></li>
                 <li id="mainnet-link-li" style="display: none;">Mainnet version available <a href="?">here.</a></li>
-                <li>JavaScript libraries used on this site: <a href="https://github.com/indutny/bn.js">BigNumber</a>, <a href="https://github.com/brix/crypto-js">crypto-js</a>, <a href="https://github.com/kazuhikoarase/qrcode-generator">QR code generator</a>, <a href="https://github.com/dchest/scrypt-async-js">Scrypt</a></li>
+                <li>JavaScript libraries used on this site: <a href="https://github.com/indutny/bn.js">BigNumber</a>, <a href="https://github.com/brix/crypto-js">crypto-js</a>, <a href="https://github.com/kazuhikoarase/qrcode-generator">QR code generator</a>, <a href="https://github.com/dchest/scrypt-async-js">Scrypt</a>, <a href="https://github.com/stefanpenner/es6-promise">es6-promise</a></li>
                 <li>Source code is available at <a href="https://github.com/Kimbatt/btc-address-generator">Github</a> or by viewing this page's source (it is a single html file)</li>
                 <li><p class="link-style" id="run-tests-link">Click here</p> to run tests</li>
                 <li>This site was made by <a href="https://github.com/Kimbatt">Kimbatt</a></li>
@@ -815,13 +827,16 @@ li
         </div>
     </div>
     <div id="tests-overlay" style="display: none; justify-content: center; align-items: center; position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5);">
-        <div style="background-color: black; border: 2px solid #202020; border-radius: 24px; width: 400px; height: 200px; display: flex; flex-direction: column; justify-content: space-evenly; align-items: center;">
-            <div id="tests-running-container" style="display: none; justify-content: center; align-items: center;">
-                <div style="font-size: 24px; display: inline-block; margin-right: 12px;">Running tests</div>
-                <div class="loading-spinner" style="display: inline-block;"></div>
+        <div id="tests-window" style="border-radius: 24px; width: 400px; height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div id="tests-running-container" style="display: none; flex-direction: column; justify-content: space-between; align-items: center;">
+                <div style="display: flex; justify-content: center; align-items: center;">
+                    <div style="font-size: 24px; display: inline-block; margin-right: 12px;">Running tests</div>
+                    <div class="loading-spinner" style="display: inline-block;"></div>
+                </div>
+                <div id="tests-running-progress" style="font-size: 24px;"></div>
             </div>
-            <div id="tests-done-container" style="display: none; flex-direction: column; justify-content: space-evenly; align-items: center;">
-                <div id="tests-result" style="font-size: 24px; margin-bottom: 24px; padding: 0px 32px;"></div>
+            <div id="tests-done-container" style="width: 100%; display: none; flex-direction: column; justify-content: space-between; align-items: center;">
+                <div id="tests-result" style="width: calc(100% - 64px); font-size: 24px; margin-bottom: 24px;"></div>
                 <button id="tests-result-close-button" style="width: 200px;">Close</button>
             </div>
         </div>

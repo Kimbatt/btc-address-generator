@@ -197,8 +197,8 @@ function InitCustomPaperWalletDesign()
             {
                 backgroundImage.style.width = "";
                 backgroundImage.style.height = "";
-                backgroundImageSize.x = backgroundImage.width;
-                backgroundImageSize.y = backgroundImage.height;
+                backgroundImageSize.x = backgroundImage.clientWidth;
+                backgroundImageSize.y = backgroundImage.clientHeight;
                 backgroundImage.style.width = "100%";
                 backgroundImage.style.height = "100%";
                 previewContainer.style.backgroundColor = "";
