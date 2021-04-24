@@ -7,6 +7,11 @@
 
 <style>
 
+:root
+{
+    --paperwallet-vertical-gap: 0px;
+}
+
 body
 {
     font-family: "Trebuchet MS", Helvetica, sans-serif;
@@ -14,29 +19,29 @@ body
 
 body.dark
 {
-    background: #121212;
+    background-color: #121212;
     color: #e0e0e0;
 }
 
 body.light
 {
-    background: white;
+    background-color: white;
     color: black;
 }
 
-.linkStyle
+.link-style
 {
     display: inline;
     cursor: pointer;
     text-decoration: underline;
 }
 
-.dark a, .dark .linkStyle
+.dark a, .dark .link-style
 {
     color: #59c9ff;
 }
 
-.light a, .light .linkStyle
+.light a, .light .link-style
 {
     color: #005aff;
 }
@@ -67,6 +72,11 @@ button:enabled:hover
     background-color: #54adff;
 }
 
+input[type="text"], input[type="number"]
+{
+    font-family: "roboto-mono";
+}
+
 .dark input
 {
     background: #323639;
@@ -79,6 +89,11 @@ button:enabled:hover
     background: white;
     color: black;
     border: 1px solid #a0a3a1;
+}
+
+textarea
+{
+    font-family: "roboto-mono";
 }
 
 .dark textarea
@@ -152,12 +167,12 @@ li
     width: 80px;
 }
 
-.parent_div, #paperwallet_preview_div
+#paperwallet-preview-div
 {
     color: black;
 }
 
-#bip38_info
+#bip38-info
 {
     position: absolute;
     display: none;
@@ -171,7 +186,7 @@ li
     z-index: 2;
 }
 
-#bip38_info_content
+#bip38-info-content
 {
     position: absolute;
     display: table;
@@ -187,10 +202,9 @@ li
     line-height: 40px;
 }
 
-#randomness_overlay
+#randomness-overlay
 {
     position: fixed;
-    display: table;
     width: 100%;
     height: 100%;
     top: 0px;
@@ -211,26 +225,31 @@ li
     background-color: #404040;
 }
 
-.light #seed_details_results_addresses_table_header, .light #seed_details_results_addresses_table_header *,
-.light .seed_details_results_address_row, .light .seed_details_results_address_row *
+#paperwallet-print-area > *:not(:last-child)
+{
+    margin-bottom: var(--paperwallet-vertical-gap);
+}
+
+.light #seed-details-results-addresses-table-header, .light #seed-details-results-addresses-table-header *,
+.light .seed-details-results-address-row, .light .seed-details-results-address-row *
 {
     border-color: #bbbbbb;
 }
 
-.dark #seed_details_results_addresses_table_header, .dark #seed_details_results_addresses_table_header *,
-.dark .seed_details_results_address_row, .dark .seed_details_results_address_row *
+.dark #seed-details-results-addresses-table-header, .dark #seed-details-results-addresses-table-header *,
+.dark .seed-details-results-address-row, .dark .seed-details-results-address-row *
 {
     border-color: #707070;
 }
 
-.seed_details_results_address_row
+.seed-details-results-address-row
 {
     border-width: 2px;
     border-style: solid;
     border-top: 0px;
 }
 
-.seed_details_results_address_row > :nth-child(1)
+.seed-details-results-address-row > :nth-child(1)
 {
     border-right-width: 2px;
     border-right-style: solid;
@@ -239,7 +258,7 @@ li
     padding: 4px 8px;
 }
 
-.seed_details_results_address_row > :nth-child(2)
+.seed-details-results-address-row > :nth-child(2)
 {
     border-right-width: 2px;
     border-right-style: solid;
@@ -248,25 +267,65 @@ li
     padding: 4px 8px;
 }
 
-.seed_details_results_address_row > :nth-child(3)
+.seed-details-results-address-row > :nth-child(3)
 {
     display: inline-block;
     padding: 4px 8px;
 }
 
-#seed_generate_result.wide_spacing
+#seed-generate-result
 {
     word-spacing: 15px;
 }
 
-.light #lightModeButton
+.light #light-mode-button
 {
     display: none;
 }
 
-.dark #darkModeButton
+.dark #dark-mode-button
 {
     display: none;
+}
+
+.loading-spinner
+{
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    transform-origin: 50% 50%;
+    animation: loading-spin 0.618s linear infinite;
+    vertical-align: middle;
+}
+
+.light .loading-spinner
+{
+    background-image: url("data:image/svg+xml,%3Csvg version='1.1' xmlns='http://www.w3.org/2000/svg' viewbox='0 0 50 50'%3E%3Ccircle cx='25' cy='25' r='20' fill='none' stroke-width='5' stroke-linecap='round' stroke-dasharray='90' stroke='black'%3E%3C/circle%3E%3C/svg%3E");
+}
+
+.dark .loading-spinner
+{
+    background-image: url("data:image/svg+xml,%3Csvg version='1.1' xmlns='http://www.w3.org/2000/svg' viewbox='0 0 50 50'%3E%3Ccircle cx='25' cy='25' r='20' fill='none' stroke-width='5' stroke-linecap='round' stroke-dasharray='90' stroke='white'%3E%3C/circle%3E%3C/svg%3E");
+}
+
+@keyframes loading-spin
+{
+    100%
+    {
+        transform: rotate(360deg);
+    }
+}
+
+.light #tests-window
+{
+    background-color: white;
+    border: 2px solid black;
+}
+
+.dark #tests-window
+{
+    background-color: black;
+    border: 2px solid white;
 }
 
 @media print
@@ -275,15 +334,15 @@ li
     {
         visibility: hidden;
     }
-    
-    .print_container
+
+    .print-container
     {
         visibility: visible;
         display: block;
         max-width: 100%;
     }
-    
-    .print_visible
+
+    .print-visible
     {
         visibility: visible;
         position: absolute;
@@ -296,13 +355,13 @@ li
         right: 0px;
         page-break-inside: avoid;
     }
-    
-    .print_visible *
+
+    .print-visible *
     {
         visibility: visible;
         page-break-inside: avoid;
     }
-    
+
     *
     {
         background: white !important;
@@ -313,15 +372,15 @@ li
 /* https://fonts.google.com/specimen/Roboto+Mono */
 @font-face
 {
-    font-family: 'roboto-mono';
-    src: url(RobotoMono-Regular.woff) format('woff');
+    font-family: "roboto-mono";
+    src: url(RobotoMono-Regular.woff) format("woff");
     font-weight: normal;
 }
 
 @font-face
 {
-    font-family: 'roboto-mono';
-    src: url(RobotoMono-Bold.woff) format('woff');
+    font-family: "roboto-mono";
+    src: url(RobotoMono-Bold.woff) format("woff");
     font-weight: bold;
 }
 
@@ -331,14 +390,14 @@ li
 <body class="dark">
     <script>
         // setup IE shit
-        if (window.msCrypto)
+        if (!window.crypto && window.msCrypto)
             window.crypto = window.msCrypto;
 
         if (!window.crypto || !window.crypto.getRandomValues)
         {
             window.addEventListener("load", function()
             {
-                document.body.innerHTML = "Your browser is unable to generate cryptographically strong random values. Please use a newer one.<br />Recommended browsers:<br /><a href=\"https://www.google.com/chrome/\">Google Chrome</a><br /><a href=\"https://www.mozilla.org/firefox/\">Mozilla Firefox</a><br /><a href=\"https://www.opera.com/\">Opera browser</a>";
+                document.body.innerHTML = "Your browser is unable to generate cryptographically strong random values. Please use a newer one.<br>Recommended browsers:<br><a href=\"https://www.google.com/chrome/\">Google Chrome</a><br><a href=\"https://www.mozilla.org/firefox/\">Mozilla Firefox</a><br><a href=\"https://www.opera.com/\">Opera browser</a>";
             });
         }
 
@@ -350,280 +409,277 @@ li
                 window.setTimeout(callback, fps);
             }
         }
+
+        if (typeof Uint8Array.prototype.slice === "undefined")
+        {
+            Object.defineProperty(Uint8Array.prototype, "slice",
+            {
+                value: function (start, end)
+                {
+                    var o = Object(this);
+                    var lenVal = o.length;
+                    var len = lenVal >>> 0;
+                    var relativeStart = start >> 0;
+                    var k = (relativeStart < 0) ? Math.max(len + relativeStart, 0) : Math.min(relativeStart, len);
+                    var relativeEnd = (end === undefined) ? len : (end >> 0);
+                    var final = (relativeEnd < 0) ? Math.max(len + relativeEnd, 0) : Math.min(relativeEnd, len);
+                    var count = final - k;
+                    var c = o.constructor;
+                    var a = new c(count);
+                    var n = 0;
+                    while (k < final)
+                    {
+                        var kValue = o[k];
+                        a[n] = kValue;
+                        ++k;
+                        ++n;
+                    }
+                    return a;
+                }
+            });
+        }
     </script>
-    
+
     <div id="content" style="display: table; width: 100%;">
-        <div id="button_container" style="display: table-cell; padding-right: 10px; border-right: 2px solid #bbbbbb; width: 250px;">
-            <div id="testnet_text" style="display: none; font-size: 40px; font-weight: bold; text-align: center; color: #ff0000;"
-                title="The site is in testnet mode. Testnet addresses are used for testing, so testnet coins have no value.">TESTNET</div>
-            <button id="button_layout_singleaddress" style="width: 250px;" onclick="set_layout('singleaddress')" disabled >Single address</button>
-            <br />
-            <button id="button_layout_details" style="width: 250px;" onclick="set_layout('details')">Address details</button>
-            <br />
-            <button id="button_layout_bulk" style="width: 250px;" onclick="set_layout('bulk')">Bulk Generate</button>
-            <br />
-            <button id="button_layout_paperwallet" style="width: 250px;" onclick="set_layout('paperwallet')">Paper wallet</button>
-            <br />
-            <button id="button_layout_seed" style="width: 250px;" onclick="set_layout('seed')">Mnemonic Seed</button>
-            <br />
-            <button id="button_layout_info" style="width: 250px;" onclick="set_layout('info')">Information</button>
-            <br />
-            <button id="button_layout_beginner" style="width: 250px; margin-top: 50px;" onclick="set_layout('beginner')">Beginner's guide</button>
-            <br />
-            <button id="button_layout_security" style="width: 250px;" onclick="set_layout('security')">Security tips</button>
-            <div id="warning_text" style="display: none; font-size: 21px; color: #ff0000; margin-top: 30px;">
+        <div id="button-container" style="display: table-cell; padding-right: 10px; border-right: 2px solid #bbbbbb; width: 250px;">
+            <div id="testnet-text" style="display: none; font-size: 40px; font-weight: bold; text-align: center; color: #ff0000;"
+                title="The site is in testnet mode. Testnet addresses are used for testing. Testnet coins have no value.">TESTNET</div>
+            <button id="button-page-single-address" style="width: 250px;">Single address</button>
+            <br>
+            <button id="button-page-address-details" style="width: 250px;">Address details</button>
+            <br>
+            <button id="button-page-bulk-generate" style="width: 250px;">Bulk Generate</button>
+            <br>
+            <button id="button-page-paper-wallet" style="width: 250px;">Paper wallet</button>
+            <br>
+            <button id="button-page-mnemonic-seed" style="width: 250px;">Mnemonic Seed</button>
+            <br>
+            <button id="button-page-information" style="width: 250px; margin-top: 50px;">Information</button>
+            <br>
+            <button id="button-page-beginners-guide" style="width: 250px;">Beginner&apos;s guide</button>
+            <br>
+            <button id="button-page-security-tips" style="width: 250px;">Security tips</button>
+            <div id="warning-text" style="display: none; font-size: 21px; color: #ff0000; margin-top: 30px;">
                 Warning: it seems you're running this generator from a live website.
                 For valuable wallets, it is highly recommended to run the site from an offline computer.
                 You can save this website by pressing CTRL-S or right click -> Save website (or something)
-                <br /><br />
-                <div class="linkStyle" onclick="document.getElementById('warning_text').style.display='none'">Hide warning</div>
+                <br><br>
+                <div class="link-style" onclick="document.getElementById('warning-text').style.display='none'">Hide warning</div>
             </div>
         </div>
-        <div id="main_singleaddress" style="display: table; width: 80%; padding-left: 10px;">
+        <div id="page-single-address" style="display: none; width: 80%; padding-left: 10px;">
             <div style="display: table-cell; padding-right: 20px;">
                 <div class="title">Single address</div>
-                
+
                 <div style="padding-left: 10px;">
                     <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Address type:</div>
-                    <form>
-                        <label style="white-space: nowrap;"><input type="radio" name="address_type" onchange="setAddressType('segwit')">Segwit</label>
-                        <label style="white-space: nowrap;"><input type="radio" name="address_type" onchange="setAddressType('bech32')" checked>Segwit (bech32)</label>
-                        <label style="white-space: nowrap;"><input type="radio" name="address_type" onchange="setAddressType('legacy')">Legacy</label>
-                    </form>
-                    
+                    <div>
+                        <label style="white-space: nowrap;"><input id="singleaddress-radio-type-segwit" type="radio" name="address-type-single">Segwit</label>
+                        <label style="white-space: nowrap;"><input id="singleaddress-radio-type-bech32" type="radio" name="address-type-single" checked>Segwit (bech32)</label>
+                        <label style="white-space: nowrap;"><input id="singleaddress-radio-type-legacy" type="radio" name="address-type-single">Legacy</label>
+                    </div>
+
                     <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px; margin-top: 20px;">QR code error correction level:</div>
-                    <form>
-                        <label style="white-space: nowrap;"><input id="singleaddress_radio_qr_errorcorrectionlevel_h" type="radio" name="qr_error_correction_level" onchange="setQRErrorCorrectionLevel('H')" checked>High</label>
-                        <label style="white-space: nowrap;"><input id="singleaddress_radio_qr_errorcorrectionlevel_q" type="radio" name="qr_error_correction_level" onchange="setQRErrorCorrectionLevel('Q')">Quartile</label>
-                        <label style="white-space: nowrap;"><input id="singleaddress_radio_qr_errorcorrectionlevel_m" type="radio" name="qr_error_correction_level" onchange="setQRErrorCorrectionLevel('M')">Medium</label>
-                        <label style="white-space: nowrap;"><input id="singleaddress_radio_qr_errorcorrectionlevel_l" type="radio" name="qr_error_correction_level" onchange="setQRErrorCorrectionLevel('L')">Low</label>
-                    </form>
-                    
-                    <button type="button" onclick="generate_address()" style="width: 290px; margin-top: 50px; margin-right: 50px;">Generate new address</button>
+                    <div>
+                        <label style="white-space: nowrap;"><input id="singleaddress-radio-qr-errorcorrectionlevel-h" type="radio" name="qr-error-correction-level-single" checked>High</label>
+                        <label style="white-space: nowrap;"><input id="singleaddress-radio-qr-errorcorrectionlevel-q" type="radio" name="qr-error-correction-level-single">Quartile</label>
+                        <label style="white-space: nowrap;"><input id="singleaddress-radio-qr-errorcorrectionlevel-m" type="radio" name="qr-error-correction-level-single">Medium</label>
+                        <label style="white-space: nowrap;"><input id="singleaddress-radio-qr-errorcorrectionlevel-l" type="radio" name="qr-error-correction-level-single">Low</label>
+                    </div>
+
+                    <button id="singleaddress-generate-address-button" style="width: 290px; margin-top: 50px; margin-right: 50px;">Generate new address</button>
                 </div>
             </div>
-            <div id="address_div" class="print_visible" style="display: none;">
+            <div id="address-div" class="print-visible" style="display: none;">
                 <div style="border-radius: 3px; border: 3px solid #2a9612; margin-bottom: 5px;">
                     <div>
                         <div style="border-bottom: 3px solid #2a9612; background: #2a9612;">
-                            <div id="address_text" style="font-weight: bold; font-size: 24px; padding-left: 10px; padding-top: 5px; padding-bottom: 5px; color: #ffffff;">Address:</div>
+                            <div id="address-text" style="font-weight: bold; font-size: 24px; padding-left: 10px; padding-top: 5px; padding-bottom: 5px; color: #ffffff;">Address:</div>
                         </div>
-                        <div id="single_address_address" style="font-weight: bold; font-size: 20px; font-family: 'roboto-mono', Monaco, monospace; padding-left: 13px; padding-right: 13px; padding-top: 8px; padding-bottom: 8px; border-bottom: 3px solid #2a9612;"></div>
+                        <div id="single-address-address" style="font-weight: bold; font-size: 20px; font-family: 'roboto-mono', Monaco, monospace; padding-left: 13px; padding-right: 13px; padding-top: 8px; padding-bottom: 8px; border-bottom: 3px solid #2a9612;"></div>
                     </div>
-                    <img id="single_address_qr" style="display:block; margin-left: auto; margin-right: auto;">
+                    <img id="single-address-qr" style="display:block; margin-left: auto; margin-right: auto;">
                 </div>
                 <div style="border-radius: 3px; border: 3px solid #ff7f00; margin-top: 5px; margin-bottom: 20px;">
                     <div>
                         <div style="border-bottom: 3px solid #ff7f00; background: #ff7f00;">
-                            <div id="privkey_text" style="font-weight: bold; font-size: 24px; padding-left: 10px; padding-top: 5px; padding-bottom: 5px; color: #ffffff;">Private key:</div>
+                            <div id="private-key-text" style="font-weight: bold; font-size: 24px; padding-left: 10px; padding-top: 5px; padding-bottom: 5px; color: #ffffff;">Private key:</div>
                         </div>
-                        <div id="single_address_privkey" style="font-weight: bold; font-size: 20px; font-family: 'roboto-mono', Monaco, monospace; padding-left: 13px; padding-right: 13px; padding-top: 8px; padding-bottom: 8px; border-bottom: 3px solid #ff7f00;"></div>
+                        <div id="single-address-private-key" style="font-weight: bold; font-size: 20px; font-family: 'roboto-mono', Monaco, monospace; padding-left: 13px; padding-right: 13px; padding-top: 8px; padding-bottom: 8px; border-bottom: 3px solid #ff7f00;"></div>
                     </div>
-                    <img id="single_address_privkey_qr" style="display:block; margin-left: auto; margin-right: auto;">
+                    <img id="single-address-private-key-qr" style="display:block; margin-left: auto; margin-right: auto;">
                 </div>
             </div>
         </div>
-        <div id="main_details" style="display: none; width: 80%; padding-left: 10px;">
+        <div id="page-address-details" style="display: none; width: 80%; padding-left: 10px;">
             <div style="display: table-row;">
                 <div class="title">Address details</div>
                 <div style="margin-bottom: 10px;">Enter a private key to view its details, or enter a bip38 encrypted private key to decrypt it</div>
-                <input id="view_address_privkey_textbox" type="text" style="font-size: 25px; width: 100%; padding: 8px; margin-bottom: 10px;">
-                <button onclick="view_address_details()">View details</button>
-                <div id="bip38_decrypt_div" style="display: none; width: 100%;">
+                <input id="view-address-private-key-textbox" type="text" style="font-size: 25px; width: 100%; padding: 8px; margin-bottom: 10px;">
+                <button id="view-address-details-button">View details</button>
+                <div id="view-address-bip38-decrypt-div" style="display: none; width: 100%;">
                     <div style="margin-top: 40px; margin-bottom: 10px; font-size: 20px;">Enter the password for this address:</div>
-                    <input id="view_address_bip38_password_textbox" type="text" style="font-size: 25px; width: 400px; padding: 8px; margin-bottom: 10px;">
-                    <br />
-                    <button onclick="bip38decrypt_button()" style="width: 420px;">Decrypt</button>
+                    <input id="view-address-bip38-password-textbox" type="text" style="font-size: 25px; width: 400px; padding: 8px; margin-bottom: 10px;">
+                    <br>
+                    <button id="view-address-decrypt-button" style="width: 420px;">Decrypt</button>
                 </div>
             </div>
-            <div id="view_address_div" style="display: table;">
-                <div id="view_address_information" style="font-size: 25px; margin-top: 25px; margin-bottom: 20px;"></div>
-                <div id="view_address_container" style="display: none;">
+            <div id="view-address-message" style="display: none; font-size: 24px; margin-top: 24px; margin-bottom: 20px;"></div>
+            <div id="view-address-div" style="display: none;">
+                <div style="font-size: 24px; margin-top: 24px; margin-bottom: 20px;">
+                    <div id="view-address-private-key-details-text" style="display: none;"></div>
+                    <div id="view-address-private-key" style="font-family: roboto-mono; font-weight: bold; display: inline;"></div>
+                    <div id="view-address-decrypted-private-key-details-text" style="display: block; margin-top: 25px;">
+                        <div style="display: inline;">Decrypted private key: </div>
+                        <div id="view-address-decrypted-private-key" style="font-family: roboto-mono; font-weight: bold; display: inline;"></div>
+                    </div>
+                </div>
+                <div id="view-address-container" style="display: table; border: 2px solid #bbbbbb;">
                     <div style="display: table; border-bottom: 2px solid #bbbbbb; width: 100%;">
-                        <div id="view_address_segwitaddress" class="address-view"></div>
-                        <div id="view_address_segwitaddress_qr" style="padding: 0px 0px 10px 20px;"></div>
+                        <div class="address-view">Segwit address:
+                            <div id="view-address-segwitaddress" style="font-family: roboto-mono; font-weight: bold; display: inline;"></div>
+                        </div>
+                        <img id="view-address-segwitaddress-qr" style="padding: 0px 0px 10px 20px; display: block;">
                     </div>
                     <div style="display: table; border-bottom: 2px solid #bbbbbb; width: 100%;">
-                        <div id="view_address_bech32address" class="address-view"></div>
-                        <div id="view_address_bech32address_qr" style="padding: 0px 0px 10px 20px;"></div>
+                        <div class="address-view">Segwit (bech32) address:
+                            <div id="view-address-bech32address" style="font-family: roboto-mono; font-weight: bold; display: inline;"></div>
+                        </div>
+                        <img id="view-address-bech32address-qr" style="padding: 0px 0px 10px 20px; display: block;">
                     </div>
                     <div style="display: table; width: 100%;">
-                        <div id="view_address_legacyaddress" class="address-view"></div>
-                        <div id="view_address_legacyaddress_qr" style="padding: 0px 0px 10px 20px;"></div>
+                        <div class="address-view">Legacy address:
+                            <div id="view-address-legacyaddress" style="font-family: roboto-mono; font-weight: bold; display: inline;"></div>
+                        </div>
+                        <img id="view-address-legacyaddress-qr" style="padding: 0px 0px 10px 20px; display: block;">
                     </div>
                 </div>
             </div>
+            <div id="view-address-loading-container" style="display: none; font-size: 30px; padding: 10px;">Working <div class="loading-spinner"></div></div>
         </div>
-        <div id="main_bulk" style="display: none; width: 80%; padding-left: 10px;">
+        <div id="page-bulk-generate" style="display: none; width: 80%; padding-left: 10px;">
             <div style="display: table-row; padding-right: 20px;">
                 <div class="title">Bulk Generate</div>
-                
+
                 <div style="padding-left: 10px;">
                     <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Address type:</div>
-                    <form>
-                        <label style="white-space: nowrap;"><input id="bulk_radio_type_segwit" type="radio" name="address_type" onchange="setBulkAddressType('segwit')">Segwit</label>
-                        <label style="white-space: nowrap;"><input id="bulk_radio_type_bech32" type="radio" name="address_type" onchange="setBulkAddressType('bech32')" checked>Segwit (bech32)</label>
-                        <label style="white-space: nowrap;"><input id="bulk_radio_type_legacy" type="radio" name="address_type" onchange="setBulkAddressType('legacy')">Legacy</label>
-                    </form>
-                    <br />
+                    <div>
+                        <label style="white-space: nowrap;"><input id="bulk-radio-type-segwit" type="radio" name="address-type-bulk">Segwit</label>
+                        <label style="white-space: nowrap;"><input id="bulk-radio-type-bech32" type="radio" name="address-type-bulk" checked>Segwit (bech32)</label>
+                        <label style="white-space: nowrap;"><input id="bulk-radio-type-legacy" type="radio" name="address-type-bulk">Legacy</label>
+                    </div>
+                    <br>
                     <div style="display: table;">
-                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="bip38changed(this, 'bulk')" style="margin-bottom: 20px;" id="bip38enabled_bulk">Bip38 encrypt</label>
-                        <div class="linkStyle" onclick="showBip38Info()" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</div>
+                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" style="margin-bottom: 20px;" id="bip38-enabled-bulk">Bip38 encrypt</label>
+                        <div class="link-style" id="show-bip38-info-link-bulk" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</div>
                     </div>
                 </div>
-                <div id="bip38_password_box_div_bulk" style="display: none; padding-bottom: 15px; border-bottom: 2px solid #bbbbbb;">
+                <div id="bip38-password-box-div-bulk" style="display: none; padding-bottom: 15px; border-bottom: 2px solid #bbbbbb;">
                     <div style="display: table-cell; padding-right: 10px; font-size: 25px;">Password:</div>
-                    <input id="bip38_password_box_bulk" type="text" style="display: table-cell; font-size: 20px; padding: 5px;">
+                    <input id="bip38-password-box-bulk" type="text" style="display: table-cell; font-size: 20px; padding: 5px;">
                 </div>
-                <br />
-                <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Number of addresses to generate (max 1000):</div>
+                <br>
+                <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Number of addresses to generate (max 10,000):</div>
                 <div style="display: table;">
-                    <input id="bulk_count" type="number" value="10" style="display: inline-block; font-size: 25px; width: 100px; padding: 5px;">
-                    <button style="display: inline-block; width: 300px; margin-left: 20px;" onclick="bulk_generate()">Generate</button>
+                    <input id="bulk-count" type="number" value="10" step="1" min="1" max="10000" style="display: inline-block; font-size: 25px; width: 100px; padding: 5px;">
+                    <button id="bulk-generate-button" style="display: inline-block; width: 300px; margin-left: 20px;">Generate</button>
                 </div>
             </div>
-            <textarea style="display: block; width: 100%; height: 400px; font-family: roboto-mono; font-size: 19px; padding: 8px; margin-top: 15px; border: 2px solid #bbbbbb; resize: none;" id="bulk_addresses" readonly>Press generate to start generating</textarea>
+            <textarea style="display: block; width: 100%; height: 400px; font-family: roboto-mono; font-size: 19px; padding: 8px; margin-top: 15px; border: 2px solid #bbbbbb; resize: none;" id="bulk-addresses" readonly>Press generate to start generating</textarea>
         </div>
-        <div id="main_paperwallet" style="display: none; width: 80%; padding-left: 10px;">
+        <div id="page-paper-wallet" style="display: none; width: 80%; padding-left: 10px;">
             <div class="title">Paper wallet</div>
-            <div style="display: table; padding-left: 10px; margin-bottom: 10px;">
-                <div style="padding-bottom: 10px; padding-right: 10px; width: 500px;">
+            <div style="white-space: nowrap; padding-left: 10px; margin-bottom: 10px;">
+                <div style="display: inline-block; border-right: 2px solid #bbbbbb; padding: 0px 10px 10px 0px; width: 400px;">
                     <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Address type:</div>
-                    <form>
-                        <label style="white-space: nowrap;"><input id="paper_radio_type_segwit" type="radio" name="address_type" onchange="setPaperAddressType('segwit')">Segwit</label>
-                        <label style="white-space: nowrap;"><input id="paper_radio_type_bech32" type="radio" name="address_type" onchange="setPaperAddressType('bech32')" checked>Segwit (bech32)</label>
-                        <label style="white-space: nowrap;"><input id="paper_radio_type_legacy" type="radio" name="address_type" onchange="setPaperAddressType('legacy')">Legacy</label>
-                    </form>
+                    <div>
+                        <label style="white-space: nowrap;"><input id="paper-radio-type-segwit" type="radio" name="address-type-paper">Segwit</label>
+                        <label style="white-space: nowrap;"><input id="paper-radio-type-bech32" type="radio" name="address-type-paper" checked>Segwit (bech32)</label>
+                        <label style="white-space: nowrap;"><input id="paper-radio-type-legacy" type="radio" name="address-type-paper">Legacy</label>
+                    </div>
                     <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px; margin-top: 20px;">QR code error correction level:</div>
-                    <form>
-                        <label style="white-space: nowrap;"><input id="paper_radio_qr_errorcorrectionlevel_h" type="radio" name="qr_error_correction_level" onchange="setPaperQRErrorCorrectionLevel('H')" checked>High</label>
-                        <label style="white-space: nowrap;"><input id="paper_radio_qr_errorcorrectionlevel_q" type="radio" name="qr_error_correction_level" onchange="setPaperQRErrorCorrectionLevel('Q')">Quartile</label>
-                        <label style="white-space: nowrap;"><input id="paper_radio_qr_errorcorrectionlevel_m" type="radio" name="qr_error_correction_level" onchange="setPaperQRErrorCorrectionLevel('M')">Medium</label>
-                        <label style="white-space: nowrap;"><input id="paper_radio_qr_errorcorrectionlevel_l" type="radio" name="qr_error_correction_level" onchange="setPaperQRErrorCorrectionLevel('L')">Low</label>
-                    </form>
-                    <br />
+                    <div>
+                        <label style="white-space: nowrap;"><input id="paper-radio-qr-errorcorrectionlevel-h" type="radio" name="qr-error-correction-level-paper" checked>High</label>
+                        <label style="white-space: nowrap;"><input id="paper-radio-qr-errorcorrectionlevel-q" type="radio" name="qr-error-correction-level-paper">Quartile</label>
+                        <label style="white-space: nowrap;"><input id="paper-radio-qr-errorcorrectionlevel-m" type="radio" name="qr-error-correction-level-paper">Medium</label>
+                        <label style="white-space: nowrap;"><input id="paper-radio-qr-errorcorrectionlevel-l" type="radio" name="qr-error-correction-level-paper">Low</label>
+                    </div>
+                    <div style="font-weight: bold; font-size: 20px; margin-top: 20px;">Count (max 100):</div>
+                    <input id="paperwallet-generate-count" type="number" value="4" min="1" max="100" step="1" style="font-size: 25px; padding: 5px; width: calc(100% - 24px);">
+                    <div style="font-weight: bold; font-size: 20px; margin-top: 20px;">Vertical gap between wallets (in pixels):</div>
+                    <input type="number" value="0" min="0" max="1000" style="font-size: 25px; padding: 5px; width: calc(100% - 24px);"
+                        oninput="document.documentElement.style.setProperty('--paperwallet-vertical-gap', this.value + 'px')">
+                    <div style="font-weight: bold; font-size: 20px; width: 100px; margin-top: 20px;">Style:</div>
+                    <select id="paperwallet-style-selector" style="display: table-cell; font-size: 25px; padding: 5px; width: calc(100% - 24px);"></select>
+                    <a id="paperwallet-source-link" style="display: none; margin: 10px; font-size: 24px;">Design source</a>
+                </div>
+                <div style="display: inline-block; vertical-align: top; padding-left: 10px;">
+                    <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px;">Generation type:</div>
+                    <div style="display: table; border-left: 2px solid #bbbbbb; margin-left: 8px; padding-left: 4px;">
+                        <label style="white-space: nowrap; display: block; margin: 4px 0px;"><input id="paper-radio-generation-type-random-new" type="radio" name="generation-type-paper" checked>Generate random wallets</label>
+                        <label style="white-space: nowrap; display: block; margin: 4px 0px;"><input id="paper-radio-generation-type-use-existing" type="radio" name="generation-type-paper">Use existing private keys</label>
+                        <label style="white-space: nowrap; display: block; margin: 4px 0px;"><input id="paper-radio-generation-type-from-seed" type="radio" name="generation-type-paper">Generate from mnemonic seed</label>
+                    </div>
+                    <div id="paper-div-generate-use-existing" style="display: none; margin-bottom: 12px;">
+                        <textarea id="paper-use-existing-textarea" style="width: 500px; height: 150px; resize: none; margin-top: 10px;" placeholder="Enter your private keys here, separated by spaces or newlines"></textarea>
+                    </div>
+                    <div id="paper-div-generate-from-seed" style="display: none; margin-bottom: 12px;">
+                        <textarea id="paper-from-seed-textarea" style="width: 500px; height: 75px; resize: none; margin-top: 10px;" placeholder="Enter your seed here"></textarea>
+                        <br>
+                        <input id="paper-from-seed-password" type="text" placeholder="Password (optional)" style="font-size: 16px; margin-top: 10px; padding: 2px 4px; width: 500px;">
+                        <br>
+                        <div style="margin: 20px 0px 10px 0px; font-size: 16px; display: inline-block;">Offset:</div>
+                        <input id="paper-from-seed-offset" type="number" value="0" min="0" max="2147483648" step="1"
+                            style="font-size: 16px; width: 100px; padding: 2px 4px; margin-right: 8px;">
+                        <label style="font-size: 16px; width: 160px; padding: 2px 4px; white-space: nowrap;"
+                            ><input type="checkbox" id="paper-from-seed-hardened-checkbox"> Hardened?</label>
+                        <label style="font-size: 16px; width: 160px; padding: 2px 4px; white-space: nowrap"
+                            ><input type="checkbox" id="paper-from-seed-change-addresses-checkbox"> Change addresses?</label>
+                    </div>
                     <div style="display: table; padding-top: 10px;">
-                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="bip38changed(this, 'paperwallet')" style="margin-bottom: 20px;" id="bip38enabled_paper">Bip38 encrypt</label>
-                        <div class="linkStyle" onclick="showBip38Info()" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</div>
+                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" style="margin-bottom: 20px;" id="bip38-enabled-paper">Bip38 encrypt</label>
+                        <div class="link-style" id="show-bip38-info-link-paper" style="display: table-cell; font-size: 22px; padding-left: 20px;">What is bip38 encryption?</div>
                     </div>
-                    <div id="bip38_password_box_div_paper" style="display: none; padding-bottom: 15px;">
-                    <div style="display: table-cell; padding-right: 10px; font-size: 25px;">Password:</div>
-                    <input id="bip38_password_box_paper" type="text" style="display: table-cell; font-size: 20px; padding: 5px;">
+                    <div id="bip38-password-box-div-paper" style="display: none; padding-bottom: 15px;">
+                        <div style="display: table-cell; padding-right: 10px; font-size: 25px;">Password:</div>
+                        <input id="bip38-password-box-paper" type="text" style="display: table-cell; font-size: 20px; padding: 5px;">
+                    </div>
                 </div>
-                    <button style="margin-top: 20px;" onclick="paperWallet();">Generate paper wallets</button>
-                    <br />
-                    <button onclick="window.print()">Print</button>
+            </div>
+            <div id="paperwallet-custom-container" style="display: none; white-space: nowrap; border-bottom: 2px solid #bbbbbb; padding-bottom: 20px; margin-bottom: 20px;">
+                <div id="paperwallet-custom-parameters" style="display: inline-block; width: 500px;"></div>
+                <div style="display: inline-block; vertical-align: top;">
+                    <div style="font-size: 25px;">Preview:</div>
+                    <br>
+                    <div id="paperwallet-preview-div" style="width: 700px; height: 400px; border: 2px solid black; font-size: 30px; background-color: white; position: relative;"></div>
                 </div>
-                <div style="display: table-cell; padding-left: 10px; border-left: 2px solid #bbbbbb;">
-                    <div style="font-weight: bold; font-size: 20px;">Count (max 20):</div>
-                    <input id="paperwallet_generate_count" type="number" value="4" style="font-size: 25px; padding: 5px; width: 100%;">
-                    <br />
-                    <br />
-                    <div style="font-weight: bold; font-size: 20px;">Vertical gap between wallets (in pixels):</div>
-                    <input id="paperwallet_vertical_gap" type="number" value="0" style="font-size: 25px; padding: 5px; width: 100%;" oninput="paperwallet_vertical_gap_changed(this)">
-                    <br />
-                    <br />
-                    <div id="paper_custom_privkeys_bip38" style="display: none;">
-                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="document.getElementById('paper_custom_privkeys_bip38_container').style.display=event.target.checked?'':'none'" id="use_custom_privkeys_bip38_paper">Use your own private keys</label>
-                        <div id="paper_custom_privkeys_bip38_container" style="display: none;">
-                            <div style="width: 480px; padding: 5px;">You can encrypt existing private keys to use them with paper wallets. Paste the private keys below, separated with spaces or new lines.<br /><br />Click on "Generate paper wallets" to make the paper wallets.</div>
-                            <div id="paper_custom_privkey_bip38_error" style="padding: 5px; font-weight: bold;"></div>
-                            <textarea id="paper_custom_privkeys_bip38_textarea" style="width: 100%; height: 150px; resize: none; margin-top: 10px;" placeholder="Paste the private keys here..."></textarea>
-                        </div>
-                    </div>
-                    <div id="paper_custom_addresses_no_bip38">
-                        <label style="display: table-cell; font-size: 20px; font-weight: bold;"><input type="checkbox" onchange="document.getElementById('paper_custom_addresses_container').style.display=event.target.checked?'':'none'" id="use_custom_addresses_paper">Use your own addresses</label>
-                        <div id="paper_custom_addresses_container" style="display: none;">
-                            <div style="width: 480px; padding: 5px;">If you have already generated addresses / private keys, you can paste them here to use them in paper wallets.<br /><strong>Make sure that the addresses and private keys are correct!</strong><br /><br />Use the following format: separate the address and the private key with a space character, and separate each pair with commas: address1 privkey1, address2 privkey2, etc...<br /><br />Click on "Generate paper wallets" to make the paper wallets.</div>
-                            <div id="paper_custom_address_error" style="padding: 5px; font-weight: bold;"></div>
-                            <textarea id="paper_custom_addresses" style="width: 100%; height: 150px; resize: none; margin-top: 10px;" placeholder="Enter the addresses and private keys here..."></textarea>
-                        </div>
-                    </div>
-                    <br />
-                    <div style="display: table; padding-top: 10px; width: 500px;">
-                        <div style="display: table-cell; font-weight: bold; font-size: 20px; width: 100px;">Style:</div>
-                        <select style="display: table-cell; font-size: 25px; padding: 5px; width: 400px; margin-left: 20px; margin-bottom: 10px; right: 0px;" onchange="paperWalletStyleChange(this)">
-                            <option value="design0">Simple</option>
-                            <option value="design6">bitaddress.org</option>
-                            <option value="design9">bitcoinpaperwallet.com</option>
-                            <option value="design1">bitcoinpaperwallet.com (black and white)</option>
-                            <option value="design2">Dorian Satoshi Nakamoto</option>
-                            <option value="design3">walletgenerator.net</option>
-                            <option value="design4">Bitcoin currency note</option>
-                            <option value="design5">Design by Mark &amp; Barbara Messer</option>
-                            <option value="design7">Design by Timbo925 (grey)</option>
-                            <option value="design8">Design by 75RTUGA</option>
-                            <option value="custom">Your custom image</option>
-                        </select>
-                    </div>
-                    <div id="paperwallet_source_link" style="margin-bottom: 10px;"></div>
-                </div>
+            </div>
+            <div style="width: 600px;">
+                <button style="margin-top: 20px;" id="paperwallet-generate-button">Generate paper wallets</button>
+                <button onclick="window.print()">Print</button>
             </div>
             <div style="font-weight: bold; font-size: 20px; padding-bottom: 10px; line-height: 30px;">Adjust the print scale if necessary!</div>
-            <div id="paperwallet_generate_progress_text" style="font-weight: bold; font-size: 20px; padding-bottom: 10px; line-height: 30px;"></div>
-            <div id="paperwallet_custom_parameters" style="display: none; border-bottom: 2px solid #bbbbbb; padding-bottom: 20px; margin-bottom: 20px;">
-                <div style="display: table-cell; padding-right: 40px; white-space: nowrap;">
-                    <input id="paperwallet_file_chooser" type="file" accept="image/*" onchange="paperWalletCustomImageSelected(this)"> &lt;- Background image
-                    <br />
-                    <br />
-                    <input id="paperwallet_custom_background_scale" type="number" value="100" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Background image preview scale (percent)
-                    <br />
-                    <input id="paperwallet_custom_address_posx" type="number" value="170" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address position x (left)
-                    <br />
-                    <input id="paperwallet_custom_address_posy" type="number" value="10" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address position y (top)
-                    <br />
-                    <input id="paperwallet_custom_address_size" type="number" value="20" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address font size
-                    <br />
-                    <input id="paperwallet_custom_address_length" type="number" value="0" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address letters per line (0: no line breaks)
-                    <br />
-                    <input id="paperwallet_custom_address_rotation" type="number" value="0" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address rotation (degrees)
-                    <br />
-                    <input id="paperwallet_custom_address_qr_posx" type="number" value="10" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address QR code position x (left)
-                    <br />
-                    <input id="paperwallet_custom_address_qr_posy" type="number" value="10" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address QR code position y (top)
-                    <br />
-                    <input id="paperwallet_custom_address_qr_size" type="number" value="150" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address QR code size
-                    <br />
-                    <input id="paperwallet_custom_address_qr_rotation" type="number" value="0" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Address QR rotation (degrees)
-                    <br />
-                    <input id="paperwallet_custom_privkey_posx" type="number" value="170" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key position x (left)
-                    <br />
-                    <input id="paperwallet_custom_privkey_posy" type="number" value="180" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key position y (top)
-                    <br />
-                    <input id="paperwallet_custom_privkey_size" type="number" value="20" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key font size
-                    <br />
-                    <input id="paperwallet_custom_privkey_length" type="number" value="0" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key letters per line (0: no line breaks)
-                    <br />
-                    <input id="paperwallet_custom_privkey_rotation" type="number" value="0" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key rotation (degrees)
-                    <br />
-                    <input id="paperwallet_custom_privkey_qr_posx" type="number" value="10" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key QR code position x (left)
-                    <br />
-                    <input id="paperwallet_custom_privkey_qr_posy" type="number" value="170" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key QR code position y (top)
-                    <br />
-                    <input id="paperwallet_custom_privkey_qr_size" type="number" value="150" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key QR code size
-                    <br />
-                    <input id="paperwallet_custom_privkey_qr_rotation" type="number" value="0" oninput="paperwallet_update_element(this)" class="paperwallet-custom-params"> Private key QR rotation (degrees)
+            <div id="paperwallet-generate-progress-container" style="display: none; margin-bottom: 12px;">
+                <div class="loading-spinner"></div>
+                <div id="paperwallet-generate-progress-text"
+                    style="display: inline-block; margin-left: 8px; white-space: pre-line; font-weight: bold; font-size: 20px; padding-bottom: 10px; line-height: 30px;"></div>
                 </div>
-                <div style="display: table-cell;">
-                    <div style="font-size: 25px;">Preview:</div>
-                    <br />
-                    <div id="paperwallet_preview_div" style="width: 700px; height: 400px; border: 2px solid black; font-size: 30px; background-color: #d0d0d0;">Choose a background image first!</div>
-                </div>
-            </div>
-            <div id="paperwallet_canvas_print_container" style="width: 100%;">
-                <div id="paperwallet_print_area" class="print_visible"></div>
+            <div id="paperwallet-generate-progress-error"
+                style="display: none; margin-left: 8px; white-space: pre-line; font-weight: bold; font-size: 20px; padding-bottom: 10px; line-height: 30px; color: red;"></div>
+            <div id="paperwallet-canvas-print-container" style="width: 100%;">
+                <div id="paperwallet-print-area" class="print-visible"></div>
             </div>
         </div>
-        <div id="main_seed" style="display: none; width: 80%; padding-left: 10px;">
+        <div id="page-mnemonic-seed" style="display: none; width: 80%; padding-left: 10px;">
             <div style="display: grid; grid-template-columns: 300px 260px auto;">
                 <div class="title">Mnemonic Seed</div>
-                <button id="seed_generate_page_button" style="width: 250px; height: 48px;" onclick="SetSeedPage(true)" disabled>Seed generator</button>
-                <button id="seed_details_page_button" style="width: 250px; height: 48px;" onclick="SetSeedPage(false)">View seed details</button>
+                <button id="seed-generate-page-button" style="width: 250px; height: 48px;" disabled>Seed generator</button>
+                <button id="seed-details-page-button" style="width: 250px; height: 48px;">View seed details</button>
             </div>
-            <div id="seed_generate_page" style="display: table; padding-left: 10px; margin-bottom: 10px;">
+            <div id="seed-generate-page" style="display: table; padding-left: 10px; margin-bottom: 10px;">
                 <div style="margin: 40px 0px 40px 0px;">
-                    <button style="width: 320px; height: 60px; margin-left: 20px; font-size: 24px;" onclick="GenerateNewSeedButton()">Generate a new seed</button>
-                    <select id="seed_generate_wordcount" style="margin-left: 40px; padding: 8px 20px; font-size: 24px;">
+                    <button id="seed-generate-button" style="width: 320px; height: 60px; margin-left: 20px; font-size: 24px;">Generate a new seed</button>
+                    <select id="seed-generate-wordcount" style="margin-left: 40px; padding: 8px 20px; font-size: 24px;">
                         <option value="12">Generate 12 words</option>
                         <option value="15">Generate 15 words</option>
                         <option value="18">Generate 18 words</option>
@@ -631,79 +687,77 @@ li
                         <option value="24" selected>Generate 24 words</option>
                     </select>
                 </div>
-                <div id="seed_generate_result" class="highlighted" style="font-size: 32px; margin: 40px 20px 0px 20px; padding: 20px; display: none;"></div>
+                <div id="seed-generate-result" class="highlighted" style="font-size: 32px; margin: 40px 20px 0px 20px; padding: 20px; display: none;"></div>
             </div>
-            <div id="seed_details_page" style="display: none;">
+            <div id="seed-details-page" style="display: none;">
                 <div>
                     <div style="margin: 20px 0px 10px 0px; font-size: 20px;">Enter a seed phrase or a BIP32 extended key to view its details.</div>
-                    <textarea id="seed_details_seed_textarea" oninput="SeedChanged(this)"
+                    <textarea id="seed-details-seed-textarea"
                         style="font-size: 20px; width: 100%; padding: 4px 8px; margin-bottom: 10px; line-height: 32px; resize: none; height: 66px;"
                         ></textarea>
-                    <div id="seed_details_password_container">
+                    <div id="seed-details-password-container">
                         <div style="margin: 10px 0px; font-size: 20px;">Passphrase</div>
-                        <textarea id="seed_details_seed_password" placeholder="(empty)" oninput="SeedPasswordChanged()"
+                        <textarea id="seed-details-seed-password" placeholder="(empty)"
                             style="font-size: 20px; width: 100%; padding: 6px 8px; margin-bottom: 10px; resize: none;"></textarea>
                     </div>
-                    <button style="margin-top: 10px;" onclick="ViewSeedDetailsButton()">View details</button>
-                    <div id="seed_details_error_text" style="font-size: 24px; color: red; margin-top: 10px; display: none;"></div>
+                    <button id="seed-view-details" style="margin-top: 10px;">View details</button>
+                    <div id="seed-details-error-text" style="font-size: 24px; color: red; margin-top: 10px; display: none;"></div>
                 </div>
-                <div id="seed_details_results" style="display: none;">
-                    <div id="seed_details_results_bip32_rootkey_container">
+                <div id="seed-details-results" style="display: none;">
+                    <div id="seed-details-results-bip32-rootkey-container">
                         <div style="margin: 20px 0px 10px 0px; font-size: 20px;">BIP32 root key</div>
-                        <textarea id="seed_details_results_rootkey" readonly
+                        <textarea id="seed-details-results-rootkey" readonly
                             style="font-size: 20px; width: 100%; padding: 4px 8px; margin-bottom: 10px; line-height: 32px; resize: none; height: 66px;"
                             ></textarea>
                     </div>
                     <div style="width: 100%; height: 2px; background-color: #bbbbbb; margin: 10px 0px;"></div>
                     <div>
                         <div style="margin: 10px 0px; font-size: 24px; display: inline-block;">Preset:</div>
-                        <select id="derivation_path_preset" style="font-size: 24px; margin-right: 20px; padding: 2px 4px;" onchange="SeedDerivationPresetChanged(this.value)">
+                        <select id="seed-details-derivation-path-preset" style="font-size: 24px; margin-right: 20px; padding: 2px 4px;">
                             <option value="44">Legacy</option>
                             <option value="49" selected="">Segwit</option>
                             <option value="84">Bech32</option>
                             <option value="32">Custom</option>
                         </select>
                         <div style="margin: 20px 0px 10px 0px; font-size: 24px; display: inline-block;">Derivation path:</div>
-                        <input type="text" id="seed_details_results_derivation_path_input" value="m/49'/0'/0'" placeholder="e.g. m/0'/0" disabled
+                        <input type="text" id="seed-details-results-derivation-path-input" value="m/49'/0'/0'" placeholder="e.g. m/0'/0" disabled
                             style="font-size: 24px; margin-right: 20px; width: 200px; padding: 2px 4px;">
                         <div style="margin: 20px 0px 10px 0px; font-size: 24px; display: inline-block;">Count:</div>
-                        <input id="seed_details_address_count" type="number" value="10" min="1" max="100" step="1" style="font-size: 24px; margin-right: 20px; width: 60px; padding: 2px 4px;">
+                        <input id="seed-details-address-count" type="number" value="10" min="1" max="100" step="1" style="font-size: 24px; margin-right: 20px; width: 60px; padding: 2px 4px;">
                         <div style="margin: 20px 0px 10px 0px; font-size: 24px; display: inline-block;">Offset:</div>
-                        <input id="seed_details_address_offset" type="number" value="0" min="0" max="2147483648" step="1" style="font-size: 24px; margin-right: 20px; width: 160px; padding: 2px 4px;">
+                        <input id="seed-details-address-offset" type="number" value="0" min="0" max="2147483648" step="1" style="font-size: 24px; margin-right: 20px; width: 160px; padding: 2px 4px;">
                         <div style="margin-top: 10px;">
-                            <label id="seed_details_results_hardened_addresses_checkbox"
+                            <label id="seed-details-results-hardened-addresses-label"
                                 style="font-size: 24px; margin-right: 20px; width: 160px; padding: 2px 4px; white-space: nowrap;"><input type="checkbox"
-                                id="seed_details_hardened_addresses_checkbox"> Calculate hardened addresses?</label>
-                            <label id="seed_details_results_change_addresses_checkbox"
+                                id="seed-details-hardened-addresses-checkbox"> Calculate hardened addresses?</label>
+                            <label id="seed-details-results-change-addresses-label"
                                 style="font-size: 24px; margin-right: 20px; width: 160px; padding: 2px 4px; white-space: nowrap"
-                                ><input type="checkbox" id="seed_details_change_addresses_checkbox"> Calculate change addresses?</label>
+                                ><input type="checkbox" id="seed-details-change-addresses-checkbox"> Calculate change addresses?</label>
                         </div>
-                        <button style="width: 250px; margin-top: 20px;" onclick="SeedCalculateAddressesButton()">Calculate addresses</button>
-                        <div id="seed_details_address_calculate_progress" style="display: none; font-size: 24px; margin-left: 20px;"></div>
+                        <button id="seed-details-address-calculate-button" style="width: 250px; margin-top: 20px;">Calculate addresses</button>
+                        <div id="seed-details-address-calculate-progress" style="display: none; font-size: 24px; margin-left: 20px;"></div>
                     </div>
-                    <div id="seed_details_addresses_error_text" style="font-size: 24px; color: red; margin-top: 10px; display: none;"></div>
-                    <div id="seed_details_results_addresses_container" style="margin-top: 20px;">
+                    <div id="seed-details-addresses-error-text" style="font-size: 24px; color: red; margin-top: 10px; display: none;"></div>
+                    <div id="seed-details-results-addresses-container" style="margin-top: 20px;">
                         <div style="margin-top: 10px; white-space: nowrap; display: table;">
-                            <div style="border-width: 2px; border-style: solid; font-size: 24px;" id="seed_details_results_addresses_table_header">
+                            <div style="border-width: 2px; border-style: solid; font-size: 24px;" id="seed-details-results-addresses-table-header">
                                 <div style="border-right-width: 2px; border-right-style: solid; width: 200px; display: inline-block; padding: 4px 8px;"
                                     >Path</div><div style="border-right-width: 2px; border-right-style: solid; width: 420px; display: inline-block; padding: 4px 8px;"
                                     >Address</div><div style="display: inline-block; width: 500px; padding: 4px 8px;">Private key</div>
                             </div>
-                            <div style="font-size: 16px; font-family: roboto-mono;" id="seed_details_results_addresses_table">
-                                <div class="seed_details_results_address_row">
-                                    <div>m/84'/0'/0'/0/0</div><div>bc1qvd5fc02tkf7fdxhyjpfnnar2ndenayyahz49am</div><div>L2zFiwnGCQPnBYEwRBphNAck5XJ79BWYV1FGNzULTFSTchm66Mt5</div>
-                                </div>
+                            <div style="font-size: 16px; font-family: roboto-mono;" id="seed-details-results-addresses-table">
+                                <div class="seed-details-results-address-row"></div>
                             </div>
                         </div>
                         <div style="margin: 20px 0px;">
-                            <button style="width: 280px;" onclick="SeedToggleExtendedKeys(this)">Show extended keys</button>
-                            <div id="seed_details_results_extended_keys" style="margin: 0px 0px 30px 20px; display: none;">
+                            <button id="seed-details-toggle-extended-keys-button" style="width: 280px;">Show extended keys</button>
+                            <div id="seed-details-results-extended-keys" style="margin: 0px 0px 30px 20px; display: none;">
                                 <div style="margin: 10px 0px; font-size: 20px;">Extended public key</div>
-                                <textarea id="seed_details_results_extended_pubkey" readonly
+                                <textarea id="seed-details-results-extended-pubkey" readonly
                                     style="font-size: 20px; width: 100%; padding: 4px 8px; margin-bottom: 10px; line-height: 32px; resize: none; height: 66px;"
                                     ></textarea>
                                 <div style="margin: 10px 0px; font-size: 20px;">Extended private key</div>
-                                <textarea id="seed_details_results_extended_privkey" readonly
+                                <textarea id="seed-details-results-extended-private-key" readonly
                                     style="font-size: 20px; width: 100%; padding: 4px 8px; margin-bottom: 10px; line-height: 32px; resize: none; height: 66px;"
                                     ></textarea>
                             </div>
@@ -712,39 +766,39 @@ li
                 </div>
             </div>
         </div>
-        <div id="main_info" style="display: none; width: 80%; padding-left: 10px;">
+        <div id="page-information" style="display: none; width: 80%; padding-left: 10px;">
             <div class="title">Information</div>
             <ul>
                 <li>P2SH-P2WPKH addresses are referenced as "Segwit" addresses, Bech32-encoded P2WPKH addresses are referenced as "Segwit (bech32)" addresses, and regular P2PKH addresses are referenced as "Legacy" addresses.</li>
                 <li>QR codes of bech32 addresses contain the text capitalized, so the size of the QR codes can be reduced. For more information, see the <a href="https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#Specification">BIP 173 specification (Uppercase/lowercase part)</a>.</li>
-                <li id="testnet_link_li">Testnet version available <a href="?testnet">here.</a></li>
-                <li id="mainnet_link_li" style="display: none;">Mainnet version available <a href="?">here.</a></li>
-                <li>JavaScript libraries used on this site: <a href="https://github.com/indutny/bn.js">BigNumber</a>, <a href="https://github.com/brix/crypto-js">crypto-js</a>, <a href="https://github.com/kazuhikoarase/qrcode-generator">QR code generator</a>, <a href="https://github.com/dchest/scrypt-async-js">Scrypt</a>, <a href="https://github.com/YuzuJS/setImmediate">setImmediate.js</a></li>
+                <li id="testnet-link-li">Testnet version available <a href="?testnet">here.</a></li>
+                <li id="mainnet-link-li" style="display: none;">Mainnet version available <a href="?">here.</a></li>
+                <li>JavaScript libraries used on this site: <a href="https://github.com/indutny/bn.js">BigNumber</a>, <a href="https://github.com/brix/crypto-js">crypto-js</a>, <a href="https://github.com/kazuhikoarase/qrcode-generator">QR code generator</a>, <a href="https://github.com/dchest/scrypt-async-js">Scrypt</a>, <a href="https://github.com/stefanpenner/es6-promise">es6-promise</a></li>
                 <li>Source code is available at <a href="https://github.com/Kimbatt/btc-address-generator">Github</a> or by viewing this page's source (it is a single html file)</li>
-                <li id="run_tests_link"><p class="linkStyle" onclick="runTests()">Click here</p> to run tests</li>
+                <li><p class="link-style" id="run-tests-link">Click here</p> to run tests</li>
                 <li>This site was made by <a href="https://github.com/Kimbatt">Kimbatt</a></li>
                 <li>If you liked this site, you can donate to: <a href="bitcoin:3Ee3fDqTmERBpxAvV8GgdQUiTparohPaHX">3Ee3fDqTmERBpxAvV8GgdQUiTparohPaHX</a></li>
             </ul>
         </div>
-        <div id="main_beginner" style="display: none; width: 80%; padding-left: 10px;">
+        <div id="page-beginners-guide" style="display: none; width: 80%; padding-left: 10px;">
             <div class="title">Beginner's guide</div>
-            <br />
+            <br>
             <div class="title-small">What is Bitcoin?</div>
             <div>Bitcoin is a peer-to-peer electronic cash system. Bitcoin allows its users to send money over the internet, without any restrictions. It is decentralized, open source, and gives users full control over their money. For more information, visit <a href="https://bitcoin.org">https://bitcoin.org</a>.</div>
-            <br />
+            <br>
             <div class="title-small">What is a bitcoin address, and what is a private key?</div>
-            <div>To receive bitcoin, you need a bitcoin address. Anyone who knows your bitcoin address can send bitcoins to you. To spend money from a bitcoin address, you need its private key. As its name suggests, you must keep your private key safe, because anyone who knows your private key, can spend your bitcoins. Your address however can be shared to anyone, as they can only send you money, but they cannot spend from it.<br />The address and the private key are related in a mathematical way, so the address can be calculated from the private key, but it is impossible to calculate the private key the your address.</div>
-            <br />
+            <div>To receive bitcoin, you need a bitcoin address. Anyone who knows your bitcoin address can send bitcoins to you. To spend money from a bitcoin address, you need its private key. As its name suggests, you must keep your private key safe, because anyone who knows your private key, can spend your bitcoins. Your address however can be shared to anyone, as they can only send you money, but they cannot spend from it.<br>The address and the private key are related in a mathematical way, so the address can be calculated from the private key, but it is impossible to calculate the private key the your address.</div>
+            <br>
             <div class="title-small">What is a paper wallet?</div>
             <div>A paper wallet is a bitcoin address and the private key printed to paper. Paper wallets are a safe way to store bitcoin, as they are offline, so they cannot be stolen by hackers. However, you should be careful when making paper wallets, so no one can actually steal them. You can read more at the "Security tips" section on this site.</div>
-            <br />
+            <br>
             <div class="title-small">What is a legacy address, and what is a segwit address (and bech32 segwit address)?</div>
             <div>Legacy address is the default bitcoin address format, they start with the character 1. Segwit addresses use the "<a href="https://en.bitcoin.it/wiki/Segregated_Witness">segregated witness</a>" feature, allowing users to send transactions for a lower fee. It is recommended to use segwit addresses over legacy addresses. Segwit addresses start with the character 3. Bech32 is a new address format for native segwit addresses, but they are not widely supported yet.</div>
-            <br />
+            <br>
             <div class="title-small">What is Bip38 encryption?</div>
             <div><a href="https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki">Bip38</a> encryption allows you to protect your paper wallet with a password, so if your paper wallet is stolen, or its private key is exposed, your paper wallet will still be safe. However, if you use bip38 encryption, you must remember the password very well, because if you forget the password, the paper wallet will be as worthless as if you lost the private key. Bip38 was designed to resist brute-force attacks, that's why it's practically impossible to recover the wallet if the password is forgotten. You can unlock a bip38 encrypted wallet on the "Address details" section of this site.</div>
         </div>
-        <div id="main_security" style="display: none; width: 80%; padding-left: 10px;">
+        <div id="page-security-tips" style="display: none; width: 80%; padding-left: 10px;">
             <div class="title">Security tips</div>
             <ul>
                 <li>Paper wallets should be only used if you know exactly how they work. It is easy for inexperienced people to make mistakes, resulting in permanent loss of funds. See the <a href="https://en.bitcoin.it/wiki/Paper_wallet">bitcoin wiki</a> for more details.</li>
@@ -757,62 +811,74 @@ li
             </ul>
         </div>
     </div>
-    <div id="bip38_info">
-        <div id="bip38_info_content">Bip38 encryption allows you to protect your paper wallet with a password, giving it more security.<br />If your paper wallet is stolen or the private key is exposed, your funds will still be safe, because it cannot be unlocked without the password.<br /><br /><div style="color: #ff0000;">However, if you forget the password, there is absolutely no way to recover the wallet, this means that your funds will be PERMANENTLY LOST.<br />Always make sure that you can decrypt the wallet before sending any bitcoins to it!</div><br /><div style="margin-bottom: 70px;">Note that other applications may only support decryption of legacy addresses. To decrypt segwit addresses, you most likely need to use this site. Alternatively, you could decrypt the private key elsewhere, then generate the segwit address corresponding to that private key.</div><button style="position: absolute; width: 300px; right: 0px; bottom: 0px; margin: 30px;" onclick="document.getElementById('bip38_info').style.display='none'">Got it</button></div>
+    <div id="bip38-info">
+        <div id="bip38-info-content">Bip38 encryption allows you to protect your paper wallet with a password, giving it more security.<br>If your paper wallet is stolen or the private key is exposed, your funds will still be safe, because it cannot be unlocked without the password.<br><br><div style="color: #ff0000;">However, if you forget the password, there is absolutely no way to recover the wallet, this means that your funds will be PERMANENTLY LOST.<br>Always make sure that you can decrypt the wallet before sending any bitcoins to it!</div><br><div style="margin-bottom: 70px;">Note that other applications may only support decryption of legacy addresses. To decrypt segwit addresses, you most likely need to use this site. Alternatively, you could decrypt the private key elsewhere, then generate the segwit address corresponding to that private key.</div><button style="position: absolute; width: 300px; right: 0px; bottom: 0px; margin: 30px;" onclick="document.getElementById('bip38-info').style.display='none'">Got it</button></div>
     </div>
-    <div id="randomness_overlay">
-        <div id="randomness_overlay2" style="display: none; position: absolute; width: 100%; height: 100%;">
-            <canvas id="randomness_canvas" style="border: 4px solid black; position: absolute;" width="600px" height="400px">
-            </canvas>
-            
-            <div id="randomness_div" style="width: 60%; height: 100px; font-size: 25px; text-align: center; cursor: default; padding-top: 20px; position: absolute; pointer-events: none;">Move your mouse around here for randomness<br />0%</div>
-            
-            <div id="randomness_container" style="position: absolute; display: flex;">
-                <div style="float: left; color: white; font-size: 25px; padding: 15px; flex-grow: 1;">You can skip this step if you do not plan to generate valuable wallets.<br />If you skip, you can refresh the page to be able to enter randomness again.</div>
-                <button id="randomness_skip_button" style="float: right; width: 150px; height: 48px;" onclick="skipRandomness()">Skip</button>
+    <div id="randomness-overlay">
+        <div id="randomness-overlay-2" style="display: none; position: absolute; width: 100%; height: 100%;">
+            <canvas id="randomness-canvas" style="border: 4px solid black; position: absolute;" width="600px" height="400px"></canvas>
+
+            <div id="randomness-div" style="width: 60%; height: 100px; font-size: 25px; text-align: center; cursor: default; padding-top: 20px; position: absolute; pointer-events: none;">Move your mouse around here for randomness<br>0%</div>
+
+            <div id="randomness-container" style="position: absolute; display: flex;">
+                <div style="float: left; color: white; font-size: 25px; padding: 15px; flex-grow: 1;">You can skip this step if you do not plan to generate valuable wallets.<br>If you skip, you can refresh the page to be able to enter randomness again.</div>
+                <button id="randomness-skip-button" style="float: right; width: 150px; height: 48px;">Skip</button>
+            </div>
+        </div>
+    </div>
+    <div id="tests-overlay" style="display: none; justify-content: center; align-items: center; position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5);">
+        <div id="tests-window" style="border-radius: 24px; width: 400px; height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div id="tests-running-container" style="display: none; flex-direction: column; justify-content: space-between; align-items: center;">
+                <div style="display: flex; justify-content: center; align-items: center;">
+                    <div style="font-size: 24px; display: inline-block; margin-right: 12px;">Running tests</div>
+                    <div class="loading-spinner" style="display: inline-block;"></div>
+                </div>
+                <div id="tests-running-progress" style="font-size: 24px;"></div>
+            </div>
+            <div id="tests-done-container" style="width: 100%; display: none; flex-direction: column; justify-content: space-between; align-items: center;">
+                <div id="tests-result" style="width: calc(100% - 64px); font-size: 24px; margin-bottom: 24px;"></div>
+                <button id="tests-result-close-button" style="width: 200px;">Close</button>
             </div>
         </div>
     </div>
     <div style="position: absolute; top: 10px; right: 10px;">
-        <a id="lightModeButton" onclick="setDarkMode(false)" style="cursor: pointer;">
-            <svg width="32" height="32">
-                <circle cx="16" cy="16" r="16" style="fill:white"></circle>
-                <circle cx="16" cy="16" r="6" style="fill:black"></circle>
-                <line x1="4" y1="16" x2="6" y2="16" style="stroke:black;stroke-width:4;stroke-linecap:round;transform-origin:16px 16px;transform:rotate(0deg);"></line>
-                <line x1="4" y1="16" x2="6" y2="16" style="stroke:black;stroke-width:4;stroke-linecap:round;transform-origin:16px 16px;transform:rotate(45deg);"></line>
-                <line x1="4" y1="16" x2="6" y2="16" style="stroke:black;stroke-width:4;stroke-linecap:round;transform-origin:16px 16px;transform:rotate(90deg);"></line>
-                <line x1="4" y1="16" x2="6" y2="16" style="stroke:black;stroke-width:4;stroke-linecap:round;transform-origin:16px 16px;transform:rotate(135deg);"></line>
-                <line x1="4" y1="16" x2="6" y2="16" style="stroke:black;stroke-width:4;stroke-linecap:round;transform-origin:16px 16px;transform:rotate(180deg);"></line>
-                <line x1="4" y1="16" x2="6" y2="16" style="stroke:black;stroke-width:4;stroke-linecap:round;transform-origin:16px 16px;transform:rotate(225deg);"></line>
-                <line x1="4" y1="16" x2="6" y2="16" style="stroke:black;stroke-width:4;stroke-linecap:round;transform-origin:16px 16px;transform:rotate(270deg);"></line>
-                <line x1="4" y1="16" x2="6" y2="16" style="stroke:black;stroke-width:4;stroke-linecap:round;transform-origin:16px 16px;transform:rotate(315deg);"></line>
-            </svg>
+        <a id="light-mode-button" style="cursor: pointer;">
+            <img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Ccircle cx='16' cy='16' r='16' style='fill:white'%3E%3C/circle%3E%3Ccircle cx='16' cy='16' r='6' style='fill:black'%3E%3C/circle%3E%3Cg stroke='black' stroke-width='4' stroke-linecap='round'%3E%3Cline x1='4' y1='16' x2='6' y2='16' transform='rotate(0, 16 16)'%3E%3C/line%3E%3Cline x1='4' y1='16' x2='6' y2='16' transform='rotate(45 16 16)'%3E%3C/line%3E%3Cline x1='4' y1='16' x2='6' y2='16' transform='rotate(90 16 16)'%3E%3C/line%3E%3Cline x1='4' y1='16' x2='6' y2='16' transform='rotate(135 16 16)'%3E%3C/line%3E%3Cline x1='4' y1='16' x2='6' y2='16' transform='rotate(180 16 16)'%3E%3C/line%3E%3Cline x1='4' y1='16' x2='6' y2='16' transform='rotate(225 16 16)'%3E%3C/line%3E%3Cline x1='4' y1='16' x2='6' y2='16' transform='rotate(270 16 16)'%3E%3C/line%3E%3Cline x1='4' y1='16' x2='6' y2='16' transform='rotate(315 16 16)'%3E%3C/line%3E%3C/g%3E%3C/svg%3E">
         </a>
-        <a id="darkModeButton" onclick="setDarkMode(true)" style="cursor: pointer;">
-            <svg height="32" width="32">
-                <circle cx="16" cy="16" r="16" stroke-width="4" style="fill:black"></circle>
-                <path d="M 12 6 Q 20 16 12 26 Q 24 26 24 16 Q 24 6 12 6" style="stroke-width:0;fill:white;stroke:white;"></path>
-            </svg>
+        <a id="dark-mode-button" style="cursor: pointer;">
+            <img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' height='32' width='32'%3E%3Ccircle cx='16' cy='16' r='16' stroke-width='4' style='fill:black'%3E%3C/circle%3E%3Cpath d='M 12 6 Q 20 16 12 26 Q 24 26 24 16 Q 24 6 12 6' style='stroke-width:0;fill:white;stroke:white;'%3E%3C/path%3E%3C/svg%3E">
         </a>
     </div>
 
-    <script type="text/javascript" src="js/setImmediate.js"></script>
-
+    <script type="text/javascript" src="js/promise-polyfill.js"></script>
     <script type="text/javascript" src="js/BN.js"></script>
-
-    <script type="text/javascript" src="js/native_bigint.js"></script>
-    
     <script type="text/javascript" src="js/crypto-js.js"></script>
-
-    <script type="text/javascript" src="js/crypto-helper.js"></script>
-    
     <script type="text/javascript" src="js/QR.js"></script>
-    
-    <script type="text/javascript" src="js/scrypt.js"></script>
-    
     <script type="text/javascript" src="js/imagesources.js"></script>
 
-    <script type="text/javascript" src="js/main.js"></script>
-    
+    <script type="text/javascript" src="js/dist/index.js"></script>
+    <script type="text/javascript" src="js/dist/util.js"></script>
+    <script type="text/javascript" src="js/dist/query.js"></script>
+    <script type="text/javascript" src="js/dist/entropyCanvas.js"></script>
+    <script type="text/javascript" src="js/dist/nativeBigint.js"></script>
+    <script type="text/javascript" src="js/dist/cryptoHelper.js"></script>
+    <script type="text/javascript" src="js/dist/ellipticCurve.js"></script>
+    <script type="text/javascript" src="js/dist/worker.js"></script>
+    <script type="text/javascript" src="js/dist/address.js"></script>
+    <script type="text/javascript" src="js/dist/bip38.js"></script>
+    <script type="text/javascript" src="js/dist/bip32.js"></script>
+    <script type="text/javascript" src="js/dist/bip39.js"></script>
+    <script type="text/javascript" src="js/dist/test.js"></script>
+    <script type="text/javascript" src="js/dist/page.js"></script>
+
+    <script type="text/javascript" src="js/dist/pages/singleAddress.js"></script>
+    <script type="text/javascript" src="js/dist/pages/addressDetails.js"></script>
+    <script type="text/javascript" src="js/dist/pages/bulkGenerate.js"></script>
+    <script type="text/javascript" src="js/dist/pages/paperWallet.js"></script>
+    <script type="text/javascript" src="js/dist/pages/mnemonicSeed.js"></script>
+
+    <script type="text/javascript" src="js/dist/pages/misc/paperWalletDesign.js"></script>
+    <script type="text/javascript" src="js/dist/pages/misc/customPaperWalletDesign.js"></script>
+
 </body>
 </html>

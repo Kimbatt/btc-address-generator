@@ -18,7 +18,9 @@
 //
 //---------------------------------------------------------------------
 
-var qrcode = function() {
+function INIT_QR()
+{
+return function() {
 
   //---------------------------------------------------------------------
   // qrcode
@@ -2101,15 +2103,6 @@ var qrcode = function() {
     return 'data:image/gif;base64,' + base64;
   };
 
-  //---------------------------------------------------------------------
-  // returns qrcode function.
-
-  return qrcode;
-}();
-
-// multibyte support
-!function() {
-
   qrcode.stringToBytesFuncs['UTF-8'] = function(s) {
     // http://stackoverflow.com/questions/18729405/how-to-convert-utf8-string-to-byte-array
     function toUTF8Array(str) {
@@ -2145,14 +2138,9 @@ var qrcode = function() {
     return toUTF8Array(s);
   };
 
-}();
+  //---------------------------------------------------------------------
+  // returns qrcode function.
 
-(function (factory) {
-  if (typeof define === 'function' && define.amd) {
-      define([], factory);
-  } else if (typeof exports === 'object') {
-      module.exports = factory();
-  }
-}(function () {
-    return qrcode;
-}));
+  return qrcode;
+}();
+}

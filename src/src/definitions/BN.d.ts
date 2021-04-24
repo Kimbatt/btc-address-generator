@@ -21,3 +21,5 @@ declare class BN
     lte(num: NumberSource): boolean;
     toNumber(): number;
 }
+
+declare function INIT_BN(): void;
