@@ -1,8 +1,12 @@
 "use strict";
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 function INIT_CryptoHelper() {
     function BytesToWordArray(bytes) {
@@ -37,7 +41,7 @@ function INIT_CryptoHelper() {
         }
         var totalCount = 0;
         wordArrays.forEach(function (e) { return totalCount += e.sigBytes; });
-        return WordArrayCopy.apply(void 0, __spreadArray([new Array(totalCount)], wordArrays));
+        return WordArrayCopy.apply(void 0, __spreadArray([new Array(totalCount)], wordArrays, false));
     }
     function WordArrayToUint8Array() {
         var wordArrays = [];
@@ -46,7 +50,7 @@ function INIT_CryptoHelper() {
         }
         var totalCount = 0;
         wordArrays.forEach(function (e) { return totalCount += e.sigBytes; });
-        return WordArrayCopy.apply(void 0, __spreadArray([new Uint8Array(totalCount)], wordArrays));
+        return WordArrayCopy.apply(void 0, __spreadArray([new Uint8Array(totalCount)], wordArrays, false));
     }
     function SHA256(msg) {
         var result = self.CryptoJS.SHA256(typeof msg === "string" ? msg : BytesToWordArray(msg));
@@ -400,7 +404,8 @@ function INIT_CryptoHelper() {
             return result;
     }
     return {
-        SHA256: SHA256, SHA256Hex: SHA256Hex,
+        SHA256: SHA256,
+        SHA256Hex: SHA256Hex,
         RIPEMD160: RIPEMD160,
         HmacSHA512: HmacSHA512,
         AES_Encrypt_ECB_NoPadding: AES_Encrypt_ECB_NoPadding,

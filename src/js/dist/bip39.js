@@ -1,8 +1,12 @@
 "use strict";
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 function INIT_BIP39() {
     var BIP39Wordlist = {
@@ -156,7 +160,7 @@ function INIT_BIP39() {
         var passwordBytes = Utf8StringToBytes(passwordNormalized.result);
         var seed = CryptoHelper.PBKDF2(mnemonicBytes, passwordBytes, 2048, 512 / 32);
         var masterKey = BIP32Util.GetMasterKeyFromSeed(seed);
-        var masterPrivateKey = __spreadArray([0], WorkerUtils.BigintToByteArrayLittleEndian32(masterKey.key));
+        var masterPrivateKey = __spreadArray([0], WorkerUtils.BigintToByteArrayLittleEndian32(masterKey.key), true);
         var masterChainCode = masterKey.chainCode;
         return BIP32Util.SerializeExtendedKey(true, 0, [0, 0, 0, 0], 0, masterChainCode, masterPrivateKey, purpose);
     }

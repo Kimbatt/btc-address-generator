@@ -95,6 +95,10 @@ function INIT_EllipticCurve() {
         EcAdd: EcAdd,
         EcDouble: EcDouble,
         EccMultiply: EccMultiply,
-        ecc_Gx: ecc_Gx, ecc_Gy: ecc_Gy, ecc_n: ecc_n, ecc_p: ecc_p, ecc_a: ecc_a
+        ecc_Gx: ecc_Gx,
+        ecc_Gy: ecc_Gy,
+        ecc_n: ecc_n,
+        ecc_p: ecc_p,
+        ecc_a: ecc_a
     };
 }
