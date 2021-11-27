@@ -713,12 +713,7 @@ li
                     <div style="width: 100%; height: 2px; background-color: #bbbbbb; margin: 10px 0px;"></div>
                     <div>
                         <div style="margin: 10px 0px; font-size: 24px; display: inline-block;">Preset:</div>
-                        <select id="seed-details-derivation-path-preset" style="font-size: 24px; margin-right: 20px; padding: 2px 4px;">
-                            <option value="44">Legacy</option>
-                            <option value="49" selected="">Segwit</option>
-                            <option value="84">Bech32</option>
-                            <option value="32">Custom</option>
-                        </select>
+                        <select id="seed-details-derivation-path-preset" style="font-size: 24px; margin-right: 20px; padding: 2px 4px;"></select>
                         <div style="margin: 20px 0px 10px 0px; font-size: 24px; display: inline-block;">Derivation path:</div>
                         <input type="text" id="seed-details-results-derivation-path-input" value="m/49'/0'/0'" placeholder="e.g. m/0'/0" disabled
                             style="font-size: 24px; margin-right: 20px; width: 200px; padding: 2px 4px;">
@@ -13765,10 +13760,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 // lazy evaluation, trying to achieve a behavior similar to imports
 function Lazy(fn) {
@@ -14026,7 +14025,7 @@ function INIT_WorkerUtils() {
         // note: typescript doesn't allow using the spread operator
         // on Uint8Arrays, but in javascript it works fine
         // so here the bytes are casted to number[] for this reason
-        bytes = __spreadArray(__spreadArray([], bytes), CryptoHelper.SHA256(CryptoHelper.SHA256(bytes)).slice(0, 4));
+        bytes = __spreadArray(__spreadArray([], bytes, true), CryptoHelper.SHA256(CryptoHelper.SHA256(bytes)).slice(0, 4), true);
         var bigint = new BN(0);
         // convert bytes to bigint
         for (var i = 0; i < bytes.length; ++i) {
@@ -14374,10 +14373,14 @@ var EntropyCanvas = (function () { return Lazy(function () {
 </script>
 <script type="text/javascript">
 "use strict";
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 function INIT_CryptoHelper() {
     function BytesToWordArray(bytes) {
@@ -14412,7 +14415,7 @@ function INIT_CryptoHelper() {
         }
         var totalCount = 0;
         wordArrays.forEach(function (e) { return totalCount += e.sigBytes; });
-        return WordArrayCopy.apply(void 0, __spreadArray([new Array(totalCount)], wordArrays));
+        return WordArrayCopy.apply(void 0, __spreadArray([new Array(totalCount)], wordArrays, false));
     }
     function WordArrayToUint8Array() {
         var wordArrays = [];
@@ -14421,7 +14424,7 @@ function INIT_CryptoHelper() {
         }
         var totalCount = 0;
         wordArrays.forEach(function (e) { return totalCount += e.sigBytes; });
-        return WordArrayCopy.apply(void 0, __spreadArray([new Uint8Array(totalCount)], wordArrays));
+        return WordArrayCopy.apply(void 0, __spreadArray([new Uint8Array(totalCount)], wordArrays, false));
     }
     function SHA256(msg) {
         var result = self.CryptoJS.SHA256(typeof msg === "string" ? msg : BytesToWordArray(msg));
@@ -14775,7 +14778,8 @@ function INIT_CryptoHelper() {
             return result;
     }
     return {
-        SHA256: SHA256, SHA256Hex: SHA256Hex,
+        SHA256: SHA256,
+        SHA256Hex: SHA256Hex,
         RIPEMD160: RIPEMD160,
         HmacSHA512: HmacSHA512,
         AES_Encrypt_ECB_NoPadding: AES_Encrypt_ECB_NoPadding,
@@ -14884,7 +14888,11 @@ function INIT_EllipticCurve() {
         EcAdd: EcAdd,
         EcDouble: EcDouble,
         EccMultiply: EccMultiply,
-        ecc_Gx: ecc_Gx, ecc_Gy: ecc_Gy, ecc_n: ecc_n, ecc_p: ecc_p, ecc_a: ecc_a
+        ecc_Gx: ecc_Gx,
+        ecc_Gy: ecc_Gy,
+        ecc_n: ecc_n,
+        ecc_p: ecc_p,
+        ecc_a: ecc_a
     };
 }
 
@@ -15021,7 +15029,7 @@ var CreateWorkers = function () {
                 postMessage(result, undefined);
             });
         };
-        var blobContents = ["\n\n// typescript array spread transformation\nvar __spreadArray = (this && this.__spreadArray) || function (to, from) {\n    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)\n        to[j] = from[i];\n    return to;\n};\n\n" + CreateSources() + "\n\n" + InitializeSources() + "\n\n(\n" + WorkerCreatorFunction.toString() + "\n)();"
+        var blobContents = ["\n\n// typescript array spread transformation\nvar __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {\n    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {\n        if (ar || !(i in from)) {\n            if (!ar) ar = Array.prototype.slice.call(from, 0, i);\n            ar[i] = from[i];\n        }\n    }\n    return to.concat(ar || Array.prototype.slice.call(from));\n};\n\n" + CreateSources() + "\n\n" + InitializeSources() + "\n\n(\n" + WorkerCreatorFunction.toString() + "\n)();"
         ];
         var blob = new Blob(blobContents, { type: "application/javascript" });
         var blobUrl = URL.createObjectURL(blob);
@@ -15232,12 +15240,12 @@ var CreateWorkers = function () {
                 }
             });
         }); },
-        DeriveBIP32ExtendedKey: function (rootKey, path, derivedKeyPurpose, hardened, changeAddresses) { return __awaiter(void 0, void 0, void 0, function () {
+        DeriveBIP32ExtendedKey: function (rootKey, path, derivedKeyPurpose, hardened) { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, DoWorkerJobWrapper({
                             functionName: "BIP32Util.DeriveBIP32ExtendedKey",
-                            functionParams: [rootKey, path, derivedKeyPurpose, hardened, changeAddresses]
+                            functionParams: [rootKey, path, derivedKeyPurpose, hardened]
                         })];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
@@ -15509,10 +15517,14 @@ function INIT_AddressUtil() {
 </script>
 <script type="text/javascript">
 "use strict";
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 function INIT_BIP38() {
     function GenerateRandomBIP38EncryptionData(password, addressType) {
@@ -15558,16 +15570,16 @@ function INIT_BIP38() {
             }
         })();
         var addressHash = CryptoHelper.SHA256(CryptoHelper.SHA256(generatedAddress)).slice(0, 4);
-        var salt = __spreadArray(__spreadArray([], addressHash), encryptionData.ownersalt);
+        var salt = __spreadArray(__spreadArray([], addressHash, true), encryptionData.ownersalt, true);
         var encrypted = CryptoHelper.scrypt(encryptionData.passpoint, salt, 10, 1, 1, 64);
         var derivedHalf1 = encrypted.slice(0, 32);
         var derivedHalf2 = encrypted.slice(32, 64);
         var encryptedpart1 = CryptoHelper.AES_Encrypt_ECB_NoPadding(WorkerUtils.ByteArrayXOR(seedb.slice(0, 16), derivedHalf1.slice(0, 16)), derivedHalf2);
-        var block2 = __spreadArray(__spreadArray([], encryptedpart1.slice(8, 16)), seedb.slice(16, 24));
+        var block2 = __spreadArray(__spreadArray([], encryptedpart1.slice(8, 16), true), seedb.slice(16, 24), true);
         var encryptedpart2 = CryptoHelper.AES_Encrypt_ECB_NoPadding(WorkerUtils.ByteArrayXOR(block2, derivedHalf1.slice(16, 32)), derivedHalf2);
         var finalPrivateKeyWithoutChecksum = __spreadArray(__spreadArray(__spreadArray(__spreadArray([
             0x01, 0x43, 0x20
-        ], addressHash), encryptionData.ownersalt), encryptedpart1.slice(0, 8)), encryptedpart2);
+        ], addressHash, true), encryptionData.ownersalt, true), encryptedpart1.slice(0, 8), true), encryptedpart2, true);
         return {
             addressType: encryptionData.addressType,
             address: addressWithType,
@@ -15611,9 +15623,9 @@ function INIT_BIP38() {
             var derivedHalf1 = scryptResult2.slice(0, 32);
             var derivedHalf2 = scryptResult2.slice(32, 64);
             var decrypted2 = CryptoHelper.AES_Decrypt_ECB_NoPadding(encryptedPart2, derivedHalf2);
-            var encryptedpart1 = __spreadArray(__spreadArray([], bytes.slice(14, 22)), WorkerUtils.ByteArrayXOR(decrypted2.slice(0, 8), scryptResult2.slice(16, 24)));
+            var encryptedpart1 = __spreadArray(__spreadArray([], bytes.slice(14, 22), true), WorkerUtils.ByteArrayXOR(decrypted2.slice(0, 8), scryptResult2.slice(16, 24)), true);
             var decrypted1 = CryptoHelper.AES_Decrypt_ECB_NoPadding(encryptedpart1, derivedHalf2);
-            var seedb = __spreadArray(__spreadArray([], WorkerUtils.ByteArrayXOR(decrypted1.slice(0, 16), derivedHalf1.slice(0, 16))), WorkerUtils.ByteArrayXOR(decrypted2.slice(8, 16), derivedHalf1.slice(24, 32)));
+            var seedb = __spreadArray(__spreadArray([], WorkerUtils.ByteArrayXOR(decrypted1.slice(0, 16), derivedHalf1.slice(0, 16)), true), WorkerUtils.ByteArrayXOR(decrypted2.slice(8, 16), derivedHalf1.slice(24, 32)), true);
             var factorb = CryptoHelper.SHA256(CryptoHelper.SHA256(seedb));
             var finalPrivateKeyValue = WorkerUtils.ByteArrayToBigint(scryptResult)
                 .mul(WorkerUtils.ByteArrayToBigint(factorb))
@@ -15677,7 +15689,7 @@ function INIT_BIP38() {
         var secondHalf = derivedBytes.slice(32);
         var finalPrivateKeyWithoutChecksum = __spreadArray(__spreadArray([
             0x01, 0x42, 0xe0
-        ], salt), CryptoHelper.AES_Encrypt_ECB_NoPadding(firstHalf, secondHalf));
+        ], salt, true), CryptoHelper.AES_Encrypt_ECB_NoPadding(firstHalf, secondHalf), true);
         return {
             type: "ok",
             result: WorkerUtils.Base58CheckEncode(finalPrivateKeyWithoutChecksum)
@@ -15694,10 +15706,14 @@ function INIT_BIP38() {
 </script>
 <script type="text/javascript">
 "use strict";
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 function INIT_BIP32() {
     var bn_0 = new BN(0);
@@ -15709,7 +15725,7 @@ function INIT_BIP32() {
         return ((bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3]) >>> 0;
     }
     function SerializeECCKeypairCompressed(keypair) {
-        return __spreadArray([0x2 + keypair.y.and(bn_1).toNumber()], WorkerUtils.BigintToByteArrayLittleEndian32(keypair.x));
+        return __spreadArray([0x2 + keypair.y.and(bn_1).toNumber()], WorkerUtils.BigintToByteArrayLittleEndian32(keypair.x), true);
     }
     function ModPow(num, exponent, mod) {
         var ret = bn_1;
@@ -15728,8 +15744,8 @@ function INIT_BIP32() {
         var parentKeyBigint = WorkerUtils.ByteArrayToBigint(parentKey);
         var parentChainCode = parent.chainCode;
         var I = isHardened
-            ? CryptoHelper.HmacSHA512(__spreadArray(__spreadArray([0x00], parentKey), Uint32ToBytes(index)), parentChainCode)
-            : CryptoHelper.HmacSHA512(__spreadArray(__spreadArray([], SerializeECCKeypairCompressed(EllipticCurve.GetECCKeypair(parentKeyBigint))), Uint32ToBytes(index)), parentChainCode);
+            ? CryptoHelper.HmacSHA512(__spreadArray(__spreadArray([0x00], parentKey, true), Uint32ToBytes(index), true), parentChainCode)
+            : CryptoHelper.HmacSHA512(__spreadArray(__spreadArray([], SerializeECCKeypairCompressed(EllipticCurve.GetECCKeypair(parentKeyBigint)), true), Uint32ToBytes(index), true), parentChainCode);
         var IL = I.slice(0, 32);
         var IR = I.slice(32, 64);
         var parsed256IL = WorkerUtils.ByteArrayToBigint(IL);
@@ -15761,7 +15777,7 @@ function INIT_BIP32() {
         }
         var parentKeyPairBigint = { x: pointX, y: pointY };
         var parentChainCode = parent.chainCode;
-        var I = CryptoHelper.HmacSHA512(__spreadArray(__spreadArray([], SerializeECCKeypairCompressed(parentKeyPairBigint)), Uint32ToBytes(index)), parentChainCode);
+        var I = CryptoHelper.HmacSHA512(__spreadArray(__spreadArray([], SerializeECCKeypairCompressed(parentKeyPairBigint), true), Uint32ToBytes(index), true), parentChainCode);
         var IL = I.slice(0, 32);
         var IR = I.slice(32, 64);
         var tempBigint = WorkerUtils.ByteArrayToBigint(IL);
@@ -15822,7 +15838,7 @@ function INIT_BIP32() {
         if (depth > 255) {
             return { type: "err", error: "Depth must be 255 at most" };
         }
-        var finalResult = __spreadArray(__spreadArray(__spreadArray(__spreadArray(__spreadArray(__spreadArray([], versionBytes), [depth]), parentKeyFingerprint), Uint32ToBytes(childIndex)), chainCode), keyData);
+        var finalResult = __spreadArray(__spreadArray(__spreadArray(__spreadArray(__spreadArray(__spreadArray([], versionBytes, true), [depth], false), parentKeyFingerprint, true), Uint32ToBytes(childIndex), true), chainCode, true), keyData, true);
         return {
             type: "ok",
             result: WorkerUtils.Base58CheckEncode(finalResult)
@@ -15906,7 +15922,7 @@ function INIT_BIP32() {
                 if (fromPrivate) {
                     var privateKey = keyData.slice(1);
                     var derivedKey = CKD_Priv({ key: privateKey, chainCode: chainCode }, childIndex);
-                    keyData = __spreadArray([0x00], WorkerUtils.BigintToByteArrayLittleEndian32(derivedKey.key));
+                    keyData = __spreadArray([0x00], WorkerUtils.BigintToByteArrayLittleEndian32(derivedKey.key), true);
                     return {
                         type: "ok",
                         result: derivedKey.chainCode
@@ -15963,17 +15979,10 @@ function INIT_BIP32() {
         })();
         return SerializeExtendedKey(toPrivate, currentDepth, fingerprint, lastIndex, chainCode, keyData, type);
     }
-    function DeriveBIP32ExtendedKey(rootKey, path, derivedKeyPurpose, hardened, changeAddresses) {
+    function DeriveBIP32ExtendedKey(rootKey, path, derivedKeyPurpose, hardened) {
+        var originalPath = path;
         var isPrivate = rootKey.substr(1, 3) === "prv";
-        if (derivedKeyPurpose !== "32") {
-            if (isPrivate) {
-                path += (changeAddresses ? "/1" : "/0");
-            }
-            else {
-                path = "m";
-            }
-        }
-        else {
+        if (derivedKeyPurpose === "32") {
             if (rootKey[0] === "y") {
                 derivedKeyPurpose = "49";
             }
@@ -16047,10 +16056,14 @@ function INIT_BIP32() {
 </script>
 <script type="text/javascript">
 "use strict";
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 function INIT_BIP39() {
     var BIP39Wordlist = {
@@ -16204,7 +16217,7 @@ function INIT_BIP39() {
         var passwordBytes = Utf8StringToBytes(passwordNormalized.result);
         var seed = CryptoHelper.PBKDF2(mnemonicBytes, passwordBytes, 2048, 512 / 32);
         var masterKey = BIP32Util.GetMasterKeyFromSeed(seed);
-        var masterPrivateKey = __spreadArray([0], WorkerUtils.BigintToByteArrayLittleEndian32(masterKey.key));
+        var masterPrivateKey = __spreadArray([0], WorkerUtils.BigintToByteArrayLittleEndian32(masterKey.key), true);
         var masterChainCode = masterKey.chainCode;
         return BIP32Util.SerializeExtendedKey(true, 0, [0, 0, 0, 0], 0, masterChainCode, masterPrivateKey, purpose);
     }
@@ -16776,7 +16789,7 @@ function InitTests() {
                                             switch (_a.label) {
                                                 case 0:
                                                     _a.trys.push([0, 2, , 3]);
-                                                    return [4 /*yield*/, WorkerInterface.DeriveBIP32ExtendedKey(testCase.rootKey, testCase.path, "32", false, false)];
+                                                    return [4 /*yield*/, WorkerInterface.DeriveBIP32ExtendedKey(testCase.rootKey, testCase.path, "32", false)];
                                                 case 1:
                                                     deriveResult = _a.sent();
                                                     if (deriveResult.type === "err") {
@@ -17665,7 +17678,7 @@ function InitPaperWalletPage() {
                     });
                 });
             }
-            var count, currentAddressType, currentQRErrorCorrectionLevel, currentCount, isBIP38, bip38Password, design, results, _a, bip38Password_1, encryptionData_1, i, i, privateKeys, maybeValidPrivateKeys, i, current, match, _loop_1, _i, maybeValidPrivateKeys_1, privateKey, seed, seedPassword, offset, startIndex, endIndex, hardened_1, changeAddresses_1, rootKeyResult, rootKey_1, purpose_1, basePath_1, _loop_2, i, paperWalletDivs, errorMessages, _b, paperWalletDivs_1, divResult;
+            var count, currentAddressType, currentQRErrorCorrectionLevel, currentCount, isBIP38, bip38Password, design, results, _a, bip38Password_1, encryptionData_1, i, i, privateKeys, maybeValidPrivateKeys, i, current, match, _loop_1, _i, maybeValidPrivateKeys_1, privateKey, seed, seedPassword, offset, startIndex, endIndex, hardened_1, changeAddresses, rootKeyResult, rootKey, purpose_1, basePath, derivedResult_1, _loop_2, i, paperWalletDivs, errorMessages, _b, paperWalletDivs_1, divResult;
             var _this = this;
             return __generator(this, function (_c) {
                 switch (_c.label) {
@@ -17702,7 +17715,7 @@ function InitPaperWalletPage() {
                             case 1 /* UseExisting */: return [3 /*break*/, 5];
                             case 2 /* FromSeed */: return [3 /*break*/, 6];
                         }
-                        return [3 /*break*/, 8];
+                        return [3 /*break*/, 9];
                     case 1:
                         if (!isBIP38) return [3 /*break*/, 3];
                         bip38Password_1 = bip38PasswordInput.value;
@@ -17759,7 +17772,7 @@ function InitPaperWalletPage() {
                             }); })());
                         }
                         _c.label = 4;
-                    case 4: return [3 /*break*/, 8];
+                    case 4: return [3 /*break*/, 9];
                     case 5:
                         {
                             privateKeys = useExistingPrivateKeysTextArea.value.split(/\s+/g);
@@ -17842,7 +17855,7 @@ function InitPaperWalletPage() {
                                 privateKey = maybeValidPrivateKeys_1[_i];
                                 _loop_1(privateKey);
                             }
-                            return [3 /*break*/, 8];
+                            return [3 /*break*/, 9];
                         }
                         _c.label = 6;
                     case 6:
@@ -17864,7 +17877,7 @@ function InitPaperWalletPage() {
                             return [2 /*return*/];
                         }
                         hardened_1 = generateFromSeedHardenedCheckbox.checked;
-                        changeAddresses_1 = generateFromSeedChangeAddressesCheckbox.checked;
+                        changeAddresses = generateFromSeedChangeAddressesCheckbox.checked;
                         UpdateProgress();
                         return [4 /*yield*/, WorkerInterface.GetBIP32RootKeyFromSeed(seed, seedPassword)];
                     case 7:
@@ -17873,26 +17886,23 @@ function InitPaperWalletPage() {
                             ShowError("Invalid seed: " + rootKeyResult.error);
                             return [2 /*return*/];
                         }
-                        rootKey_1 = rootKeyResult.result;
+                        rootKey = rootKeyResult.result;
                         purpose_1 = currentAddressType === "legacy" ? "44" : currentAddressType === "segwit" ? "49" : "84";
-                        basePath_1 = "m/" + purpose_1 + "'/0'/0'";
+                        basePath = "m/" + purpose_1 + "'/0'/0'";
+                        return [4 /*yield*/, WorkerInterface.DeriveBIP32ExtendedKey(rootKey, basePath + (changeAddresses ? "/1" : "/0"), purpose_1, hardened_1)];
+                    case 8:
+                        derivedResult_1 = _c.sent();
+                        if (derivedResult_1.type === "err") {
+                            ShowError(derivedResult_1.error);
+                            return [2 /*return*/];
+                        }
                         _loop_2 = function (i) {
                             results.push((function () { return __awaiter(_this, void 0, void 0, function () {
-                                var derivedResult, addressResult, address, privateKey, encryptionResult, div;
+                                var addressResult, address, privateKey, encryptionResult, div;
                                 return __generator(this, function (_a) {
                                     switch (_a.label) {
-                                        case 0: return [4 /*yield*/, WorkerInterface.DeriveBIP32ExtendedKey(rootKey_1, basePath_1, purpose_1, hardened_1, changeAddresses_1)];
+                                        case 0: return [4 /*yield*/, WorkerInterface.DeriveBIP32Address(derivedResult_1.result.path, derivedResult_1.result.publicKey, derivedResult_1.result.privateKey, i, purpose_1, hardened_1)];
                                         case 1:
-                                            derivedResult = _a.sent();
-                                            if (derivedResult.type === "err") {
-                                                UpdateProgress();
-                                                return [2 /*return*/, {
-                                                        type: "err",
-                                                        error: [derivedResult.error, "index " + i]
-                                                    }];
-                                            }
-                                            return [4 /*yield*/, WorkerInterface.DeriveBIP32Address(derivedResult.result.path, derivedResult.result.publicKey, derivedResult.result.privateKey, i, purpose_1, hardened_1)];
-                                        case 2:
                                             addressResult = _a.sent();
                                             if (addressResult.type === "err") {
                                                 UpdateProgress();
@@ -17903,9 +17913,9 @@ function InitPaperWalletPage() {
                                             }
                                             address = addressResult.result.address;
                                             privateKey = addressResult.result.privateKey;
-                                            if (!isBIP38) return [3 /*break*/, 4];
+                                            if (!isBIP38) return [3 /*break*/, 3];
                                             return [4 /*yield*/, WorkerInterface.BIP38EncryptPrivateKey(privateKey, bip38Password)];
-                                        case 3:
+                                        case 2:
                                             encryptionResult = _a.sent();
                                             if (encryptionResult.type === "err") {
                                                 UpdateProgress();
@@ -17915,9 +17925,9 @@ function InitPaperWalletPage() {
                                                     }];
                                             }
                                             privateKey = encryptionResult.result;
-                                            _a.label = 4;
-                                        case 4: return [4 /*yield*/, CreateDivFromAddressAndPrivateKey(address, privateKey)];
-                                        case 5:
+                                            _a.label = 3;
+                                        case 3: return [4 /*yield*/, CreateDivFromAddressAndPrivateKey(address, privateKey)];
+                                        case 4:
                                             div = _a.sent();
                                             UpdateProgress();
                                             return [2 /*return*/, {
@@ -17931,9 +17941,9 @@ function InitPaperWalletPage() {
                         for (i = startIndex; i < endIndex; ++i) {
                             _loop_2(i);
                         }
-                        return [3 /*break*/, 8];
-                    case 8: return [4 /*yield*/, Promise.all(results)];
-                    case 9:
+                        return [3 /*break*/, 9];
+                    case 9: return [4 /*yield*/, Promise.all(results)];
+                    case 10:
                         paperWalletDivs = _c.sent();
                         while (generatedPaperWalletsContainer.lastChild) {
                             generatedPaperWalletsContainer.removeChild(generatedPaperWalletsContainer.lastChild);
@@ -18119,22 +18129,22 @@ function InitMnemonicSeedPage() {
                                                 ShowError("Invalid BIP32 key: " + decodedKeyResult.error);
                                                 return [2 /*return*/, null];
                                             }
+                                            SetPresetsForExtendedKey();
                                             switch (seed[0]) {
                                                 case "x":
-                                                    SeedDerivationPresetChanged("44");
+                                                    SeedDerivationPresetChanged("44", true);
                                                     break;
                                                 case "y":
-                                                    SeedDerivationPresetChanged("49");
+                                                    SeedDerivationPresetChanged("49", true);
                                                     break;
                                                 case "z":
-                                                    SeedDerivationPresetChanged("84");
+                                                    SeedDerivationPresetChanged("84", true);
                                                     break;
                                                 default:
                                                     // should not happen
                                                     return [2 /*return*/, null];
                                             }
                                             if (seed.substr(1, 3) === "pub") {
-                                                changeAddressesLabel.style.display = "none";
                                                 hardenedAddressesLabel.style.display = "none";
                                             }
                                             rootKeyContainerDiv.style.display = "none";
@@ -18146,6 +18156,8 @@ function InitMnemonicSeedPage() {
                                                 ShowError("Invalid mnemonic seed: " + result.error);
                                                 return [2 /*return*/, null];
                                             }
+                                            SetPresetsForMnemonicSeed();
+                                            SeedDerivationPresetChanged("49-root", true);
                                             rootKeyContainerDiv.style.display = "";
                                             return [2 /*return*/, result.result];
                                     }
@@ -18168,28 +18180,63 @@ function InitMnemonicSeedPage() {
     viewSeedDetailsButton.addEventListener("click", AsyncNoParallel(ViewSeedDetails));
     var seedDerivationPathInput = document.getElementById("seed-details-results-derivation-path-input");
     var seedDerivationPathPresetSelector = document.getElementById("seed-details-derivation-path-preset");
-    function SeedDerivationPresetChanged(preset) {
+    function CreateOptionElement(value, text, parent) {
+        var option = document.createElement("option");
+        option.value = value;
+        option.textContent = text;
+        parent.appendChild(option);
+        return option;
+    }
+    function SetPresetsForMnemonicSeed() {
+        while (seedDerivationPathPresetSelector.lastChild) {
+            seedDerivationPathPresetSelector.removeChild(seedDerivationPathPresetSelector.lastChild);
+        }
+        CreateOptionElement("44-root", "Legacy", seedDerivationPathPresetSelector);
+        CreateOptionElement("49-root", "Segwit", seedDerivationPathPresetSelector);
+        CreateOptionElement("84-root", "Bech32", seedDerivationPathPresetSelector);
+        CreateOptionElement("32", "Custom", seedDerivationPathPresetSelector);
+    }
+    function SetPresetsForExtendedKey() {
+        while (seedDerivationPathPresetSelector.lastChild) {
+            seedDerivationPathPresetSelector.removeChild(seedDerivationPathPresetSelector.lastChild);
+        }
+        CreateOptionElement("44", "Legacy", seedDerivationPathPresetSelector);
+        CreateOptionElement("49", "Segwit", seedDerivationPathPresetSelector);
+        CreateOptionElement("84", "Bech32", seedDerivationPathPresetSelector);
+        CreateOptionElement("44-root", "Legacy as root key", seedDerivationPathPresetSelector);
+        CreateOptionElement("49-root", "Segwit as root key", seedDerivationPathPresetSelector);
+        CreateOptionElement("84-root", "Bech32 as root key", seedDerivationPathPresetSelector);
+        CreateOptionElement("32", "Custom", seedDerivationPathPresetSelector);
+    }
+    function SeedDerivationPresetChanged(preset, updateElement) {
         switch (preset) {
-            case "44":
+            case "44-root":
                 seedDerivationPathInput.value = "m/44'/0'/0'";
                 break;
-            case "49":
+            case "49-root":
                 seedDerivationPathInput.value = "m/49'/0'/0'";
                 break;
-            case "84":
+            case "84-root":
                 seedDerivationPathInput.value = "m/84'/0'/0'";
+                break;
+            case "44":
+            case "49":
+            case "84":
+                seedDerivationPathInput.value = "m";
                 break;
             case "32":
             default:
                 seedDerivationPathInput.value = "";
                 break;
         }
-        seedDerivationPathPresetSelector.value = preset;
+        if (updateElement) {
+            seedDerivationPathPresetSelector.value = preset;
+        }
         seedDerivationPathInput.disabled = preset !== "32";
         // hide change addresses checkbox when using custom path
         changeAddressesLabel.style.display = preset === "32" ? "none" : "";
     }
-    seedDerivationPathPresetSelector.addEventListener("change", function () { return SeedDerivationPresetChanged(seedDerivationPathPresetSelector.value); });
+    seedDerivationPathPresetSelector.addEventListener("change", function () { return SeedDerivationPresetChanged(seedDerivationPathPresetSelector.value, false); });
     var calculateAddressesButton = document.getElementById("seed-details-address-calculate-button");
     var extendedPublicKeyTextArea = document.getElementById("seed-details-results-extended-pubkey");
     var extendedPrivateKeyTextArea = document.getElementById("seed-details-results-extended-private-key");
@@ -18222,7 +18269,7 @@ function InitMnemonicSeedPage() {
                 row.appendChild(privateKeyDiv);
                 addressesResultTable.appendChild(row);
             }
-            var rootKey, path, generateHardenedAddresses, count, startIndex, endIndex, derivedKeyPurpose, isPrivate, generateChangeAddresses, currentProgress, derived, allPromises, _loop_1, i, result, _i, result_1, current;
+            var rootKey, path, generateHardenedAddresses, count, startIndex, endIndex, derivedKeyPurpose, isCustomPath, isPrivate, generateChangeAddresses, currentProgress, derived, changeAddressesPathExtension, allPromises, _loop_1, i, result, _i, result_1, current;
             var _this = this;
             return __generator(this, function (_b) {
                 switch (_b.label) {
@@ -18246,7 +18293,21 @@ function InitMnemonicSeedPage() {
                             ShowError("Start index + Count must be 2147483648 at most");
                             return [2 /*return*/];
                         }
-                        derivedKeyPurpose = seedDerivationPathPresetSelector.value;
+                        switch (seedDerivationPathPresetSelector.value) {
+                            case "44-root":
+                                derivedKeyPurpose = "44";
+                                break;
+                            case "49-root":
+                                derivedKeyPurpose = "49";
+                                break;
+                            case "84-root":
+                                derivedKeyPurpose = "84";
+                                break;
+                            default:
+                                derivedKeyPurpose = seedDerivationPathPresetSelector.value;
+                                break;
+                        }
+                        isCustomPath = derivedKeyPurpose === "32";
                         isPrivate = rootKey.substr(1, 3) === "prv";
                         generateChangeAddresses = changeAddressesCheckbox.checked;
                         if (!isPrivate && generateHardenedAddresses) {
@@ -18257,10 +18318,11 @@ function InitMnemonicSeedPage() {
                         currentProgress = 0;
                         UpdateProgress();
                         seedResultsAddressesContainerDiv.style.display = "none";
-                        return [4 /*yield*/, WorkerInterface.DeriveBIP32ExtendedKey(rootKey, path, derivedKeyPurpose, generateHardenedAddresses, generateChangeAddresses)];
+                        return [4 /*yield*/, WorkerInterface.DeriveBIP32ExtendedKey(rootKey, path, derivedKeyPurpose, generateHardenedAddresses)];
                     case 1:
                         derived = _b.sent();
                         if (derived.type === "err") {
+                            calculateProgressDiv.style.display = "none";
                             ShowError(derived.error);
                             return [2 /*return*/];
                         }
@@ -18271,16 +18333,28 @@ function InitMnemonicSeedPage() {
                         while (addressesResultTable.lastChild) {
                             addressesResultTable.removeChild(addressesResultTable.lastChild);
                         }
+                        changeAddressesPathExtension = isCustomPath ? "" : (generateChangeAddresses ? "/1" : "/0");
                         allPromises = [];
                         _loop_1 = function (i) {
                             allPromises.push((function () { return __awaiter(_this, void 0, void 0, function () {
-                                var result;
-                                var _a;
-                                return __generator(this, function (_b) {
-                                    switch (_b.label) {
-                                        case 0: return [4 /*yield*/, WorkerInterface.DeriveBIP32Address(path, derived.result.publicKey, derived.result.privateKey, i, derivedKeyPurpose, generateHardenedAddresses)];
+                                var localKeyResult, result;
+                                var _a, _b;
+                                return __generator(this, function (_c) {
+                                    switch (_c.label) {
+                                        case 0: return [4 /*yield*/, WorkerInterface.DeriveBIP32ExtendedKey((_a = derived.result.privateKey) !== null && _a !== void 0 ? _a : derived.result.publicKey, "m" + changeAddressesPathExtension, derivedKeyPurpose, generateHardenedAddresses)];
                                         case 1:
-                                            result = _b.sent();
+                                            localKeyResult = _c.sent();
+                                            if (localKeyResult.type === "err") {
+                                                UpdateProgress();
+                                                return [2 /*return*/, {
+                                                        address: "Error calculating address",
+                                                        privateKey: "Error calculating private key",
+                                                        addressPath: "Error calculating path"
+                                                    }];
+                                            }
+                                            return [4 /*yield*/, WorkerInterface.DeriveBIP32Address(path + changeAddressesPathExtension, localKeyResult.result.publicKey, localKeyResult.result.privateKey, i, derivedKeyPurpose, generateHardenedAddresses)];
+                                        case 2:
+                                            result = _c.sent();
                                             UpdateProgress();
                                             if (result.type === "err") {
                                                 return [2 /*return*/, {
@@ -18292,7 +18366,7 @@ function InitMnemonicSeedPage() {
                                             else {
                                                 return [2 /*return*/, {
                                                         address: result.result.address,
-                                                        privateKey: (_a = result.result.privateKey) !== null && _a !== void 0 ? _a : "???",
+                                                        privateKey: (_b = result.result.privateKey) !== null && _b !== void 0 ? _b : "???",
                                                         addressPath: result.result.addressPath
                                                     }];
                                             }
