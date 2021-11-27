@@ -13,8 +13,7 @@ var WorkerInterface: {
 
     GenerateMnemonicSeed: (wordCount: 12 | 15 | 18 | 21 | 24) => Promise<string>;
     GetBIP32RootKeyFromSeed: (seed: string, password?: string | undefined) => Promise<Result<string, string>>;
-    DeriveBIP32ExtendedKey: (rootKey: string, path: string, derivedKeyPurpose: BIP32Purpose,
-        hardened: boolean, changeAddresses: boolean)
+    DeriveBIP32ExtendedKey: (rootKey: string, path: string, derivedKeyPurpose: BIP32Purpose, hardened: boolean)
         => Promise<Result<{ publicKey: string, privateKey: string | null, path: string, purpose: BIP32Purpose }, string>>;
     DeriveBIP32Address: (path: string, publicKey: string, privateKey: string | null, index: number, purpose: BIP32Purpose, hardened: boolean)
         => Promise<Result<{ address: string, privateKey: string | null, addressPath: string }, string>>;
@@ -142,10 +141,14 @@ var CreateWorkers = () =>
         const blobContents = [`
 
 // typescript array spread transformation
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
 };
 
 ${CreateSources()}
@@ -321,11 +324,11 @@ ${WorkerCreatorFunction.toString()}
                 functionParams: [seed, password ?? ""]
             });
         },
-        DeriveBIP32ExtendedKey: async (rootKey: string, path: string, derivedKeyPurpose: BIP32Purpose, hardened: boolean, changeAddresses: boolean) =>
+        DeriveBIP32ExtendedKey: async (rootKey: string, path: string, derivedKeyPurpose: BIP32Purpose, hardened: boolean) =>
         {
             return await DoWorkerJobWrapper({
                 functionName: "BIP32Util.DeriveBIP32ExtendedKey",
-                functionParams: [rootKey, path, derivedKeyPurpose, hardened, changeAddresses]
+                functionParams: [rootKey, path, derivedKeyPurpose, hardened]
             });
         },
         DeriveBIP32Address: async (path: string, publicKey: string, privateKey: string | null, index: number, purpose: BIP32Purpose, hardened: boolean) =>

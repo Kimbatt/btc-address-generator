@@ -385,22 +385,13 @@ function INIT_BIP32()
         return SerializeExtendedKey(toPrivate, currentDepth, fingerprint, lastIndex, chainCode, keyData, type);
     }
 
-    function DeriveBIP32ExtendedKey(rootKey: string, path: string, derivedKeyPurpose: BIP32Purpose, hardened: boolean, changeAddresses: boolean):
+    function DeriveBIP32ExtendedKey(rootKey: string, path: string, derivedKeyPurpose: BIP32Purpose, hardened: boolean):
         Result<{ publicKey: string, privateKey: string | null, path: string, purpose: BIP32Purpose }, string>
     {
+        const originalPath = path;
+
         const isPrivate = rootKey.substr(1, 3) === "prv";
-        if (derivedKeyPurpose !== "32")
-        {
-            if (isPrivate)
-            {
-                path += (changeAddresses ? "/1" : "/0");
-            }
-            else
-            {
-                path = "m";
-            }
-        }
-        else
+        if (derivedKeyPurpose === "32")
         {
             if (rootKey[0] === "y")
             {

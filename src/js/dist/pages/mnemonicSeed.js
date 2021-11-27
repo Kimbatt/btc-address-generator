@@ -148,22 +148,22 @@ function InitMnemonicSeedPage() {
                                                 ShowError("Invalid BIP32 key: " + decodedKeyResult.error);
                                                 return [2 /*return*/, null];
                                             }
+                                            SetPresetsForExtendedKey();
                                             switch (seed[0]) {
                                                 case "x":
-                                                    SeedDerivationPresetChanged("44");
+                                                    SeedDerivationPresetChanged("44", true);
                                                     break;
                                                 case "y":
-                                                    SeedDerivationPresetChanged("49");
+                                                    SeedDerivationPresetChanged("49", true);
                                                     break;
                                                 case "z":
-                                                    SeedDerivationPresetChanged("84");
+                                                    SeedDerivationPresetChanged("84", true);
                                                     break;
                                                 default:
                                                     // should not happen
                                                     return [2 /*return*/, null];
                                             }
                                             if (seed.substr(1, 3) === "pub") {
-                                                changeAddressesLabel.style.display = "none";
                                                 hardenedAddressesLabel.style.display = "none";
                                             }
                                             rootKeyContainerDiv.style.display = "none";
@@ -175,6 +175,8 @@ function InitMnemonicSeedPage() {
                                                 ShowError("Invalid mnemonic seed: " + result.error);
                                                 return [2 /*return*/, null];
                                             }
+                                            SetPresetsForMnemonicSeed();
+                                            SeedDerivationPresetChanged("49-root", true);
                                             rootKeyContainerDiv.style.display = "";
                                             return [2 /*return*/, result.result];
                                     }
@@ -197,28 +199,63 @@ function InitMnemonicSeedPage() {
     viewSeedDetailsButton.addEventListener("click", AsyncNoParallel(ViewSeedDetails));
     var seedDerivationPathInput = document.getElementById("seed-details-results-derivation-path-input");
     var seedDerivationPathPresetSelector = document.getElementById("seed-details-derivation-path-preset");
-    function SeedDerivationPresetChanged(preset) {
+    function CreateOptionElement(value, text, parent) {
+        var option = document.createElement("option");
+        option.value = value;
+        option.textContent = text;
+        parent.appendChild(option);
+        return option;
+    }
+    function SetPresetsForMnemonicSeed() {
+        while (seedDerivationPathPresetSelector.lastChild) {
+            seedDerivationPathPresetSelector.removeChild(seedDerivationPathPresetSelector.lastChild);
+        }
+        CreateOptionElement("44-root", "Legacy", seedDerivationPathPresetSelector);
+        CreateOptionElement("49-root", "Segwit", seedDerivationPathPresetSelector);
+        CreateOptionElement("84-root", "Bech32", seedDerivationPathPresetSelector);
+        CreateOptionElement("32", "Custom", seedDerivationPathPresetSelector);
+    }
+    function SetPresetsForExtendedKey() {
+        while (seedDerivationPathPresetSelector.lastChild) {
+            seedDerivationPathPresetSelector.removeChild(seedDerivationPathPresetSelector.lastChild);
+        }
+        CreateOptionElement("44", "Legacy", seedDerivationPathPresetSelector);
+        CreateOptionElement("49", "Segwit", seedDerivationPathPresetSelector);
+        CreateOptionElement("84", "Bech32", seedDerivationPathPresetSelector);
+        CreateOptionElement("44-root", "Legacy as root key", seedDerivationPathPresetSelector);
+        CreateOptionElement("49-root", "Segwit as root key", seedDerivationPathPresetSelector);
+        CreateOptionElement("84-root", "Bech32 as root key", seedDerivationPathPresetSelector);
+        CreateOptionElement("32", "Custom", seedDerivationPathPresetSelector);
+    }
+    function SeedDerivationPresetChanged(preset, updateElement) {
         switch (preset) {
-            case "44":
+            case "44-root":
                 seedDerivationPathInput.value = "m/44'/0'/0'";
                 break;
-            case "49":
+            case "49-root":
                 seedDerivationPathInput.value = "m/49'/0'/0'";
                 break;
-            case "84":
+            case "84-root":
                 seedDerivationPathInput.value = "m/84'/0'/0'";
+                break;
+            case "44":
+            case "49":
+            case "84":
+                seedDerivationPathInput.value = "m";
                 break;
             case "32":
             default:
                 seedDerivationPathInput.value = "";
                 break;
         }
-        seedDerivationPathPresetSelector.value = preset;
+        if (updateElement) {
+            seedDerivationPathPresetSelector.value = preset;
+        }
         seedDerivationPathInput.disabled = preset !== "32";
         // hide change addresses checkbox when using custom path
         changeAddressesLabel.style.display = preset === "32" ? "none" : "";
     }
-    seedDerivationPathPresetSelector.addEventListener("change", function () { return SeedDerivationPresetChanged(seedDerivationPathPresetSelector.value); });
+    seedDerivationPathPresetSelector.addEventListener("change", function () { return SeedDerivationPresetChanged(seedDerivationPathPresetSelector.value, false); });
     var calculateAddressesButton = document.getElementById("seed-details-address-calculate-button");
     var extendedPublicKeyTextArea = document.getElementById("seed-details-results-extended-pubkey");
     var extendedPrivateKeyTextArea = document.getElementById("seed-details-results-extended-private-key");
@@ -251,7 +288,7 @@ function InitMnemonicSeedPage() {
                 row.appendChild(privateKeyDiv);
                 addressesResultTable.appendChild(row);
             }
-            var rootKey, path, generateHardenedAddresses, count, startIndex, endIndex, derivedKeyPurpose, isPrivate, generateChangeAddresses, currentProgress, derived, allPromises, _loop_1, i, result, _i, result_1, current;
+            var rootKey, path, generateHardenedAddresses, count, startIndex, endIndex, derivedKeyPurpose, isCustomPath, isPrivate, generateChangeAddresses, currentProgress, derived, changeAddressesPathExtension, allPromises, _loop_1, i, result, _i, result_1, current;
             var _this = this;
             return __generator(this, function (_b) {
                 switch (_b.label) {
@@ -275,7 +312,21 @@ function InitMnemonicSeedPage() {
                             ShowError("Start index + Count must be 2147483648 at most");
                             return [2 /*return*/];
                         }
-                        derivedKeyPurpose = seedDerivationPathPresetSelector.value;
+                        switch (seedDerivationPathPresetSelector.value) {
+                            case "44-root":
+                                derivedKeyPurpose = "44";
+                                break;
+                            case "49-root":
+                                derivedKeyPurpose = "49";
+                                break;
+                            case "84-root":
+                                derivedKeyPurpose = "84";
+                                break;
+                            default:
+                                derivedKeyPurpose = seedDerivationPathPresetSelector.value;
+                                break;
+                        }
+                        isCustomPath = derivedKeyPurpose === "32";
                         isPrivate = rootKey.substr(1, 3) === "prv";
                         generateChangeAddresses = changeAddressesCheckbox.checked;
                         if (!isPrivate && generateHardenedAddresses) {
@@ -286,10 +337,11 @@ function InitMnemonicSeedPage() {
                         currentProgress = 0;
                         UpdateProgress();
                         seedResultsAddressesContainerDiv.style.display = "none";
-                        return [4 /*yield*/, WorkerInterface.DeriveBIP32ExtendedKey(rootKey, path, derivedKeyPurpose, generateHardenedAddresses, generateChangeAddresses)];
+                        return [4 /*yield*/, WorkerInterface.DeriveBIP32ExtendedKey(rootKey, path, derivedKeyPurpose, generateHardenedAddresses)];
                     case 1:
                         derived = _b.sent();
                         if (derived.type === "err") {
+                            calculateProgressDiv.style.display = "none";
                             ShowError(derived.error);
                             return [2 /*return*/];
                         }
@@ -300,16 +352,28 @@ function InitMnemonicSeedPage() {
                         while (addressesResultTable.lastChild) {
                             addressesResultTable.removeChild(addressesResultTable.lastChild);
                         }
+                        changeAddressesPathExtension = isCustomPath ? "" : (generateChangeAddresses ? "/1" : "/0");
                         allPromises = [];
                         _loop_1 = function (i) {
                             allPromises.push((function () { return __awaiter(_this, void 0, void 0, function () {
-                                var result;
-                                var _a;
-                                return __generator(this, function (_b) {
-                                    switch (_b.label) {
-                                        case 0: return [4 /*yield*/, WorkerInterface.DeriveBIP32Address(path, derived.result.publicKey, derived.result.privateKey, i, derivedKeyPurpose, generateHardenedAddresses)];
+                                var localKeyResult, result;
+                                var _a, _b;
+                                return __generator(this, function (_c) {
+                                    switch (_c.label) {
+                                        case 0: return [4 /*yield*/, WorkerInterface.DeriveBIP32ExtendedKey((_a = derived.result.privateKey) !== null && _a !== void 0 ? _a : derived.result.publicKey, "m" + changeAddressesPathExtension, derivedKeyPurpose, generateHardenedAddresses)];
                                         case 1:
-                                            result = _b.sent();
+                                            localKeyResult = _c.sent();
+                                            if (localKeyResult.type === "err") {
+                                                UpdateProgress();
+                                                return [2 /*return*/, {
+                                                        address: "Error calculating address",
+                                                        privateKey: "Error calculating private key",
+                                                        addressPath: "Error calculating path"
+                                                    }];
+                                            }
+                                            return [4 /*yield*/, WorkerInterface.DeriveBIP32Address(path + changeAddressesPathExtension, localKeyResult.result.publicKey, localKeyResult.result.privateKey, i, derivedKeyPurpose, generateHardenedAddresses)];
+                                        case 2:
+                                            result = _c.sent();
                                             UpdateProgress();
                                             if (result.type === "err") {
                                                 return [2 /*return*/, {
@@ -321,7 +385,7 @@ function InitMnemonicSeedPage() {
                                             else {
                                                 return [2 /*return*/, {
                                                         address: result.result.address,
-                                                        privateKey: (_a = result.result.privateKey) !== null && _a !== void 0 ? _a : "???",
+                                                        privateKey: (_b = result.result.privateKey) !== null && _b !== void 0 ? _b : "???",
                                                         addressPath: result.result.addressPath
                                                     }];
                                             }

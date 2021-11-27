@@ -268,7 +268,7 @@ function InitPaperWalletPage() {
                     });
                 });
             }
-            var count, currentAddressType, currentQRErrorCorrectionLevel, currentCount, isBIP38, bip38Password, design, results, _a, bip38Password_1, encryptionData_1, i, i, privateKeys, maybeValidPrivateKeys, i, current, match, _loop_1, _i, maybeValidPrivateKeys_1, privateKey, seed, seedPassword, offset, startIndex, endIndex, hardened_1, changeAddresses_1, rootKeyResult, rootKey_1, purpose_1, basePath_1, _loop_2, i, paperWalletDivs, errorMessages, _b, paperWalletDivs_1, divResult;
+            var count, currentAddressType, currentQRErrorCorrectionLevel, currentCount, isBIP38, bip38Password, design, results, _a, bip38Password_1, encryptionData_1, i, i, privateKeys, maybeValidPrivateKeys, i, current, match, _loop_1, _i, maybeValidPrivateKeys_1, privateKey, seed, seedPassword, offset, startIndex, endIndex, hardened_1, changeAddresses, rootKeyResult, rootKey, purpose_1, basePath, derivedResult_1, _loop_2, i, paperWalletDivs, errorMessages, _b, paperWalletDivs_1, divResult;
             var _this = this;
             return __generator(this, function (_c) {
                 switch (_c.label) {
@@ -305,7 +305,7 @@ function InitPaperWalletPage() {
                             case 1 /* UseExisting */: return [3 /*break*/, 5];
                             case 2 /* FromSeed */: return [3 /*break*/, 6];
                         }
-                        return [3 /*break*/, 8];
+                        return [3 /*break*/, 9];
                     case 1:
                         if (!isBIP38) return [3 /*break*/, 3];
                         bip38Password_1 = bip38PasswordInput.value;
@@ -362,7 +362,7 @@ function InitPaperWalletPage() {
                             }); })());
                         }
                         _c.label = 4;
-                    case 4: return [3 /*break*/, 8];
+                    case 4: return [3 /*break*/, 9];
                     case 5:
                         {
                             privateKeys = useExistingPrivateKeysTextArea.value.split(/\s+/g);
@@ -445,7 +445,7 @@ function InitPaperWalletPage() {
                                 privateKey = maybeValidPrivateKeys_1[_i];
                                 _loop_1(privateKey);
                             }
-                            return [3 /*break*/, 8];
+                            return [3 /*break*/, 9];
                         }
                         _c.label = 6;
                     case 6:
@@ -467,7 +467,7 @@ function InitPaperWalletPage() {
                             return [2 /*return*/];
                         }
                         hardened_1 = generateFromSeedHardenedCheckbox.checked;
-                        changeAddresses_1 = generateFromSeedChangeAddressesCheckbox.checked;
+                        changeAddresses = generateFromSeedChangeAddressesCheckbox.checked;
                         UpdateProgress();
                         return [4 /*yield*/, WorkerInterface.GetBIP32RootKeyFromSeed(seed, seedPassword)];
                     case 7:
@@ -476,26 +476,23 @@ function InitPaperWalletPage() {
                             ShowError("Invalid seed: " + rootKeyResult.error);
                             return [2 /*return*/];
                         }
-                        rootKey_1 = rootKeyResult.result;
+                        rootKey = rootKeyResult.result;
                         purpose_1 = currentAddressType === "legacy" ? "44" : currentAddressType === "segwit" ? "49" : "84";
-                        basePath_1 = "m/" + purpose_1 + "'/0'/0'";
+                        basePath = "m/" + purpose_1 + "'/0'/0'";
+                        return [4 /*yield*/, WorkerInterface.DeriveBIP32ExtendedKey(rootKey, basePath + (changeAddresses ? "/1" : "/0"), purpose_1, hardened_1)];
+                    case 8:
+                        derivedResult_1 = _c.sent();
+                        if (derivedResult_1.type === "err") {
+                            ShowError(derivedResult_1.error);
+                            return [2 /*return*/];
+                        }
                         _loop_2 = function (i) {
                             results.push((function () { return __awaiter(_this, void 0, void 0, function () {
-                                var derivedResult, addressResult, address, privateKey, encryptionResult, div;
+                                var addressResult, address, privateKey, encryptionResult, div;
                                 return __generator(this, function (_a) {
                                     switch (_a.label) {
-                                        case 0: return [4 /*yield*/, WorkerInterface.DeriveBIP32ExtendedKey(rootKey_1, basePath_1, purpose_1, hardened_1, changeAddresses_1)];
+                                        case 0: return [4 /*yield*/, WorkerInterface.DeriveBIP32Address(derivedResult_1.result.path, derivedResult_1.result.publicKey, derivedResult_1.result.privateKey, i, purpose_1, hardened_1)];
                                         case 1:
-                                            derivedResult = _a.sent();
-                                            if (derivedResult.type === "err") {
-                                                UpdateProgress();
-                                                return [2 /*return*/, {
-                                                        type: "err",
-                                                        error: [derivedResult.error, "index " + i]
-                                                    }];
-                                            }
-                                            return [4 /*yield*/, WorkerInterface.DeriveBIP32Address(derivedResult.result.path, derivedResult.result.publicKey, derivedResult.result.privateKey, i, purpose_1, hardened_1)];
-                                        case 2:
                                             addressResult = _a.sent();
                                             if (addressResult.type === "err") {
                                                 UpdateProgress();
@@ -506,9 +503,9 @@ function InitPaperWalletPage() {
                                             }
                                             address = addressResult.result.address;
                                             privateKey = addressResult.result.privateKey;
-                                            if (!isBIP38) return [3 /*break*/, 4];
+                                            if (!isBIP38) return [3 /*break*/, 3];
                                             return [4 /*yield*/, WorkerInterface.BIP38EncryptPrivateKey(privateKey, bip38Password)];
-                                        case 3:
+                                        case 2:
                                             encryptionResult = _a.sent();
                                             if (encryptionResult.type === "err") {
                                                 UpdateProgress();
@@ -518,9 +515,9 @@ function InitPaperWalletPage() {
                                                     }];
                                             }
                                             privateKey = encryptionResult.result;
-                                            _a.label = 4;
-                                        case 4: return [4 /*yield*/, CreateDivFromAddressAndPrivateKey(address, privateKey)];
-                                        case 5:
+                                            _a.label = 3;
+                                        case 3: return [4 /*yield*/, CreateDivFromAddressAndPrivateKey(address, privateKey)];
+                                        case 4:
                                             div = _a.sent();
                                             UpdateProgress();
                                             return [2 /*return*/, {
@@ -534,9 +531,9 @@ function InitPaperWalletPage() {
                         for (i = startIndex; i < endIndex; ++i) {
                             _loop_2(i);
                         }
-                        return [3 /*break*/, 8];
-                    case 8: return [4 /*yield*/, Promise.all(results)];
-                    case 9:
+                        return [3 /*break*/, 9];
+                    case 9: return [4 /*yield*/, Promise.all(results)];
+                    case 10:
                         paperWalletDivs = _c.sent();
                         while (generatedPaperWalletsContainer.lastChild) {
                             generatedPaperWalletsContainer.removeChild(generatedPaperWalletsContainer.lastChild);

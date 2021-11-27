@@ -205,7 +205,7 @@ function InitTests()
                     AssertEqual(bech32Address, testCase.addresses.bech32Address, "Bech32 address does not match");
                     AssertEqual(legacyAddress, testCase.addresses.legacyAddress, "Legacy address does not match");
                 }
-                catch (e)
+                catch (e: any)
                 {
                     Assert(false, "Unexpected error: " + e.message);
                 }
@@ -314,7 +314,7 @@ function InitTests()
                             }
                         }
                     }
-                    catch (e)
+                    catch (e: any)
                     {
                         Assert(false, "Unexpected error: " + e.message);
                     }
@@ -337,7 +337,7 @@ function InitTests()
                             AssertEqual(encrypted.result, testCase.encryptedPrivateKeyFromPrivateKey, "Encrypted private key does not match");
                         }
                     }
-                    catch (e)
+                    catch (e: any)
                     {
                         Assert(false, "Unexpected error: " + e.message);
                     }
@@ -420,7 +420,7 @@ function InitTests()
                         AssertEqual(seedResult.result, testCase.rootKey, "Root key derived from mnemonic seed does not match");
                     }
                 }
-                catch (e)
+                catch (e: any)
                 {
                     Assert(false, "Unexpected error: " + e.message);
                 }
@@ -534,7 +534,7 @@ function InitTests()
             {
                 try
                 {
-                    const deriveResult = await WorkerInterface.DeriveBIP32ExtendedKey(testCase.rootKey, testCase.path, "32", false, false);
+                    const deriveResult = await WorkerInterface.DeriveBIP32ExtendedKey(testCase.rootKey, testCase.path, "32", false);
                     if (deriveResult.type === "err")
                     {
                         Assert(false, `Cannot derive extended key from root key: "${testCase.rootKey}", path: ${testCase.path}`);
@@ -546,7 +546,7 @@ function InitTests()
                         AssertEqual(deriveResult.result.publicKey, testCase.extendedPubkey, "Extended public keys don't match");
                     }
                 }
-                catch (e)
+                catch (e: any)
                 {
                     Assert(false, "Unexpected error: " + e.message);
                 }

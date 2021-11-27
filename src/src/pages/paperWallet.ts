@@ -521,20 +521,17 @@ function InitPaperWalletPage()
                 const purpose: BIP32Purpose = currentAddressType === "legacy" ? "44" : currentAddressType === "segwit" ? "49" : "84";
                 const basePath = `m/${purpose}'/0'/0'`;
 
+                const derivedResult = await WorkerInterface.DeriveBIP32ExtendedKey(rootKey, basePath + (changeAddresses ? "/1" : "/0"), purpose, hardened);
+                if (derivedResult.type === "err")
+                {
+                    ShowError(derivedResult.error);
+                    return;
+                }
+
                 for (let i = startIndex; i < endIndex; ++i)
                 {
                     results.push((async () =>
                     {
-                        const derivedResult = await WorkerInterface.DeriveBIP32ExtendedKey(rootKey, basePath, purpose, hardened, changeAddresses);
-                        if (derivedResult.type === "err")
-                        {
-                            UpdateProgress();
-                            return <PaperWalletGenerateResult>{
-                                type: "err",
-                                error: [derivedResult.error, "index " + i]
-                            };
-                        }
-
                         const addressResult = await WorkerInterface.DeriveBIP32Address(derivedResult.result.path,
                             derivedResult.result.publicKey, derivedResult.result.privateKey, i, purpose, hardened);
                         if (addressResult.type === "err")

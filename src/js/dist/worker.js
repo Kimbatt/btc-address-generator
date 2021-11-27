@@ -129,7 +129,7 @@ var CreateWorkers = function () {
                 postMessage(result, undefined);
             });
         };
-        var blobContents = ["\n\n// typescript array spread transformation\nvar __spreadArray = (this && this.__spreadArray) || function (to, from) {\n    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)\n        to[j] = from[i];\n    return to;\n};\n\n" + CreateSources() + "\n\n" + InitializeSources() + "\n\n(\n" + WorkerCreatorFunction.toString() + "\n)();"
+        var blobContents = ["\n\n// typescript array spread transformation\nvar __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {\n    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {\n        if (ar || !(i in from)) {\n            if (!ar) ar = Array.prototype.slice.call(from, 0, i);\n            ar[i] = from[i];\n        }\n    }\n    return to.concat(ar || Array.prototype.slice.call(from));\n};\n\n" + CreateSources() + "\n\n" + InitializeSources() + "\n\n(\n" + WorkerCreatorFunction.toString() + "\n)();"
         ];
         var blob = new Blob(blobContents, { type: "application/javascript" });
         var blobUrl = URL.createObjectURL(blob);
@@ -340,12 +340,12 @@ var CreateWorkers = function () {
                 }
             });
         }); },
-        DeriveBIP32ExtendedKey: function (rootKey, path, derivedKeyPurpose, hardened, changeAddresses) { return __awaiter(void 0, void 0, void 0, function () {
+        DeriveBIP32ExtendedKey: function (rootKey, path, derivedKeyPurpose, hardened) { return __awaiter(void 0, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, DoWorkerJobWrapper({
                             functionName: "BIP32Util.DeriveBIP32ExtendedKey",
-                            functionParams: [rootKey, path, derivedKeyPurpose, hardened, changeAddresses]
+                            functionParams: [rootKey, path, derivedKeyPurpose, hardened]
                         })];
                     case 1: return [2 /*return*/, _a.sent()];
                 }

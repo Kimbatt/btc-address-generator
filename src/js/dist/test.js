@@ -550,7 +550,7 @@ function InitTests() {
                                             switch (_a.label) {
                                                 case 0:
                                                     _a.trys.push([0, 2, , 3]);
-                                                    return [4 /*yield*/, WorkerInterface.DeriveBIP32ExtendedKey(testCase.rootKey, testCase.path, "32", false, false)];
+                                                    return [4 /*yield*/, WorkerInterface.DeriveBIP32ExtendedKey(testCase.rootKey, testCase.path, "32", false)];
                                                 case 1:
                                                     deriveResult = _a.sent();
                                                     if (deriveResult.type === "err") {
